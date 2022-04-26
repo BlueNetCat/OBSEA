@@ -22,7 +22,7 @@ function main() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('black');
 
-  {
+  { // TOP PLANE
     const planeSize = 5;
 
     const loader = new THREE.TextureLoader();
@@ -44,6 +44,25 @@ function main() {
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -.5;
     scene.add(mesh);
+  }
+
+  // BOTTOM PLANE
+  {
+    const pBottomSize = 5;
+    const loader = new THREE.TextureLoader();
+    const bottTexture = loader.load('Bottom.png');
+    
+    const planeBottom = new THREE.PlaneGeometry(pBottomSize, pBottomSize);
+    const pBottMat = new THREE.MeshPhongMaterial({
+      map: bottTexture,
+      side: THREE.DoubleSide,
+      transparent: true
+    });
+    const pBottMesh = new THREE.Mesh(planeBottom, pBottMat);
+    pBottMesh.translateY(-19.4);
+    pBottMesh.rotation.x = Math.PI * -.5;
+    
+    scene.add(pBottMesh);
   }
 
   {
@@ -77,12 +96,24 @@ function main() {
       });
       root.children[0].material = arrowMaterial;
 
-      scene.add(root);
-      let arr = root.clone();
+      //scene.add(root);
+
+      // Sea water velocity data (2022-03-15 16:00:00)
+      let cspd = [0.791, 0.880, 0.616, 0.465, 0.475, 0.457, 0.487, 0.456, 0.487, 0.458, 0.465, 0.445, 0.463, 0.422, 0.415];
+      let cdir = [247, 241, 238, 240, 248, 248, 246, 248, 248, 248, 248, 250, 253, 249, 249];
+
+      debugger;
+
+      
       // Other arrows
-      for (let i = 0; i<10; i++){
-        arr = arr.clone();
-        arr.translateY(-1);
+      for (let i = 0; i < cspd.length; i++){
+        let arr = root.clone();
+        arr.translateY(-i);
+        arr.scale.x = cspd[i];
+        arr.scale.y = cspd[i];
+        arr.scale.z = cspd[i];
+
+        arr.rotation.y = cdir[i] * Math.PI / 180;
         scene.add(arr);
       }
       
