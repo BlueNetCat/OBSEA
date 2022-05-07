@@ -126,6 +126,40 @@ function main() {
   }
 
 
+  { // OBSEA Buoy
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load('../Assets/OBSEABuoy/OBSEABuoy.glb', (gltf) => {
+      // GLTF scene
+      const root = gltf.scene;
+      // Fix frustrum culling
+      root.children[0].children[1].frustumCulled = false;
+      // Scene direction fix
+      const angleFix = 90;
+
+      root.rotation.y = angleFix * Math.PI / 180;
+      //root.translateY(-19.4);
+      debugger;
+      scene.add(root);
+
+      // Mesh
+      let mesh = root.children[0];
+      let uv2 = mesh.geometry.attributes.uv2;
+      let material = mesh.material;
+
+      // https://threejs.org/docs/?q=texture#api/en/loaders/TextureLoader
+      // Create a new texture for ambient occlusion
+      // According to: https://threejs.org/docs/?q=MeshPhongMaterial#api/en/materials/MeshPhongMaterial
+      // .aoMap : Texture
+      // The red channel of this texture is used as the ambient occlusion map.Default is null.The aoMap requires a second set of UVs.
+
+
+      console.log(dumpObject(root).join('\n'));
+    });
+
+
+  }
+
+
 
   // Print scene outline
   function dumpObject(obj, lines = [], isLast = true, prefix = '') {
