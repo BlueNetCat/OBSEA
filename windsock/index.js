@@ -89,73 +89,45 @@ function main() {
   }
 
 
-  
+  let windsockObj;
+  const windBones = [];
+  // Wind direction
+  let windDir = 270;
+  let animWindDir = 270;
+  // Wind intensity in km/h
+  let windInt = 10;
+  let animWindInt = 10;
+
   { // WIND SOCK
-    
     const gltfLoader = new GLTFLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
     gltfLoader.load('windsock.glb', (gltf) => {
       // GLTF scene
       const root = gltf.scene;
+      windsockObj = gltf.scene;
       // Fix frustrum culling
       root.children[0].children[1].frustumCulled = false;
-      // Scene direction fix
-      const angleFix = 90;
+      
 
-      // Wind direction
-      let windDir = 270;
-      // Wind intensity in km/h
-      let windInt = 10;
+      
 
       // https://www.reddit.com/r/flying/comments/ip7k0y/faa_standard_windsock_should_indicate_direction/
       // 28 km/h --> fully extended
       // 5.6 km/h --> move freely
       // There's no requirement that the windsock has stripes at all.
       // Wind sock cones
-      let bones = [];
       let parent = root.children[0]; // Armature
       parent = parent.children[0];// First bone
       while (parent.children.length != 0){
-        bones.push(parent.children[0]);
+        windBones.push(parent.children[0]);
         parent = parent.children[0];
       }
       
-      // Normalize intensity
-      let normInt = windInt / 28; // 0 to 1
-      // Calculate point in the sock
-      let point = normInt * bones.length;
 
-      
-      let totalAngle = 0;
-      let maxAngle = 90 * (1 - normInt * 0.7);
-      let angle = 0;
-      for (let i = 0; i<bones.length; i++){
-        // Filled by wind
-        if (Math.floor(point) > i){
-          continue;
-        }
-        // Current being filled
-        // Distance to stripe
-        if (Math.floor(point) == i){
-          let dist = point-i;
-          angle = maxAngle*(1-dist);
-          totalAngle += angle;
-        } // Rest 
-        else {
-          angle = maxAngle-totalAngle;
-          totalAngle += angle;
-        }
-
-        bones[i].rotation.x = - angle * Math.PI / 180;
-      }
+      updateWindSock(windsockObj, windBones, windInt, windDir);
 
 
-      
-      let totalRotation = angleFix - windDir;
-      root.rotation.y = totalRotation * Math.PI / 180;
-
-      setupGui(bones);
-
+      setupGui(windBones);
 
 
       scene.add(root);
@@ -165,6 +137,72 @@ function main() {
     });
 
 
+  }
+
+
+  // Update wind bone rotations
+  // https://gamedevelopment.tutsplus.com/tutorials/simulate-tearable-cloth-and-ragdolls-with-simple-verlet-integration--gamedev-519
+  let prevTime = 0;
+  let timer = 2;
+  let currentWindInt = windInt;
+  function updateWindSock(windsock, bones, windInt, windDir, time){
+    if (windsock == undefined)
+      return;
+
+    let dt = time*0.001 - prevTime;
+
+    // Wind gust turbulence
+    if (dt > timer){
+      animWindInt = windInt + Math.random() * windInt * 0.3; // 10% variability (could be wind gust)
+      prevTime = time*0.001;
+      timer = 1 + Math.random();
+    }
+    // When inflating, change is faster
+    let factor = 0.99;
+    if (animWindInt > currentWindInt + 0.2)
+      factor = 0.94;
+    else
+      animWindInt = windInt + windInt*Math.random()*0.1;
+    
+    currentWindInt = animWindInt * (1-factor) + currentWindInt * factor;
+
+    
+
+
+    // Normalize intensity
+    let normInt = currentWindInt / 28; // 0 to 1
+    // Calculate point in the sock
+    let point = normInt * bones.length;
+
+
+    let totalAngle = 0;
+    let maxAngle = 90 * (1 - normInt * 0.7);
+    let angle = 0;
+    for (let i = 0; i < bones.length; i++) {
+      // Filled by wind
+      if (Math.floor(point) > i) {
+        continue;
+      }
+      // Current being filled
+      // Distance to stripe
+      if (Math.floor(point) == i) {
+        let dist = point - i;
+        angle = maxAngle * (1 - dist);
+        totalAngle += angle;
+      } // Rest 
+      else {
+        angle = maxAngle - totalAngle;
+        totalAngle += angle;
+      }
+
+      bones[i].rotation.x = - angle * Math.PI / 180;
+    }
+
+
+    // Scene direction fix
+    const angleFix = 90;// Rotation
+    let totalRotation = angleFix - windDir;
+    windsock.rotation.y = totalRotation * Math.PI / 180;
   }
 
 
@@ -241,13 +279,17 @@ function main() {
     return needResize;
   }
 
-  function render() {
+  function render(time) {
 
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
+
+    // Update loop
+    updateWindSock(windsockObj, windBones, windInt, windDir, time);
+
 
     renderer.render(scene, camera);
 
