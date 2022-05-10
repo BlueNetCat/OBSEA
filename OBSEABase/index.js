@@ -2,9 +2,25 @@ import * as THREE from 'three';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 //import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js'
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
+
+/* OCEAN
+https://threejs.org/examples/webgl_shaders_ocean.html
+https://29a.ch/slides/2012/webglwater/
+https://www.tamats.com/work/bwr/
+https://madebyevan.com/webgl-water/
+https://www.youtube.com/watch?v=kGEqaX4Y4bQ&ab_channel=JumpTrajectory
+https://doc.babylonjs.com/advanced_topics/webGPU/computeShader
+https://playground.babylonjs.com/?webgpu#YX6IB8#55
+*/
+
+
 function main() {
+  // Cache
+  THREE.Cache.enabled = false;
+
   const canvas = document.querySelector('#c');
   const renderer = new THREE.WebGLRenderer({ canvas });
   renderer.outputEncoding = THREE.sRGBEncoding;
@@ -18,11 +34,13 @@ function main() {
 
   const controls = new OrbitControls(camera, canvas);
   // TODO: limit orbit controls
-  //camera.position.set(3, 3, 0);
-  //controls.target.set(0, 2, 0);
-  // OBSEA
-  camera.position.set(3, -16, 3);
-  controls.target.set(0,-19, 0);
+  // Surface
+  camera.position.set(5, 3, 5);
+  controls.target.set(0, 1, 0);
+  // OBSEA base
+  // camera.position.set(3, -16, 3);
+  // controls.target.set(0,-19, 0);
+
   
   controls.update();
 
@@ -127,6 +145,7 @@ function main() {
 
 
   { // OBSEA Buoy
+    // https://www.youtube.com/watch?v=6LA8vEB47Nk&ab_channel=DirkTeucher
     const gltfLoader = new GLTFLoader();
     gltfLoader.load('../Assets/OBSEABuoy/OBSEABuoy.glb', (gltf) => {
       // GLTF scene
@@ -137,21 +156,12 @@ function main() {
       const angleFix = 90;
 
       root.rotation.y = angleFix * Math.PI / 180;
-      //root.translateY(-19.4);
-      debugger;
       scene.add(root);
 
-      // Mesh
+      // Material AO
       let mesh = root.children[0];
-      let uv2 = mesh.geometry.attributes.uv2;
       let material = mesh.material;
-
-      // https://threejs.org/docs/?q=texture#api/en/loaders/TextureLoader
-      // Create a new texture for ambient occlusion
-      // According to: https://threejs.org/docs/?q=MeshPhongMaterial#api/en/materials/MeshPhongMaterial
-      // .aoMap : Texture
-      // The red channel of this texture is used as the ambient occlusion map.Default is null.The aoMap requires a second set of UVs.
-
+      //material.aoMapIntensity = 2      
 
       console.log(dumpObject(root).join('\n'));
     });
