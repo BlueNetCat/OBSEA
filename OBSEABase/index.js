@@ -14,6 +14,9 @@ https://madebyevan.com/webgl-water/
 https://www.youtube.com/watch?v=kGEqaX4Y4bQ&ab_channel=JumpTrajectory
 https://doc.babylonjs.com/advanced_topics/webGPU/computeShader
 https://playground.babylonjs.com/?webgpu#YX6IB8#55
+http://david.li/waves/
+https://www.shadertoy.com/view/4dBcRD#
+https://www.shadertoy.com/view/Xdlczl
 */
 
 

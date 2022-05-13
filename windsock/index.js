@@ -3,6 +3,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 //import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
+import { Vector3 } from 'three';
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -98,6 +99,9 @@ function main() {
   let windInt = 10;
   let animWindInt = 10;
 
+  // Wind ragdoll class
+  let windSocks = [];
+
   { // WIND SOCK
     const gltfLoader = new GLTFLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
@@ -119,12 +123,15 @@ function main() {
       let parent = root.children[0]; // Armature
       parent = parent.children[0];// First bone
       while (parent.children.length != 0){
+        // Wind socks
+        windSocks.push(new SockSection(parent.children[0], parent, windSocks.length == 0 ? true : false))
+
         windBones.push(parent.children[0]);
         parent = parent.children[0];
       }
       
 
-      updateWindSock(windsockObj, windBones, windInt, windDir);
+      //updateWindSock(windsockObj, windBones, windInt, windDir);
 
 
       setupGui(windBones);
@@ -145,11 +152,163 @@ function main() {
   let prevTime = 0;
   let timer = 2;
   let currentWindInt = windInt;
+  class SockSection {
+    constructor(bone, parentBone, isPinned){
+
+      this.bone = bone;
+      this.parentBone = parentBone;
+      
+      // Is pinned
+      this.isPinned = isPinned || false;
+
+      // Helpers
+      this.pos = new Vector3();
+      this.parentPos = new Vector3();
+      this.nextPos = new Vector3();
+      this.prevPos = new Vector3();
+      this.diffPos = new Vector3();
+      this.count = 0;
+      this.initTimes = 40;
+    }
+
+
+    start(){
+      // Physical properties
+      this.bone.getWorldPosition(this.pos);
+      this.bone.getWorldPosition(this.prevPos);
+      this.parentBone.getWorldPosition(this.parentPos);
+
+      this.vel = new Vector3();
+      // Resting distance
+      this.restDist = this.pos.distanceTo(this.parentPos);
+    }
+
+    
+    update(dt, acc){
+      // First time
+      if (this.count < this.initTimes){
+        this.count++;
+        return;
+      }
+      else if (this.count == this.initTimes){
+        this.start();
+        this.count++;
+        return;
+      }
+
+      // Get world positions
+      this.bone.getWorldPosition(this.pos);
+      this.parentBone.getWorldPosition(this.parentPos);
+     
+      //for (let itAccuracy = 0; itAccuracy < 20; itAccuracy++){
+        // Distance constraints
+        this.updateConstraints();
+      //}
+      
+      // Verlet integration
+      this.updatePhysics(dt, acc);
+
+      // Set world positions
+      setWorldPosition(this.bone, this.pos);
+      //setWorldPosition(this.parentBone, this.parentPos);
+    }
+
+
+
+    updateConstraints(){
+
+      
+      // Link constraints
+      // Calculate the distance between bones      
+      this.diffPos.subVectors(this.parentPos,this.pos);
+      let distance = this.pos.distanceTo(this.parentPos);
+      
+      // Difference ratio (scalar)
+      let differenceScalar = (this.restDist - distance) / distance;
+      if (Math.abs(differenceScalar) > 0.02){
+        //debugger;
+      }
+    
+
+      // translation for each PointMass. They'll be pushed 1/2 the required distance to match their resting distances.
+      let translatePos = this.diffPos.multiplyScalar(0.5 * differenceScalar);
+
+      // Move bones closer together
+      //if (!this.isPinned)
+        //this.parentPos.add(translatePos);
+      this.pos.sub(translatePos);
+
+    }
+
+    // Velvet integration
+    updatePhysics(dt, acc){
+
+      // If it is pinned, ignore physics
+      if (this.isPinned)
+        return;
+
+      // Physics
+      // Inertia: objects in motion stay in motion.
+      this.vel.subVectors(this.pos, this.prevPos);// vel*dt = pos - prePos
+          // let precision = 1e6;
+          // this.vel.multiplyScalar(precision);
+          // this.vel.roundToZero();
+          // this.vel.divideScalar(precision);
+//debugger;
+      // Dampen velocity
+      this.vel.multiplyScalar(0.95);
+      //this.vel.multiplyScalar(0.0);
+
+      // nextPos = pos + vel*dt + 0.5*acc*dt*dt
+      this.nextPos.addVectors(this.vel, acc.multiplyScalar(dt * dt * 0.5)); // nextPos += vel + 0.5*acc*dt*dt
+      this.nextPos.add(this.pos); // nextPos += pos;
+      
+      this.prevPos.copy(this.pos); // prevPos = pos;
+
+      this.pos.copy(this.nextPos); // pos = nextPos;
+
+      //setWorldPosition(this.bone, this.pos);
+
+      // Put velocity in the right units
+      this.vel.multiplyScalar(1/dt);
+    }
+  }
+
+  // To set world position, set as scene child, change position and then reasign to parent again
+  // https://stackoverflow.com/questions/12547701/three-js-changing-the-world-position-of-a-child-3d-object
+  function setWorldPosition(node, position){
+    let parentNode = node.parent;
+    scene.attach(node)
+    node.position.set(...position);
+    parentNode.attach(node);
+    
+    node.updateMatrix();
+    node.updateWorldMatrix();
+    node.updateMatrixWorld();
+  }
+
+  
   function updateWindSock(windsock, bones, windInt, windDir, time){
     if (windsock == undefined)
       return;
 
-    let dt = time*0.001 - prevTime;
+
+
+    // Time elapsed
+    let dt = time * 0.001 - prevTime;
+    prevTime = time * 0.001;
+
+    windSocks.forEach((ws => {
+      dt = 0.016;
+      // Acceleration
+      let acc = new Vector3(0,0, 0);
+      ws.update(dt, acc);
+    }))
+
+    return;
+    
+
+    
 
     // Wind gust turbulence
     if (dt > timer){
@@ -204,6 +363,9 @@ function main() {
     let totalRotation = angleFix - windDir;
     windsock.rotation.y = totalRotation * Math.PI / 180;
   }
+
+
+
 
 
   // Print scene outline
