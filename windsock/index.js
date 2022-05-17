@@ -200,16 +200,17 @@ function main() {
       this.bone.getWorldPosition(this.pos);
       this.parentBone.getWorldPosition(this.parentPos);
      
-      //for (let itAccuracy = 0; itAccuracy < 20; itAccuracy++){
+      for (let itAccuracy = 0; itAccuracy < 20; itAccuracy++){
         // Distance constraints
         this.updateConstraints();
-      //}
+      }
       
       // Verlet integration
       this.updatePhysics(dt, acc);
 
       // Set world positions
       setWorldPosition(this.bone, this.pos);
+      
       //setWorldPosition(this.parentBone, this.parentPos);
     }
 
@@ -272,20 +273,100 @@ function main() {
       // Put velocity in the right units
       this.vel.multiplyScalar(1/dt);
     }
+
+
+    // Update rotations
+    updateRotations() {
+      if (this.count <= this.initTimes) {
+        return;
+      }
+
+      
+      // Get world positions
+      this.bone.getWorldPosition(this.pos);
+      this.parentBone.getWorldPosition(this.parentPos);
+
+      let localPos = new Vector3();
+      localPos.copy(this.bone.position);
+
+      console.log(JSON.stringify(this.pos))
+      console.log(JSON.stringify(this.bone.position))
+      console.log(JSON.stringify(this.bone.parent.position))
+
+
+      // Set to world coordinates
+      let parentNode = this.bone.parent;
+      scene.attach(this.bone)
+
+      // Orientate bones
+      const rotationMatrix = new THREE.Matrix4();
+      let up = new Vector3(0,-1,0);
+      rotationMatrix.lookAt(this.parentPos, this.pos, this.bone.up); // World coordinates
+      this.bone.quaternion.setFromRotationMatrix(rotationMatrix);
+
+      this.bone.rotateX(-Math.PI/2);
+
+      // Set to local coordinates
+      parentNode.attach(this.bone);
+
+      
+
+      // Reset world positions
+      setWorldPosition(this.bone, this.pos);
+
+      this.bone.position.copy(localPos);
+
+      console.log(JSON.stringify(this.pos))
+      console.log(JSON.stringify(this.bone.position))
+      console.log(JSON.stringify(this.bone.parent.position))
+      console.log("\n")
+      
+    }
+
+
   }
 
   // To set world position, set as scene child, change position and then reasign to parent again
   // https://stackoverflow.com/questions/12547701/three-js-changing-the-world-position-of-a-child-3d-object
   function setWorldPosition(node, position){
+    
     let parentNode = node.parent;
     scene.attach(node)
     node.position.set(...position);
     parentNode.attach(node);
+
     
     node.updateMatrix();
     node.updateWorldMatrix();
     node.updateMatrixWorld();
   }
+
+
+
+  // Set orientation and world position
+  function setRotation(node, position, parentPosition){
+
+    // Set to world coordinates
+    let parentNode = node.parent;
+    scene.attach(node)
+
+    // Orientate bones
+    const rotationMatrix = new THREE.Matrix4();
+    let up = new Vector3(0, -1, 0);
+    rotationMatrix.lookAt(this.parentPos, this.pos, node.up); // World coordinates
+    node.quaternion.setFromRotationMatrix(rotationMatrix);
+
+    node.rotateX(-Math.PI / 2);
+
+    // Set to local coordinates
+    parentNode.attach(node);
+    
+  }
+
+
+
+
+
 
   
   function updateWindSock(windsock, bones, windInt, windDir, time){
@@ -301,8 +382,12 @@ function main() {
     windSocks.forEach((ws => {
       dt = 0.016;
       // Acceleration
-      let acc = new Vector3(0,0, 0);
+      let acc = new Vector3(0,-9.8,-10);
       ws.update(dt, acc);
+    }));
+
+    windSocks.forEach((ws => {
+      ws.updateRotations();
     }))
 
     return;
