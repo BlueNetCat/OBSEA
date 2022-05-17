@@ -257,7 +257,7 @@ function main() {
           // this.vel.divideScalar(precision);
 //debugger;
       // Dampen velocity
-      this.vel.multiplyScalar(0.95);
+      this.vel.multiplyScalar(0.75);
       //this.vel.multiplyScalar(0.0);
 
       // nextPos = pos + vel*dt + 0.5*acc*dt*dt
@@ -382,7 +382,7 @@ function main() {
     windSocks.forEach((ws => {
       dt = 0.016;
       // Acceleration
-      let acc = new Vector3(0,-9.8,-10);
+      let acc = new Vector3(Math.random()*.02-.01,-9.8,-10 + Math.random()*0.01);
       ws.update(dt, acc);
     }));
 
