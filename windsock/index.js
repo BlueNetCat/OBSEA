@@ -169,6 +169,15 @@ function main() {
       this.diffPos = new Vector3();
       this.count = 0;
       this.initTimes = 40;
+
+      // Rotation helpers
+      this.parentQuaternion = new THREE.Quaternion();
+      this.neutralVec3 = new Vector3();
+      this.up = new Vector3(0,1,0);
+      this.neutralQuaternion = new THREE.Quaternion();
+      this.parentQuaternion = new THREE.Quaternion();
+      this.tempQuaternion = new THREE.Quaternion();
+      this.tempM4 = new THREE.Matrix4();
     }
 
 
@@ -181,6 +190,8 @@ function main() {
       this.vel = new Vector3();
       // Resting distance
       this.restDist = this.pos.distanceTo(this.parentPos);
+
+      console.log(JSON.stringify(this.bone.quaternion));
     }
 
     
@@ -199,10 +210,12 @@ function main() {
       // Get world positions
       this.bone.getWorldPosition(this.pos);
       this.parentBone.getWorldPosition(this.parentPos);
+      // Get world quaternion
+      this.parentBone.getWorldQuaternion(this.parentQuaternion); // NOT working?
      
       for (let itAccuracy = 0; itAccuracy < 20; itAccuracy++){
         // Distance constraints
-        this.updateConstraints();
+        this.updateDistanceConstraint();
       }
       
       // Verlet integration
@@ -210,35 +223,75 @@ function main() {
 
       // Set world positions
       setWorldPosition(this.bone, this.pos);
-      
-      //setWorldPosition(this.parentBone, this.parentPos);
+      setRotation(this.bone, this.pos, this.parentPos);
     }
 
 
 
-    updateConstraints(){
-
-      
+    updateDistanceConstraint(){
       // Link constraints
-      // Calculate the distance between bones      
+
+      // Distance constraint
+      // Calculate the world distance between bones      
       this.diffPos.subVectors(this.parentPos,this.pos);
       let distance = this.pos.distanceTo(this.parentPos);
       
       // Difference ratio (scalar)
-      let differenceScalar = (this.restDist - distance) / distance;
-      if (Math.abs(differenceScalar) > 0.02){
-        //debugger;
-      }
-    
+      let differenceScalar = (this.restDist - distance) / distance;    
 
       // translation for each PointMass. They'll be pushed 1/2 the required distance to match their resting distances.
-      let translatePos = this.diffPos.multiplyScalar(0.5 * differenceScalar);
+      let translatePos = this.diffPos.multiplyScalar(0.5*differenceScalar);
 
-      // Move bones closer together
-      //if (!this.isPinned)
-        //this.parentPos.add(translatePos);
+      // Move bone closer together
       this.pos.sub(translatePos);
+    }
 
+    updateAngleConstraint(){
+      // Angle constraint
+      // The angle cannot be bigger than Xº
+      let angleLimit = 75;
+      // Calculate angle between rest quaterion and current quaternion
+      // May need to create a rest pose array --> Rest pose is neutral quaternion for each bone
+      // this.bone.quaternion is not correct, because it is not updated.
+      // ERROR this.bone.quaternion is not updated in updateConstraints! Need to calculate your own
+
+      // Calculate rotation from this.parentPos (eye) to this.pos (target) with 0,1,0 as up
+      this.tempM4.lookAt(this.parentPos, this.pos, new Vector3(0, 1, 0));
+      this.tempQuaternion.setFromRotationMatrix(this.tempM4);
+
+      // ERROR --> we are looking at angle in real world coordinates. The angle depends on the orientation of the previous bone.
+      //  should I then store the real-world quaternions of the parents? In principle I should be able to load it at the beggining
+      let angleToRest = this.tempQuaternion.angleTo(this.neutralQuaternion) * 180 / Math.PI;
+      //let angleToRest = this.bone.quaternion.angleTo(this.neutralQuaternion) * 180 / Math.PI;
+
+      if (this.bone.name == 'Bone002')
+        //console.log()
+        console.log(this.bone.quaternion)
+
+      // Check if angle is bigger than Xº
+      if (angleToRest > angleLimit) {
+        debugger;
+        // If bigger, do a quaternion slerp. Remember that what we change here is the position
+        // Rotate position from point using x axis and x degrees
+        let angleFactor = (angleToRest - angleLimit) / angleToRest;
+        // Move pos to local
+        this.bone.worldToLocal(this.pos);
+        // Calculate rotation. Rotation should be from this.pos
+        // ERROR HERE
+        this.tempQuaternion.slerpQuaternions(this.tempQuaternion, this.neutralQuaternion, angleFactor);
+        // Apply rotation
+        // This quaternion should be very small actually
+        this.pos.applyQuaternion(this.tempQuaternion);
+
+        // Move pos to world
+        this.bone.localToWorld(this.pos);
+
+        // Substract point to position (center on origin)
+        // Apply rotation
+        // Add point to position (reset original position)
+
+        // So find the position according to the current quaternion.
+      }
     }
 
     // Velvet integration
@@ -275,54 +328,6 @@ function main() {
     }
 
 
-    // Update rotations
-    updateRotations() {
-      if (this.count <= this.initTimes) {
-        return;
-      }
-
-      
-      // Get world positions
-      this.bone.getWorldPosition(this.pos);
-      this.parentBone.getWorldPosition(this.parentPos);
-
-      let localPos = new Vector3();
-      localPos.copy(this.bone.position);
-
-      console.log(JSON.stringify(this.pos))
-      console.log(JSON.stringify(this.bone.position))
-      console.log(JSON.stringify(this.bone.parent.position))
-
-
-      // Set to world coordinates
-      let parentNode = this.bone.parent;
-      scene.attach(this.bone)
-
-      // Orientate bones
-      const rotationMatrix = new THREE.Matrix4();
-      let up = new Vector3(0,-1,0);
-      rotationMatrix.lookAt(this.parentPos, this.pos, this.bone.up); // World coordinates
-      this.bone.quaternion.setFromRotationMatrix(rotationMatrix);
-
-      this.bone.rotateX(-Math.PI/2);
-
-      // Set to local coordinates
-      parentNode.attach(this.bone);
-
-      
-
-      // Reset world positions
-      setWorldPosition(this.bone, this.pos);
-
-      this.bone.position.copy(localPos);
-
-      console.log(JSON.stringify(this.pos))
-      console.log(JSON.stringify(this.bone.position))
-      console.log(JSON.stringify(this.bone.parent.position))
-      console.log("\n")
-      
-    }
-
 
   }
 
@@ -343,8 +348,8 @@ function main() {
 
 
 
-  // Set orientation and world position
-  function setRotation(node, position, parentPosition){
+  // Set orientation
+  function setRotation(node, wPosition, parentWPosition){
 
     // Set to world coordinates
     let parentNode = node.parent;
@@ -353,9 +358,9 @@ function main() {
     // Orientate bones
     const rotationMatrix = new THREE.Matrix4();
     let up = new Vector3(0, -1, 0);
-    rotationMatrix.lookAt(this.parentPos, this.pos, node.up); // World coordinates
+    rotationMatrix.lookAt(parentWPosition, wPosition, node.up); // World coordinates
     node.quaternion.setFromRotationMatrix(rotationMatrix);
-
+    // Rotate 90 degrees
     node.rotateX(-Math.PI / 2);
 
     // Set to local coordinates
@@ -386,9 +391,7 @@ function main() {
       ws.update(dt, acc);
     }));
 
-    windSocks.forEach((ws => {
-      ws.updateRotations();
-    }))
+    
 
     return;
     
