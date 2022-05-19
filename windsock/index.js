@@ -229,8 +229,6 @@ function main() {
       // Angle constraints
       this.updateAngleConstraint();
 
-      
-
       // Get world position
       this.bone.getWorldPosition(this.pos);
 
@@ -240,15 +238,6 @@ function main() {
 
       // Set world positions
       setWorldPosition(this.bone, this.pos);
-      //setRotation(this.bone, this.pos, this.parentPos);
-
-      this.tempEuler.setFromQuaternion(this.bone.quaternion);
-      this.tempEuler.y = 0;
-      this.tempEuler.x = 0;
-      this.tempEuler.z = 0;
-      this.bone.quaternion.setFromEuler(this.tempEuler, true);
-
-      // HERE WE NEED TO 
 
       if (this.bone.matrix.elements.includes(NaN))
         debugger;
@@ -283,6 +272,7 @@ function main() {
     }
 
     updateAngleConstraint(){
+      return;
       this.bone.quaternion.copy(this.neutralQuaternion);
       return;
 
@@ -302,6 +292,25 @@ function main() {
         this.bone.quaternion.slerp(this.neutralQuaternion, angleToRest); // factor 1 transforms to neutral quaternion
       }
 
+    }
+
+    calcRotation(){
+
+      // Get direction
+      var direction = new Vector3().subVectors(new Vector3(), this.bone.position);
+      // Rotate -90 degrees. Neutral rotation should be in the first iterations. Thats how we find this initial rotation.
+      // TODO: DOES THIS WORK WHEN THE MODEL IS ROTATED?
+      direction.applyEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+
+      // Look at
+      var rotationMatrix = new THREE.Matrix4();
+      rotationMatrix.lookAt(new Vector3(), direction, this.bone.up);
+      var quat = new THREE.Quaternion().setFromRotationMatrix(rotationMatrix);
+      // var eul = new THREE.Euler().setFromQuaternion(quat);
+      // if (eul.x > Math.PI || eul.y > Math.PI || eul.z > Math.PI)
+      //   debugger;
+      // quat.setFromEuler(eul);
+      return quat;
     }
 
 
@@ -394,6 +403,26 @@ function main() {
       let acc = new Vector3(Math.random()*.02-.01,-9.8,-1 + Math.random()*0.01);
       ws.update(dt, acc);
     }));
+
+    // Correct for rotations
+    // Store all world positions and rotations
+    let wPositions = [];
+    let localRots = [];
+    for (let i = 0; i< windSocks.length; i++){
+      // World position
+      wPositions[i] = windSocks[i].bone.getWorldPosition(new Vector3());
+      // Local rotation
+      localRots[i] = windSocks[i].calcRotation();
+    }
+    // Apply rotations
+    for (let i = 0; i < windSocks.length; i++) {
+      windSocks[i].bone.quaternion.copy(localRots[i]);
+    }
+    // Restore global positions
+    for (let i = 0; i < windSocks.length; i++) {
+      setWorldPosition(windSocks[i].bone,wPositions[i]);
+    }
+
 
     
 
