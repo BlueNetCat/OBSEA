@@ -212,27 +212,14 @@ function main() {
       this.bone.getWorldPosition(this.pos);
       this.parentBone.getWorldPosition(this.parentPos);
 
-      //if (this.bone.name == 'Bone005')
-      //  var bb = 10;
-
       // Constraints
       for (let itAccuracy = 0; itAccuracy < 10; itAccuracy++){
         // Distance constraints
         this.updateDistanceConstraint();
       }
 
-      let ss = JSON.stringify(this.bone.scale);
+      //let ss = JSON.stringify(this.bone.scale);
 
-      // Set world positions, so the local quaternions are updated too
-      setWorldPosition(this.bone, this.pos);
-
-      // Angle constraints
-      this.updateAngleConstraint();
-
-      // Get world position
-      this.bone.getWorldPosition(this.pos);
-
-    
       // Verlet integration
       this.updatePhysics(dt, acc);
 
@@ -243,12 +230,10 @@ function main() {
         debugger;
 
       this.bone.scale.set(1,1,1);
-
-      // if (ss != JSON.stringify(this.bone.scale)){
+      
+      // if (ss != JSON.stringify(this.bone.scale))
       //   debugger;
-      //   console.log(this.bone.scale.distanceTo(JSON.parse(ss)));
-      //   this.bone.scale.copy(JSON.parse(ss))
-      // }
+
     }
 
 
@@ -271,29 +256,9 @@ function main() {
       this.pos.sub(translatePos);
     }
 
-    updateAngleConstraint(){
-      return;
-      this.bone.quaternion.copy(this.neutralQuaternion);
-      return;
 
-      // Angle constraint
-      // The angle cannot be bigger than Xº
-      let angleLimit = 1;
-      // Calculate angle between rest quaterion and current quaternion
-      let angleToRest = this.bone.quaternion.angleTo(this.neutralQuaternion) * 180 / Math.PI;
 
-      // Check if angle is bigger than Xº
-      if (angleToRest > angleLimit) {
-        // If bigger, do a quaternion slerp. Remember that what we change here is the position
-        // Rotate position from point using x axis and x degrees
-        let angleFactor = (angleToRest - angleLimit) / angleToRest;
-        
-        //debugger;
-        this.bone.quaternion.slerp(this.neutralQuaternion, angleToRest); // factor 1 transforms to neutral quaternion
-      }
-
-    }
-
+    // Calculates the rotation of a bone based on its local position
     calcRotation(){
 
       // Get direction
@@ -360,33 +325,6 @@ function main() {
   }
 
 
-
-  // Set orientation
-  function setRotation(node, wPosition, parentWPosition){
-
-    // Set to world coordinates
-    let parentNode = node.parent;
-    scene.attach(node)
-
-    // Orientate bones
-    const rotationMatrix = new THREE.Matrix4();
-    let up = new Vector3(0, 1, 0);
-    rotationMatrix.lookAt(parentWPosition, wPosition, node.up); // World coordinates
-    node.quaternion.setFromRotationMatrix(rotationMatrix);
-    // Rotate 90 degrees
-    node.rotateX(-Math.PI / 2);
-
-    // Set to local coordinates
-    parentNode.attach(node);
-    
-  }
-
-
-
-
-
-
-  
   function updateWindSock(windsock, bones, windInt, windDir, time){
     if (windsock == undefined)
       return;
