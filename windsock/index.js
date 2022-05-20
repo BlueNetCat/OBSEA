@@ -337,8 +337,9 @@ function main() {
 
     windSocks.forEach((ws => {
       dt = 0.016;
+      let noise = 0.5;
       // Acceleration
-      let acc = new Vector3(Math.random()*.02-.01,-9.8,-1 + Math.random()*0.01);
+      let acc = new Vector3(Math.random()*noise*2-noise,-9.8,-1 + Math.random()*noise);
       ws.update(dt, acc);
     }));
 
