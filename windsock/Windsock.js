@@ -31,6 +31,7 @@ class Windsock{
     // Scene
     this.scene = scene;
 
+    // INITIALIZE VALUES IN CONSTRUCTOR?
     // // Wind direction
     // let windDir = 270;
     // // Wind intensity in km/h
@@ -43,7 +44,8 @@ class Windsock{
   }
 
 
-
+  // Update wind bone rotations
+  // https://gamedevelopment.tutsplus.com/tutorials/simulate-tearable-cloth-and-ragdolls-with-simple-verlet-integration--gamedev-519
   updateWindSock(windsockObj, windInt, windDir, time) {
     if (windsockObj == undefined)
       return;
