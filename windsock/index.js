@@ -98,6 +98,8 @@ function main() {
   // Wind intensity in km/h
   let windInt = 10;
   let animWindInt = 10;
+  // Acceleration ( wind force and gravity)
+  let acc = new Vector3();
 
   // Wind ragdoll class
   let windSocks = [];
@@ -172,6 +174,7 @@ function main() {
 
       // Rotation helpers
       this.neutralVec3 = new Vector3();
+      this.tempVec3 = new Vector3();
       this.up = new Vector3(0,1,0);
       this.neutralQuaternion = new THREE.Quaternion();
       this.tempQuaternion = new THREE.Quaternion();
@@ -191,7 +194,6 @@ function main() {
       // Resting distance
       this.restDist = this.pos.distanceTo(this.parentPos);
 
-      console.log(JSON.stringify(this.bone.quaternion));
     }
 
     
@@ -262,18 +264,15 @@ function main() {
     calcRotation(){
 
       // Get direction
-      var direction = new Vector3().subVectors(new Vector3(), this.bone.position); // TODO: Memory loss
+      var direction = this.tempVec3.subVectors(this.neutralVec3, this.bone.position); 
       // Rotate -90 degrees. Neutral rotation should be in the first iterations. Thats how we find this initial rotation.
-      direction.applyEuler(new THREE.Euler(Math.PI / 2, 0, 0)); // TODO: Memory loss
+      direction.applyEuler(this.tempEuler.set(Math.PI / 2, 0, 0));
 
       // Look at
-      var rotationMatrix = new THREE.Matrix4(); // TODO: Memory loss
-      rotationMatrix.lookAt(new Vector3(), direction, this.bone.up); // TODO: Memory loss
-      var quat = new THREE.Quaternion().setFromRotationMatrix(rotationMatrix); // TODO: Memory loss
-      // var eul = new THREE.Euler().setFromQuaternion(quat);
-      // if (eul.x > Math.PI || eul.y > Math.PI || eul.z > Math.PI)
-      //   debugger;
-      // quat.setFromEuler(eul);
+      let rotationMatrix = this.tempM4;
+      rotationMatrix.lookAt(this.neutralVec3, direction, this.bone.up);
+      var quat = this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
+
       return quat;
     }
 
@@ -356,7 +355,7 @@ function main() {
       // TODO: WIND INTENSITY IS DECLARED AS VELOCITY, BUT WE USE FORCES (OR ACCELERATION)
 
       // Acceleration
-      let acc = new Vector3(-windX,-9.8,-windZ); // TODO: Memory loss
+      acc.set(-windX, -9.8, -windZ);
       ws.update(dt, acc);
     }));
 
