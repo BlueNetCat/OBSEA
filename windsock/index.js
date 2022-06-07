@@ -335,11 +335,22 @@ function main() {
     let dt = time * 0.001 - prevTime;
     prevTime = time * 0.001;
 
+    // Calculate wind vector
+    let windRad = windDir * Math.PI/180 + Math.PI; // Add 180 and make clockwise
+    windRad = -windRad; // Clockwise
+    // Rotate object
+    windsock.rotation.y = windRad;
+
+    let windZ = Math.cos(windRad) * windInt;
+    let windX = Math.sin(windRad) * windInt;
+
     windSocks.forEach((ws => {
       dt = 0.016;
       let noise = 0.5;
+      // TODO: WIND INTENSITY IS DECLARED AS VELOCITY, BUT WE USE FORCES (OR ACCELERATION)
+
       // Acceleration
-      let acc = new Vector3(Math.random()*noise*2-noise,-9.8,-1 + Math.random()*noise);
+      let acc = new Vector3(-windX,-9.8,-windZ);
       ws.update(dt, acc);
     }));
 
@@ -508,6 +519,18 @@ function main() {
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
+
+    // Get wind intensity from slider
+    let el = document.getElementById("sliderWindIntensity");
+    windInt = parseFloat(el.value);
+    el = document.getElementById("infoWindIntensity");
+    el.innerHTML = windInt + " km/h";
+    
+    // Get wind direction from slider
+    el = document.getElementById("sliderWindDir");
+    windDir = parseFloat(el.value);
+    el = document.getElementById("infoWindDir");
+    el.innerHTML = windDir + " degrees";
 
     // Update loop
     updateWindSock(windsockObj, windBones, windInt, windDir, time);
