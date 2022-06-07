@@ -262,15 +262,14 @@ function main() {
     calcRotation(){
 
       // Get direction
-      var direction = new Vector3().subVectors(new Vector3(), this.bone.position);
+      var direction = new Vector3().subVectors(new Vector3(), this.bone.position); // TODO: Memory loss
       // Rotate -90 degrees. Neutral rotation should be in the first iterations. Thats how we find this initial rotation.
-      // TODO: DOES THIS WORK WHEN THE MODEL IS ROTATED?
-      direction.applyEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+      direction.applyEuler(new THREE.Euler(Math.PI / 2, 0, 0)); // TODO: Memory loss
 
       // Look at
-      var rotationMatrix = new THREE.Matrix4();
-      rotationMatrix.lookAt(new Vector3(), direction, this.bone.up);
-      var quat = new THREE.Quaternion().setFromRotationMatrix(rotationMatrix);
+      var rotationMatrix = new THREE.Matrix4(); // TODO: Memory loss
+      rotationMatrix.lookAt(new Vector3(), direction, this.bone.up); // TODO: Memory loss
+      var quat = new THREE.Quaternion().setFromRotationMatrix(rotationMatrix); // TODO: Memory loss
       // var eul = new THREE.Euler().setFromQuaternion(quat);
       // if (eul.x > Math.PI || eul.y > Math.PI || eul.z > Math.PI)
       //   debugger;
@@ -338,19 +337,26 @@ function main() {
     // Calculate wind vector
     let windRad = windDir * Math.PI/180 + Math.PI; // Add 180 and make clockwise
     windRad = -windRad; // Clockwise
+
     // Rotate object
     windsock.rotation.y = windRad;
 
+    // Wind components
     let windZ = Math.cos(windRad) * windInt;
     let windX = Math.sin(windRad) * windInt;
+    // Add noise / turbulence
+    windZ += (Math.random()*2 - 1) * windZ * 0.01;
+    windX += (Math.random() * 2 - 1) * windX * 0.01;
+
+    // Rotate base wind sock - Does not work well, should rotate windSocks[0].bone, but it is messed up in the updates
+    //windSocks[0].parentBone.quaternion.setFromEuler(new THREE.Euler(-110 * Math.PI/180, 0, 0), true); // TODO: Memory loss
 
     windSocks.forEach((ws => {
       dt = 0.016;
-      let noise = 0.5;
       // TODO: WIND INTENSITY IS DECLARED AS VELOCITY, BUT WE USE FORCES (OR ACCELERATION)
 
       // Acceleration
-      let acc = new Vector3(-windX,-9.8,-windZ);
+      let acc = new Vector3(-windX,-9.8,-windZ); // TODO: Memory loss
       ws.update(dt, acc);
     }));
 
@@ -360,7 +366,7 @@ function main() {
     let localRots = [];
     for (let i = 0; i< windSocks.length; i++){
       // World position
-      wPositions[i] = windSocks[i].bone.getWorldPosition(new Vector3());
+      wPositions[i] = windSocks[i].bone.getWorldPosition(new Vector3()); // TODO: Memory loss
       // Local rotation
       localRots[i] = windSocks[i].calcRotation();
     }
@@ -525,7 +531,7 @@ function main() {
     windInt = parseFloat(el.value);
     el = document.getElementById("infoWindIntensity");
     el.innerHTML = windInt + " km/h";
-    
+
     // Get wind direction from slider
     el = document.getElementById("sliderWindDir");
     windDir = parseFloat(el.value);
