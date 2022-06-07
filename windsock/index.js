@@ -4,6 +4,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 import { Vector3 } from 'three';
+import { SockSection, Windsock } from './Windsock.js'
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -23,7 +24,7 @@ function main() {
   controls.update();
 
   // GUI
-  let gui = new GUI();
+  //let gui = new GUI();
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('black');
@@ -103,7 +104,7 @@ function main() {
 
   // Wind ragdoll class
   let windSocks = [];
-
+  let windsockEntity = undefined;
   { // WIND SOCK
     const gltfLoader = new GLTFLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
@@ -114,29 +115,27 @@ function main() {
       // Fix frustrum culling
       root.children[0].children[1].frustumCulled = false;
       
-
+      // Create Windsock entity
+      windsockEntity = new Windsock(windsockObj, scene);
       
 
-      // https://www.reddit.com/r/flying/comments/ip7k0y/faa_standard_windsock_should_indicate_direction/
-      // 28 km/h --> fully extended
-      // 5.6 km/h --> move freely
-      // There's no requirement that the windsock has stripes at all.
+      
       // Wind sock cones
-      let parent = root.children[0]; // Armature
-      parent = parent.children[0];// First bone
-      while (parent.children.length != 0){
-        // Wind socks
-        windSocks.push(new SockSection(parent.children[0], parent, windSocks.length == 0 ? true : false))
+      // let parent = root.children[0]; // Armature
+      // parent = parent.children[0];// First bone
+      // while (parent.children.length != 0){
+      //   // Wind socks
+      //   windSocks.push(new SockSection(parent.children[0], parent, scene, windSocks.length == 0 ? true : false))
 
-        windBones.push(parent.children[0]);
-        parent = parent.children[0];
-      }
+      //   windBones.push(parent.children[0]);
+      //   parent = parent.children[0];
+      // }
       
 
       //updateWindSock(windsockObj, windBones, windInt, windDir);
 
 
-      setupGui(windBones);
+      //setupGui(windBones);
 
 
       scene.add(root);
@@ -154,174 +153,6 @@ function main() {
   let prevTime = 0;
   let timer = 2;
   let currentWindInt = windInt;
-  class SockSection {
-    constructor(bone, parentBone, isPinned){
-
-      this.bone = bone;
-      this.parentBone = parentBone;
-      
-      // Is pinned
-      this.isPinned = isPinned || false;
-
-      // Helpers
-      this.pos = new Vector3();
-      this.parentPos = new Vector3();
-      this.nextPos = new Vector3();
-      this.prevPos = new Vector3();
-      this.diffPos = new Vector3();
-      this.count = 0;
-      this.initTimes = 40;
-
-      // Rotation helpers
-      this.neutralVec3 = new Vector3();
-      this.tempVec3 = new Vector3();
-      this.up = new Vector3(0,1,0);
-      this.neutralQuaternion = new THREE.Quaternion();
-      this.tempQuaternion = new THREE.Quaternion();
-      this.tempM4 = new THREE.Matrix4();
-
-      this.tempEuler = new THREE.Euler();
-    }
-
-
-    start(){
-      // Physical properties
-      this.bone.getWorldPosition(this.pos);
-      this.bone.getWorldPosition(this.prevPos);
-      this.parentBone.getWorldPosition(this.parentPos);
-
-      this.vel = new Vector3();
-      // Resting distance
-      this.restDist = this.pos.distanceTo(this.parentPos);
-
-    }
-
-    
-    update(dt, acc){
-      
-      // First time
-      if (this.count < this.initTimes){
-        this.count++;
-        return;
-      }
-      else if (this.count == this.initTimes){
-        this.start();
-        this.count++;
-        return;
-      }
-
-      // Get world positions
-      this.bone.getWorldPosition(this.pos);
-      this.parentBone.getWorldPosition(this.parentPos);
-
-      // Constraints
-      for (let itAccuracy = 0; itAccuracy < 10; itAccuracy++){
-        // Distance constraints
-        this.updateDistanceConstraint();
-      }
-
-      //let ss = JSON.stringify(this.bone.scale);
-
-      // Verlet integration
-      this.updatePhysics(dt, acc);
-
-      // Set world positions
-      setWorldPosition(this.bone, this.pos);
-
-      if (this.bone.matrix.elements.includes(NaN))
-        debugger;
-
-      this.bone.scale.set(1,1,1);
-      
-      // if (ss != JSON.stringify(this.bone.scale))
-      //   debugger;
-
-    }
-
-
-
-    updateDistanceConstraint(){
-      // Link constraints
-
-      // Distance constraint
-      // Calculate the world distance between bones      
-      this.diffPos.subVectors(this.parentPos,this.pos);
-      let distance = this.pos.distanceTo(this.parentPos);
-      
-      // Difference ratio (scalar)
-      let differenceScalar = (this.restDist - distance) / distance;    
-
-      // translation for each PointMass. They'll be pushed 1/2 the required distance to match their resting distances.
-      let translatePos = this.diffPos.multiplyScalar(1*differenceScalar);
-
-      // Move bone closer together
-      this.pos.sub(translatePos);
-    }
-
-
-
-    // Calculates the rotation of a bone based on its local position
-    calcRotation(){
-
-      // Get direction
-      var direction = this.tempVec3.subVectors(this.neutralVec3, this.bone.position); 
-      // Rotate -90 degrees. Neutral rotation should be in the first iterations. Thats how we find this initial rotation.
-      direction.applyEuler(this.tempEuler.set(Math.PI / 2, 0, 0));
-
-      // Look at
-      let rotationMatrix = this.tempM4;
-      rotationMatrix.lookAt(this.neutralVec3, direction, this.bone.up);
-      var quat = this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
-
-      return quat;
-    }
-
-
-
-
-    // Velvet integration
-    updatePhysics(dt, acc){
-
-      // If it is pinned, ignore physics
-      if (this.isPinned)
-        return;
-
-      // Physics
-      // Inertia: objects in motion stay in motion.
-      this.vel.subVectors(this.pos, this.prevPos);// vel*dt = pos - prePos
-
-      // Dampen velocity
-      this.vel.multiplyScalar(0.65);
-
-      // nextPos = pos + vel*dt + 0.5*acc*dt*dt
-      this.nextPos.addVectors(this.vel, acc.multiplyScalar(dt * dt * 0.5)); // nextPos += vel + 0.5*acc*dt*dt
-      this.nextPos.add(this.pos); // nextPos += pos;
-      
-      this.prevPos.copy(this.pos); // prevPos = pos;
-
-      this.pos.copy(this.nextPos); // pos = nextPos;
-
-    }
-
-
-
-  }
-
-  // To set world position, set as scene child, change position and then reasign to parent again
-  // https://stackoverflow.com/questions/12547701/three-js-changing-the-world-position-of-a-child-3d-object
-  function setWorldPosition(node, position){
-    
-    let parentNode = node.parent;
-    scene.attach(node)
-    node.position.set(...position);
-    parentNode.attach(node);
-
-    
-    node.updateMatrix();
-    node.updateWorldMatrix();
-    node.updateMatrixWorld();
-  }
-
 
   function updateWindSock(windsock, bones, windInt, windDir, time){
     if (windsock == undefined)
@@ -442,6 +273,18 @@ function main() {
 
 
 
+  // To set world position, set as scene child, change position and then reasign to parent again
+  function setWorldPosition(node, position) {
+
+    let parentNode = node.parent;
+    scene.attach(node)
+    node.position.set(...position);
+    parentNode.attach(node);
+
+    node.updateMatrix();
+    node.updateWorldMatrix();
+    node.updateMatrixWorld();
+  }
 
 
   // Print scene outline
@@ -538,8 +381,8 @@ function main() {
     el.innerHTML = windDir + " degrees";
 
     // Update loop
-    updateWindSock(windsockObj, windBones, windInt, windDir, time);
-
+    if (windsockEntity != undefined)
+      windsockEntity.updateWindSock(windsockObj, windInt, windDir, time);
 
     renderer.render(scene, camera);
 
