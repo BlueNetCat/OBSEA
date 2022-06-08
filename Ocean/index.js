@@ -71,12 +71,15 @@ function main() {
   THREE.ShaderChunk.fog_fragment = `
     #ifdef USE_FOG
       vec3 fogOrigin = cameraPosition;
-      //vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
+      vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
+      float fogDepth = distance(vWorldPosition, fogOrigin);
+
       #ifdef FOG_EXP2
-        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
       #else
-        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+        float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
       #endif
+      
       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
     #endif
   `;
@@ -84,8 +87,7 @@ function main() {
   THREE.ShaderChunk.fog_pars_fragment = `
     #ifdef USE_FOG
       uniform vec3 fogColor;
-      varying float vFogDepth;
-      //varying vec3 vWorldPosition;
+      varying vec3 vWorldPosition;
       #ifdef FOG_EXP2
         uniform float fogDensity;
       #else
@@ -97,15 +99,14 @@ function main() {
 
   THREE.ShaderChunk.fog_vertex = `
     #ifdef USE_FOG
-      vFogDepth = - mvPosition.z;
-      //vWorldPosition = worldPosition.xyz;
+      vec4 worldPosition = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPosition.xyz;
     #endif
   `;
 
   THREE.ShaderChunk.fog_pars_vertex = `
     #ifdef USE_FOG
-      varying float vFogDepth;
-      //varying vec3 vWorldPosition;
+      varying vec3 vWorldPosition;
     #endif
   `;
 
