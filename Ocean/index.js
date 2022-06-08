@@ -67,7 +67,49 @@ function main() {
   
   // Fog
   scene.fog = new THREE.FogExp2(new THREE.Color(0x47A0B9), 0.02);
-  
+
+  THREE.ShaderChunk.fog_fragment = `
+    #ifdef USE_FOG
+      vec3 fogOrigin = cameraPosition;
+      //vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
+      #ifdef FOG_EXP2
+        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+      #else
+        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+      #endif
+      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+    #endif
+  `;
+
+  THREE.ShaderChunk.fog_pars_fragment = `
+    #ifdef USE_FOG
+      uniform vec3 fogColor;
+      varying float vFogDepth;
+      //varying vec3 vWorldPosition;
+      #ifdef FOG_EXP2
+        uniform float fogDensity;
+      #else
+        uniform float fogNear;
+        uniform float fogFar;
+      #endif
+    #endif
+  `;
+
+  THREE.ShaderChunk.fog_vertex = `
+    #ifdef USE_FOG
+      vFogDepth = - mvPosition.z;
+      //vWorldPosition = worldPosition.xyz;
+    #endif
+  `;
+
+  THREE.ShaderChunk.fog_pars_vertex = `
+    #ifdef USE_FOG
+      varying float vFogDepth;
+      //varying vec3 vWorldPosition;
+    #endif
+  `;
+
+
 
   { // TOP PLANE (ROSA DELS VENTS)
     const planeSize = 5;
