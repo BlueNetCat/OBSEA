@@ -79,7 +79,10 @@ function main() {
       #else
         float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
       #endif
-      
+
+      float heightFactor = max( -vWorldPosition.y / abs(vWorldPosition.y), 0.0);
+      fogFactor = min(1.0, fogFactor * heightFactor);
+
       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
     #endif
   `;
@@ -99,8 +102,9 @@ function main() {
 
   THREE.ShaderChunk.fog_vertex = `
     #ifdef USE_FOG
-      vec4 worldPosition = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
       vWorldPosition = worldPosition.xyz;
+      // vWorldPosition = position.xyz;
     #endif
   `;
 
