@@ -3,6 +3,8 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 //import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
+import { Vector3 } from 'three';
+import { SockSection, Windsock } from './Windsock.js'
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -22,7 +24,7 @@ function main() {
   controls.update();
 
   // GUI
-  let gui = new GUI();
+  //let gui = new GUI();
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('black');
@@ -89,15 +91,11 @@ function main() {
   }
 
 
-  let windsockObj;
-  const windBones = [];
-  // Wind direction
-  let windDir = 270;
-  let animWindDir = 270;
-  // Wind intensity in km/h
-  let windInt = 10;
-  let animWindInt = 10;
+  
 
+  // Wind ragdoll class
+  let windsockEntity = undefined;
+  let windsockObj = undefined;
   { // WIND SOCK
     const gltfLoader = new GLTFLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
@@ -108,30 +106,10 @@ function main() {
       // Fix frustrum culling
       root.children[0].children[1].frustumCulled = false;
       
-
+      // Create Windsock entity
+      windsockEntity = new Windsock(windsockObj, scene);
       
-
-      // https://www.reddit.com/r/flying/comments/ip7k0y/faa_standard_windsock_should_indicate_direction/
-      // 28 km/h --> fully extended
-      // 5.6 km/h --> move freely
-      // There's no requirement that the windsock has stripes at all.
-      // Wind sock cones
-      let parent = root.children[0]; // Armature
-      parent = parent.children[0];// First bone
-      while (parent.children.length != 0){
-        windBones.push(parent.children[0]);
-        parent = parent.children[0];
-      }
-      
-
-      updateWindSock(windsockObj, windBones, windInt, windDir);
-
-
-      setupGui(windBones);
-
-
       scene.add(root);
-
 
       console.log(dumpObject(root).join('\n'));
     });
@@ -140,70 +118,8 @@ function main() {
   }
 
 
-  // Update wind bone rotations
-  // https://gamedevelopment.tutsplus.com/tutorials/simulate-tearable-cloth-and-ragdolls-with-simple-verlet-integration--gamedev-519
-  let prevTime = 0;
-  let timer = 2;
-  let currentWindInt = windInt;
-  function updateWindSock(windsock, bones, windInt, windDir, time){
-    if (windsock == undefined)
-      return;
-
-    let dt = time*0.001 - prevTime;
-
-    // Wind gust turbulence
-    if (dt > timer){
-      animWindInt = windInt + Math.random() * windInt * 0.3; // 10% variability (could be wind gust)
-      prevTime = time*0.001;
-      timer = 1 + Math.random();
-    }
-    // When inflating, change is faster
-    let factor = 0.99;
-    if (animWindInt > currentWindInt + 0.2)
-      factor = 0.94;
-    else
-      animWindInt = windInt + windInt*Math.random()*0.1;
-    
-    currentWindInt = animWindInt * (1-factor) + currentWindInt * factor;
-
-    
 
 
-    // Normalize intensity
-    let normInt = currentWindInt / 28; // 0 to 1
-    // Calculate point in the sock
-    let point = normInt * bones.length;
-
-
-    let totalAngle = 0;
-    let maxAngle = 90 * (1 - normInt * 0.7);
-    let angle = 0;
-    for (let i = 0; i < bones.length; i++) {
-      // Filled by wind
-      if (Math.floor(point) > i) {
-        continue;
-      }
-      // Current being filled
-      // Distance to stripe
-      if (Math.floor(point) == i) {
-        let dist = point - i;
-        angle = maxAngle * (1 - dist);
-        totalAngle += angle;
-      } // Rest 
-      else {
-        angle = maxAngle - totalAngle;
-        totalAngle += angle;
-      }
-
-      bones[i].rotation.x = - angle * Math.PI / 180;
-    }
-
-
-    // Scene direction fix
-    const angleFix = 90;// Rotation
-    let totalRotation = angleFix - windDir;
-    windsock.rotation.y = totalRotation * Math.PI / 180;
-  }
 
 
   // Print scene outline
@@ -217,52 +133,6 @@ function main() {
       dumpObject(child, lines, isLast, newPrefix);
     });
     return lines;
-  }
-
-
-
-
-  // Bones GUI
-  function setupGui(bones) {
-
-    let folder = gui.addFolder('Wind');
-
-    //folder.add(windInt)
-
-    //const bones = mesh.skeleton.bones;
-
-    for (let i = 0; i < bones.length; i++) {
-
-      const bone = bones[i];
-
-      folder = gui.addFolder('Bone ' + i);
-
-      folder.add(bone.position, 'x', - 10 + bone.position.x, 10 + bone.position.x);
-      folder.add(bone.position, 'y', - 10 + bone.position.y, 10 + bone.position.y);
-      folder.add(bone.position, 'z', - 10 + bone.position.z, 10 + bone.position.z);
-
-      folder.add(bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5);
-      folder.add(bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5);
-      folder.add(bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5);
-
-      folder.add(bone.scale, 'x', 0, 2);
-      folder.add(bone.scale, 'y', 0, 2);
-      folder.add(bone.scale, 'z', 0, 2);
-
-      folder.controllers[0].name('position.x');
-      folder.controllers[1].name('position.y');
-      folder.controllers[2].name('position.z');
-
-      folder.controllers[3].name('rotation.x');
-      folder.controllers[4].name('rotation.y');
-      folder.controllers[5].name('rotation.z');
-
-      folder.controllers[6].name('scale.x');
-      folder.controllers[7].name('scale.y');
-      folder.controllers[8].name('scale.z');
-
-    }
-
   }
 
 
@@ -287,9 +157,21 @@ function main() {
       camera.updateProjectionMatrix();
     }
 
-    // Update loop
-    updateWindSock(windsockObj, windBones, windInt, windDir, time);
+    // Get wind intensity from slider
+    let el = document.getElementById("sliderWindIntensity");
+    let windInt = parseFloat(el.value);
+    el = document.getElementById("infoWindIntensity");
+    el.innerHTML = windInt + " km/h";
 
+    // Get wind direction from slider
+    el = document.getElementById("sliderWindDir");
+    let windDir = parseFloat(el.value);
+    el = document.getElementById("infoWindDir");
+    el.innerHTML = windDir + " degrees";
+
+    // Update loop
+    if (windsockEntity != undefined)
+      windsockEntity.updateWindSock(windsockObj, windInt, windDir, time);
 
     renderer.render(scene, camera);
 

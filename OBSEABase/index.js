@@ -9,11 +9,15 @@ import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js
 /* OCEAN
 https://threejs.org/examples/webgl_shaders_ocean.html
 https://29a.ch/slides/2012/webglwater/
+https://29a.ch/sandbox/2012/terrain/
 https://www.tamats.com/work/bwr/
 https://madebyevan.com/webgl-water/
 https://www.youtube.com/watch?v=kGEqaX4Y4bQ&ab_channel=JumpTrajectory
 https://doc.babylonjs.com/advanced_topics/webGPU/computeShader
 https://playground.babylonjs.com/?webgpu#YX6IB8#55
+http://david.li/waves/
+https://www.shadertoy.com/view/4dBcRD#
+https://www.shadertoy.com/view/Xdlczl
 */
 
 
