@@ -45,7 +45,7 @@ function main() {
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.1;
-  const far = 1000;
+  const far = 2000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   
 
@@ -62,7 +62,38 @@ function main() {
   controls.update();
 
   const scene = new THREE.Scene();
+  let time = 0;
+
+  // Skybox
+  // const cubeTextureLoader = new THREE.CubeTextureLoader();
+  // const cubeTexture = cubeTextureLoader.load([
+  //   './skybox/front.png',
+  //   './skybox/back.png',
+
+  //   './skybox/top.png',
+  //   './skybox/bottom.png',
+
+  //   './skybox/right.png',
+  //   './skybox/left.png',
+  // ]);
+  { // Skybox
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load('./skybox/skybox.glb', (gltf) => {
+      // GLTF scene
+      const root = gltf.scene;
+      // Scale
+      root.scale.multiplyScalar(10);
+      // Scene direction fix
+      const angleFix = 90;
+      root.rotation.y = angleFix * Math.PI / 180;
+
+      scene.add(root);
+    });
+
+
+  }
   scene.background = new THREE.Color(0x47A0B9);
+
   
   
   // Fog
@@ -80,8 +111,8 @@ function main() {
         float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
       #endif
 
-      float heightFactor = max( -vWorldPosition.y / abs(vWorldPosition.y), 0.0);
-      fogFactor = min(1.0, fogFactor * heightFactor);
+      float underwaterFactor = max( -vWorldPosition.y / abs(vWorldPosition.y), 0.0);
+      fogFactor = min(1.0, fogFactor * underwaterFactor);
 
       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
     #endif
@@ -104,7 +135,6 @@ function main() {
     #ifdef USE_FOG
       vec4 worldPosition = modelMatrix * vec4(position, 1.0);
       vWorldPosition = worldPosition.xyz;
-      // vWorldPosition = position.xyz;
     #endif
   `;
 
@@ -113,6 +143,84 @@ function main() {
       varying vec3 vWorldPosition;
     #endif
   `;
+
+
+  let oceanHRTile = undefined;
+  { // OCEAN SURFACE
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load('../Assets/Terrain/OceanSurface.glb', (gltf) => {
+      // GLTF scene
+      const root = gltf.scene;
+
+
+      // OCEAN SHADER
+      //THREE.ShaderChunk.fog_fragment
+      // https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram
+      // https://www.khronos.org/opengles/sdk/docs/manglsl/docbook4/
+      oceanHRTile = root.children[0];
+      oceanHRTile.material = new THREE.ShaderMaterial({
+        uniforms: {
+          u_time: {value: time * 0.001}
+        },
+        vertexShader: `
+        uniform float u_time;
+        varying vec3 vWorldPosition;
+        varying vec3 v_Normal;
+        
+
+        void main() {
+          // Modify y position
+          vec3 modPos = position;
+          modPos.y = sin(modPos.x + u_time);
+          modPos.y += sin(modPos.z + u_time);
+
+          // World position
+          vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
+          vWorldPosition = worldPosition.xyz;
+
+          //gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(modPos, 1.0);
+
+          // Recalculate normal
+          v_Normal = normal;
+        }
+        `,
+        fragmentShader: `
+          varying vec3 vWorldPosition;
+          varying vec3 v_Normal;
+
+          void main(){
+            vec3 color = vec3(0.2, 0.2, 1.0);
+            gl_FragColor = vec4(color*(vWorldPosition.y*0.5+1.0) + vec3(0.0,0.0,0.2), 1.0);
+          }
+        `,
+      });
+      
+      // TODO: mesh instancing and repeating
+      root.children[1].visible = false
+      root.children[2].visible = false
+    
+
+
+
+      // Double sided
+      root.children.forEach(child => {
+        child.material.side = THREE.DoubleSide;
+      });
+      // Fix frustrum culling
+      //root.children[0].children[1].frustumCulled = false;
+      // Scene direction fix
+      const angleFix = 90;
+
+      root.rotation.y = angleFix * Math.PI / 180;
+      root.translateY(-0.001);
+      
+
+      scene.add(root);
+      console.log(dumpObject(root).join('\n'));
+    });
+
+  }
 
 
 
@@ -164,8 +272,6 @@ function main() {
     scene.add(pBottMesh);
 
   }
-
-
   
 
 
@@ -265,12 +371,21 @@ function main() {
     return needResize;
   }
 
+
+  // UPDATE LOOP
   function render() {
 
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
+    }
+
+    time += 0.016;
+    //
+    if (oceanHRTile != undefined){
+      oceanHRTile.material.uniforms.u_time.value = time; // dt
+      oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
     }
 
     renderer.render(scene, camera);
