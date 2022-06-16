@@ -21,6 +21,26 @@
 <body>
 
 <canvas id="c"></canvas>
+
+
+<!-- Sliders -->
+<div style="position: absolute; top: 10px; left: 10px; color:white">
+  <!-- Wind direction -->
+  <div id="direction" style="padding-bottom: 20px">
+    <div>Swell direction</div>
+    <input id="sliderSwellDirection" type="range" max="359" min="0" value="0" step="0.1" />
+    <div id="infoSwellDirection"></div>
+  </div>
+
+  <!-- Wind intensity -->
+  <div id="intensity">
+    <div>Wave height</div>
+    <input id="sliderWaveHeight" type="range" max="6" min="0.1" value="1" step="0.1" />
+    <div id="infoWaveHeight"></div>
+  </div>
+</div>
+
+
 <script type="importmap">{
 	"imports": {
 		"three": "https://threejs.org/build/three.module.js"

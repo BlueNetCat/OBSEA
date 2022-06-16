@@ -157,14 +157,18 @@ function main() {
       //THREE.ShaderChunk.fog_fragment
       // https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram
       // https://www.khronos.org/opengles/sdk/docs/manglsl/docbook4/
+      // https://catlikecoding.com/unity/tutorials/flow/waves/
+      // https://threejs.org/docs/index.html#api/en/materials/ShaderMaterial
       oceanHRTile = root.children[0];
       oceanHRTile.material = new THREE.ShaderMaterial({
         blending: THREE.NormalBlending,
         transparent: true,
+        // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
           u_time: {value: time * 0.001},
-          u_steepness: {value: 0.7},
+          u_steepness: {value: 0.5},
           u_wavelength: {value: 7.0},
+          u_direction: {value: new THREE.Vector2(1,1)},
         },
         vertexShader: `
         
@@ -173,7 +177,7 @@ function main() {
         uniform float u_time;
         uniform float u_steepness;
         uniform float u_wavelength;
-        // TODO: 2D VELOCITY / DIRECTION
+        uniform vec2 u_direction;
 
         varying vec3 v_WorldPosition;
         varying vec3 v_Normal;
@@ -190,14 +194,16 @@ function main() {
           // Amplitude is related to wavelength
           float amplitude = u_steepness / k;
 
-          // X wave movement
-          float fx = k * (modPos.x - velocity * u_time);
-          // Z wave movement
-          //modPos.y += amplitude * sin(k * modPos.z - velocity * u_time);
+          // Normalize direction
+          vec2 direction = normalize(u_direction);
+
+          // Trochoidal Wave movement
+          float fxz = k * (dot(direction, modPos.xz) - velocity * u_time);
 
           // Displacement
-          modPos.y = amplitude * sin(fx);
-          modPos.x += amplitude * cos(fx);
+          modPos.y = direction.x * amplitude * sin(fxz);
+          modPos.x += amplitude * cos(fxz);
+          modPos.z += direction.y * amplitude * cos(fxz);
 
           // World position
           vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
@@ -210,12 +216,18 @@ function main() {
           // https://catlikecoding.com/unity/tutorials/flow/waves/
           // Calculate tangent
           vec3 tangent = normalize(vec3(
-            1.0 - u_steepness * sin(fx), 
-            u_steepness * cos(fx), 
-            0.0)
+            1.0 - direction.x * direction.x * u_steepness * sin(fxz), 
+            direction.x * u_steepness * cos(fxz), 
+            -direction.x * direction.y * u_steepness * sin(fxz)
+          ));
+          // Binormal
+          vec3 binormal = vec3(
+            -direction.x * direction.y * u_steepness * sin(fxz),
+            direction.y * u_steepness * cos(fxz),
+            1.0 - direction.y * direction.y * u_steepness * sin(fxz)
           );
           // Normal
-			    vec3 normal = vec3(-tangent.y, tangent.x, 0.0);
+			    vec3 normal = normalize(cross(binormal, tangent));
           v_Normal = normal;
         }
         `,
@@ -236,7 +248,8 @@ function main() {
             
             // Specular color
             vec3 reflection = normalize(reflect(normalize(-sunPosition), v_Normal));
-            float specIncidence = max(0.0, dot(normalize(cameraPosition), reflection));
+            vec3 cameraRay = v_WorldPosition - cameraPosition;
+            float specIncidence = max(0.0, dot(normalize(-cameraRay), reflection));
             float shiny = 20.0;
             vec3 specularColor = vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
 
@@ -436,9 +449,31 @@ function main() {
     }
 
     time += 0.016;
-    //
+    
+    // Uniforms update
     if (oceanHRTile != undefined){
       oceanHRTile.material.uniforms.u_time.value = time; // dt
+
+      // Get wave height from slider
+      let el = document.getElementById("sliderWaveHeight");
+      let wHeight = parseFloat(el.value);
+      el = document.getElementById("infoWaveHeight");
+      el.innerHTML = wHeight + " m";
+
+      oceanHRTile.material.uniforms.u_wavelength.value = wHeight * 2 * Math.PI / 0.5; // divided by steepness
+
+      // Get wind direction from slider
+      el = document.getElementById("sliderSwellDirection");
+      let swellDir = parseFloat(el.value);
+      el = document.getElementById("infoSwellDirection");
+      el.innerHTML = swellDir + " degrees";
+
+      let dirZ = Math.cos(swellDir * Math.PI / 180);
+      let dirX = Math.sin(swellDir * Math.PI / 180);
+
+      //oceanHRTile.material.uniforms.u_direction.value = new THREE.Vector2(dirX, dirZ);
+
+
       oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
     }
 
