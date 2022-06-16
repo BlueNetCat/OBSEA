@@ -189,9 +189,12 @@ function main() {
 
           // X wave movement
           float fx = k * (modPos.x - u_velocity * u_time);
-          modPos.y = u_amplitude * sin(fx);
           // Z wave movement
           //modPos.y += u_amplitude * sin(k * modPos.z - u_velocity * u_time);
+
+          // Displacement
+          modPos.y = u_amplitude * sin(fx);
+          modPos.x += u_amplitude * cos(fx);
 
           // World position
           vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
@@ -203,7 +206,11 @@ function main() {
           // Recalculate normal
           // https://catlikecoding.com/unity/tutorials/flow/waves/
           // Calculate tangent
-          vec3 tangent = normalize(vec3(1.0, k * u_amplitude * cos(fx), 0.0));
+          vec3 tangent = normalize(vec3(
+            1.0 - k * u_amplitude * sin(fx), 
+            k * u_amplitude * cos(fx), 
+            0.0)
+          );
           // Normal
 			    vec3 normal = vec3(-tangent.y, tangent.x, 0.0);
           v_Normal = normal;
