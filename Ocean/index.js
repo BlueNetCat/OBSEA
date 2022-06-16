@@ -159,44 +159,88 @@ function main() {
       // https://www.khronos.org/opengles/sdk/docs/manglsl/docbook4/
       oceanHRTile = root.children[0];
       oceanHRTile.material = new THREE.ShaderMaterial({
+        blending: THREE.NormalBlending,
+        transparent: true,
         uniforms: {
-          u_time: {value: time * 0.001}
+          u_time: {value: time * 0.001},
+          u_amplitude: {value: 0.5},
+          u_wavelength: {value: 5.0},
+          u_velocity: { value: 1.0 },
         },
         vertexShader: `
+        
+        #define PI 3.141592653589793
+
         uniform float u_time;
-        varying vec3 vWorldPosition;
+        uniform float u_amplitude;
+        uniform float u_wavelength;
+        uniform float u_velocity; // TODO: 2D VELOCITY
+
+        varying vec3 v_WorldPosition;
         varying vec3 v_Normal;
         
 
         void main() {
           // Modify y position
           vec3 modPos = position;
-          modPos.y = sin(modPos.x + u_time);
-          modPos.y += sin(modPos.z + u_time);
+
+          // Wave length
+          float k = 2.0 * PI / u_wavelength;
+
+          // X wave movement
+          float fx = k * (modPos.x - u_velocity * u_time);
+          modPos.y = u_amplitude * sin(fx);
+          // Z wave movement
+          //modPos.y += u_amplitude * sin(k * modPos.z - u_velocity * u_time);
 
           // World position
           vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
-          vWorldPosition = worldPosition.xyz;
+          v_WorldPosition = worldPosition.xyz;
 
-          //gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          // Screen space position
           gl_Position = projectionMatrix * modelViewMatrix * vec4(modPos, 1.0);
 
           // Recalculate normal
+          // https://catlikecoding.com/unity/tutorials/flow/waves/
+          // Calculate tangent
+          vec3 tangent = normalize(vec3(1.0, k * u_amplitude * cos(fx), 0.0));
+          // Normal
+			    vec3 normal = vec3(-tangent.y, tangent.x, 0.0);
           v_Normal = normal;
         }
         `,
         fragmentShader: `
-          varying vec3 vWorldPosition;
+          varying vec3 v_WorldPosition;
           varying vec3 v_Normal;
 
           void main(){
             vec3 color = vec3(0.2, 0.2, 1.0);
-            gl_FragColor = vec4(color*(vWorldPosition.y*0.5+1.0) + vec3(0.0,0.0,0.2), 1.0);
+
+            vec3 sunPosition = vec3(0.0, 1.0, 0.0);
+            
+            // Diffuse color
+            vec3 diffuseColor = color * max(0.0, dot(normalize(sunPosition), v_Normal));
+
+            // Ambient color
+            vec3 ambientColor = vec3(0.0,0.0,0.1);
+            
+            // Specular color
+            vec3 reflection = normalize(reflect(normalize(-sunPosition), v_Normal));
+            float specIncidence = max(0.0, dot(normalize(cameraPosition), reflection));
+            float shiny = 20.0;
+            vec3 specularColor = vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
+
+            gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
+
+
+
+            //gl_FragColor = vec4(color*(v_WorldPosition.y*0.5+1.0) + vec3(0.0,0.0,0.2), 1.0);
           }
         `,
       });
       
       // TODO: mesh instancing and repeating
+      // https://codeburst.io/infinite-scene-with-threejs-and-instancedmesh-adc74b8efcf4
       root.children[1].visible = false
       root.children[2].visible = false
     
