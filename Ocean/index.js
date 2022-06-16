@@ -163,18 +163,17 @@ function main() {
         transparent: true,
         uniforms: {
           u_time: {value: time * 0.001},
-          u_amplitude: {value: 0.5},
-          u_wavelength: {value: 5.0},
-          u_velocity: { value: 1.0 },
+          u_steepness: {value: 0.7},
+          u_wavelength: {value: 7.0},
         },
         vertexShader: `
         
         #define PI 3.141592653589793
 
         uniform float u_time;
-        uniform float u_amplitude;
+        uniform float u_steepness;
         uniform float u_wavelength;
-        uniform float u_velocity; // TODO: 2D VELOCITY
+        // TODO: 2D VELOCITY / DIRECTION
 
         varying vec3 v_WorldPosition;
         varying vec3 v_Normal;
@@ -186,15 +185,19 @@ function main() {
 
           // Wave length
           float k = 2.0 * PI / u_wavelength;
+          // Velocity is related to wave length
+          float velocity = 0.35 * sqrt(9.8 / k);
+          // Amplitude is related to wavelength
+          float amplitude = u_steepness / k;
 
           // X wave movement
-          float fx = k * (modPos.x - u_velocity * u_time);
+          float fx = k * (modPos.x - velocity * u_time);
           // Z wave movement
-          //modPos.y += u_amplitude * sin(k * modPos.z - u_velocity * u_time);
+          //modPos.y += amplitude * sin(k * modPos.z - velocity * u_time);
 
           // Displacement
-          modPos.y = u_amplitude * sin(fx);
-          modPos.x += u_amplitude * cos(fx);
+          modPos.y = amplitude * sin(fx);
+          modPos.x += amplitude * cos(fx);
 
           // World position
           vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
@@ -207,8 +210,8 @@ function main() {
           // https://catlikecoding.com/unity/tutorials/flow/waves/
           // Calculate tangent
           vec3 tangent = normalize(vec3(
-            1.0 - k * u_amplitude * sin(fx), 
-            k * u_amplitude * cos(fx), 
+            1.0 - u_steepness * sin(fx), 
+            u_steepness * cos(fx), 
             0.0)
           );
           // Normal
