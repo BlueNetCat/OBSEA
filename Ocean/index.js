@@ -160,15 +160,15 @@ function main() {
       // https://catlikecoding.com/unity/tutorials/flow/waves/
       // https://threejs.org/docs/index.html#api/en/materials/ShaderMaterial
       oceanHRTile = root.children[0];
-      oceanHRTile.material = new THREE.ShaderMaterial({
+      let oceanMaterial = new THREE.ShaderMaterial({
         blending: THREE.NormalBlending,
         transparent: true,
         // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
-          u_time: {value: time * 0.001},
-          u_steepness: {value: 0.5},
-          u_wavelength: {value: 7.0},
-          u_direction: {value: new THREE.Vector2(1,1)},
+          u_time: { value: time * 0.001 },
+          u_steepness: { value: 0.5 },
+          u_wavelength: { value: 7.0 },
+          u_direction: { value: new THREE.Vector2(1, 0) },
         },
         vertexShader: `
         
@@ -201,8 +201,8 @@ function main() {
           float fxz = k * (dot(direction, modPos.xz) - velocity * u_time);
 
           // Displacement
-          modPos.y = direction.x * amplitude * sin(fxz);
-          modPos.x += amplitude * cos(fxz);
+          modPos.y = amplitude * sin(fxz);
+          modPos.x += direction.x * amplitude * cos(fxz);
           modPos.z += direction.y * amplitude * cos(fxz);
 
           // World position
@@ -261,11 +261,18 @@ function main() {
           }
         `,
       });
+
+
+      oceanHRTile.material = oceanMaterial;
       
       // TODO: mesh instancing and repeating
       // https://codeburst.io/infinite-scene-with-threejs-and-instancedmesh-adc74b8efcf4
-      root.children[1].visible = false
-      root.children[2].visible = false
+      // TODO: adding another mesh does not fit with the previous one
+      //let oceanMRTile = root.children[1];
+      //oceanMRTile.translateX(10.0);
+      //oceanMRTile.material = oceanMaterial;
+      root.children[1].visible = false;
+      root.children[2].visible = false;
     
 
 
@@ -471,7 +478,8 @@ function main() {
       let dirZ = Math.cos(swellDir * Math.PI / 180);
       let dirX = Math.sin(swellDir * Math.PI / 180);
 
-      //oceanHRTile.material.uniforms.u_direction.value = new THREE.Vector2(dirX, dirZ);
+      oceanHRTile.material.uniforms.u_direction.value = new THREE.Vector2(dirX, dirZ);
+      //oceanHRTile.material.uniforms.u_direction.value = new THREE.Vector2(0, 1);
 
 
       oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
