@@ -579,9 +579,10 @@ function main() {
 
       // Change buoy position
       if (buoy !== undefined){
-        buoy.position.x = position.x;
-        buoy.position.y = position.y;
-        buoy.position.z = position.z;
+        let coef = 0.98;
+        buoy.position.x = buoy.position.x * coef + (1 - coef)*position.x;
+        buoy.position.y = buoy.position.y * coef + (1 - coef) *position.y;
+        buoy.position.z = buoy.position.z * coef + (1 - coef) *position.z;
       }
       
     }
