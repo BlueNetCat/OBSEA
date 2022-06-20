@@ -169,9 +169,9 @@ function main() {
           // u_steepness: { value: 0.5 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
-          u_wave1Params: {value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0)}, // steepness, wavelength, directionx, directiony
-          u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, wavelength, directionx, directiony
-          u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, wavelength, directionx, directiony
+          u_wave1Params: { value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0) }, // steepness, waveHeight, directionx, directiony
+          u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directiony
+          u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directiony
         },
         vertexShader: `
         
@@ -193,15 +193,16 @@ function main() {
             inout vec3 tangent, inout vec3 binormal){
 
           float steepness = waveParams.x;
-          float wavelength = waveParams.y;
+          float amplitude = waveParams.y / 2.0;
+          float wavelength = amplitude * 2.0 * PI / steepness;
           vec2 direction = waveParams.zw;
         
           // Wave coefficient
           float k = 2.0 * PI / wavelength;
           // Velocity (related to gravity and wavelength)
           float velocity = 0.35 * sqrt(9.8 / k);
-          // Amplitude
-          float amplitude = steepness / k;
+          
+          
 
           // Normalize direction
           direction = normalize(direction);
@@ -476,9 +477,9 @@ function main() {
   function getWaveParametersHTML(id){
     // Get wave height from slider
     let el = document.getElementById("sliderWaveHeight" + id);
-    let wHeight = parseFloat(el.value);
+    let waveHeight = parseFloat(el.value);
     el = document.getElementById("infoWaveHeight" + id);
-    el.innerHTML = wHeight + " m";
+    el.innerHTML = waveHeight + " m";
 
     // Get wind direction from slider
     el = document.getElementById("sliderSwellDirection" + id);
@@ -495,10 +496,8 @@ function main() {
     el = document.getElementById("infoWaveSteepness" + id);
     el.innerHTML = steepness + " steep";
 
-    // Update uniform
-    let wavelength = wHeight; //* 2 * Math.PI / steepness; // divided by steepness
 
-    return [steepness, wavelength, dirX, dirZ];
+    return [steepness, waveHeight, dirX, dirZ];
   }
 
 
@@ -519,16 +518,16 @@ function main() {
       oceanHRTile.material.uniforms.u_time.value = time; // dt
       
       let params = getWaveParametersHTML("1");
-      params[0] = 0.5; // custom steepness
+      //params[0] = 0.5; // custom steepness
       oceanHRTile.material.uniforms.u_wave1Params.value = new THREE.Vector4(...params);
 
 
       params = getWaveParametersHTML("2");
-      params[0] = 0.25; // custom steepness
+      //params[0] = 0.25; // custom steepness
       oceanHRTile.material.uniforms.u_wave2Params.value = new THREE.Vector4(...params);
 
       params = getWaveParametersHTML("3");
-      params[0] = 0.2; // custom steepness
+      //params[0] = 0.2; // custom steepness
       oceanHRTile.material.uniforms.u_wave3Params.value = new THREE.Vector4(...params);
       
 
