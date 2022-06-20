@@ -21,10 +21,9 @@ https://www.shadertoy.com/view/Xdlczl
 
 
 TODO:
-- Create a multiresolution plane
-  - Future: Resolution based on camera position?
-- Shader development platform for testing
+- Decide about multiresolution plane
 - Implement ocean shader
+- Buoy movement based on the equations
 
 - Fix fog above/below surface
 - Skybox
@@ -165,7 +164,7 @@ function main() {
         transparent: true,
         // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
-          u_time: { value: time * 0.001 },
+          u_time: { value: time },
           // u_steepness: { value: 0.5 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
@@ -418,6 +417,7 @@ function main() {
   }
 
 
+  let buoy = undefined;
   { // OBSEA Buoy
     // https://www.youtube.com/watch?v=6LA8vEB47Nk&ab_channel=DirkTeucher
     const gltfLoader = new GLTFLoader();
@@ -432,6 +432,8 @@ function main() {
       root.rotation.y = angleFix * Math.PI / 180;
       scene.add(root);
 
+      buoy = root;
+
       // Material AO
       let mesh = root.children[0];
       let material = mesh.material;
@@ -441,6 +443,53 @@ function main() {
     });
 
 
+  }
+
+
+  // Find normal at 0,0 using Gerstner equation
+  function getGerstnerPosition(params, position, tangent, binormal) { // position is needed if we decide to use xz movements
+    let steepness = params[0];
+    let amplitude = params[1] / 2.0;
+    let wavelength = steepness * 2.0 * Math.PI / amplitude;
+    let direction = new THREE.Vector2(-params[3], params[2]);
+    //let direction = new THREE.Vector2(params[2], params[3]);
+
+    let k = 2.0 * Math.PI / wavelength;
+    let velocity = 0.35 * Math.sqrt(9.8 / k);
+
+    direction = direction.normalize();
+    let f = k * direction.dot(new THREE.Vector2(position.x, position.z)) - velocity * time; // assume that we are always at x 0 and z 0 // float f = k * (dot(direction, position.xz) - velocity * u_time);
+
+    tangent.add(new THREE.Vector3(
+      -direction.x * direction.x * steepness * Math.sin(f),
+      direction.x * steepness * Math.cos(f),
+      -direction.x * direction.y * steepness * Math.sin(f)
+    ));
+
+    binormal.add(new THREE.Vector3(
+      -direction.x * direction.y * (steepness * Math.sin(f)),
+      direction.y * (steepness * Math.cos(f)),
+      -direction.y * direction.y * (steepness * Math.sin(f))
+    ));
+
+    return new THREE.Vector3(
+      direction.x * (amplitude * Math.cos(f)),
+      amplitude * Math.sin(f),
+      direction.y * (amplitude * Math.cos(f)))
+  }
+
+  function getGestnerNormal(position, params1, params2, params3) {
+    let tangent = new THREE.Vector3(1, 0, 0);
+    let binormal = new THREE.Vector3(0, 0, 1);
+
+    position.add(getGerstnerPosition(params1, position, tangent, binormal));
+    position.add(getGerstnerPosition(params2, position, tangent, binormal));
+    position.add(getGerstnerPosition(params3, position, tangent, binormal));
+
+    let normal = new THREE.Vector3();
+    normal.crossVectors(binormal, tangent);
+    normal.normalize();
+    return normal;
   }
 
 
@@ -501,6 +550,44 @@ function main() {
   }
 
 
+  function update(){
+    time += 0.016;
+
+    // Update
+    if (oceanHRTile != undefined) {
+      oceanHRTile.material.uniforms.u_time.value = time; // dt
+
+      let params1 = getWaveParametersHTML("1");
+      //params[0] = 0.5; // custom steepness
+      oceanHRTile.material.uniforms.u_wave1Params.value = new THREE.Vector4(...params1);
+
+      let params2 = getWaveParametersHTML("2");
+      //params[0] = 0.25; // custom steepness
+      oceanHRTile.material.uniforms.u_wave2Params.value = new THREE.Vector4(...params2);
+
+      let params3 = getWaveParametersHTML("3");
+      //params[0] = 0.2; // custom steepness
+      oceanHRTile.material.uniforms.u_wave3Params.value = new THREE.Vector4(...params3);
+
+      oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
+
+
+      // Get y position and normal of the wave on that point
+      let position = new THREE.Vector3();
+      getGestnerNormal(position, params1, params2, params3);
+      // vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
+
+      // Change buoy position
+      if (buoy !== undefined){
+        buoy.position.x = position.x;
+        buoy.position.y = position.y;
+        buoy.position.z = position.z;
+      }
+      
+    }
+  }
+
+
 
   // UPDATE LOOP
   function render() {
@@ -511,29 +598,7 @@ function main() {
       camera.updateProjectionMatrix();
     }
 
-    time += 0.016;
-    
-    // Uniforms update
-    if (oceanHRTile != undefined){
-      oceanHRTile.material.uniforms.u_time.value = time; // dt
-      
-      let params = getWaveParametersHTML("1");
-      //params[0] = 0.5; // custom steepness
-      oceanHRTile.material.uniforms.u_wave1Params.value = new THREE.Vector4(...params);
-
-
-      params = getWaveParametersHTML("2");
-      //params[0] = 0.25; // custom steepness
-      oceanHRTile.material.uniforms.u_wave2Params.value = new THREE.Vector4(...params);
-
-      params = getWaveParametersHTML("3");
-      //params[0] = 0.2; // custom steepness
-      oceanHRTile.material.uniforms.u_wave3Params.value = new THREE.Vector4(...params);
-      
-
-
-      oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
-    }
+    update();
 
     renderer.render(scene, camera);
 
