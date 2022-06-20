@@ -166,44 +166,88 @@ function main() {
         // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
           u_time: { value: time * 0.001 },
-          u_steepness: { value: 0.5 },
-          u_wavelength: { value: 7.0 },
-          u_direction: { value: new THREE.Vector2(1, 0) },
+          // u_steepness: { value: 0.5 },
+          // u_wavelength: { value: 7.0 },
+          // u_direction: { value: new THREE.Vector2(1, 0) },
+          u_wave1Params: {value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0)}, // steepness, wavelength, directionx, directiony
+          u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, wavelength, directionx, directiony
+          u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, wavelength, directionx, directiony
         },
         vertexShader: `
         
         #define PI 3.141592653589793
 
         uniform float u_time;
-        uniform float u_steepness;
-        uniform float u_wavelength;
-        uniform vec2 u_direction;
+        uniform vec4 u_wave1Params;
+        uniform vec4 u_wave2Params;
+        uniform vec4 u_wave3Params;
 
         varying vec3 v_WorldPosition;
         varying vec3 v_Normal;
         
 
-        void main() {
-          // Modify y position
-          vec3 modPos = position;
 
-          // Wave length
-          float k = 2.0 * PI / u_wavelength;
-          // Velocity is related to wave length
+        // Gerstner Wave
+        vec3 GerstnerWave(
+            vec4 waveParams, vec3 position, 
+            inout vec3 tangent, inout vec3 binormal){
+
+          float steepness = waveParams.x;
+          float wavelength = waveParams.y;
+          vec2 direction = waveParams.zw;
+        
+          // Wave coefficient
+          float k = 2.0 * PI / wavelength;
+          // Velocity (related to gravity and wavelength)
           float velocity = 0.35 * sqrt(9.8 / k);
-          // Amplitude is related to wavelength
-          float amplitude = u_steepness / k;
+          // Amplitude
+          float amplitude = steepness / k;
 
           // Normalize direction
-          vec2 direction = normalize(u_direction);
+          direction = normalize(direction);
+          // Trochoidal wave movement
+          float f = k * (dot(direction, position.xz) - velocity * u_time);
 
-          // Trochoidal Wave movement
-          float fxz = k * (dot(direction, modPos.xz) - velocity * u_time);
+          // Tangent
+          tangent += vec3(
+            -direction.x * direction.x * (steepness * sin(f)),
+            direction.x * (steepness * cos(f)),
+            -direction.x * direction.y * (steepness * sin(f))
+          );
 
-          // Displacement
-          modPos.y = amplitude * sin(fxz);
-          modPos.x += direction.x * amplitude * cos(fxz);
-          modPos.z += direction.y * amplitude * cos(fxz);
+          // Binormal
+          binormal += vec3(
+            -direction.x * direction.y * (steepness * sin(f)),
+            direction.y * (steepness * cos(f)),
+            -direction.y * direction.y * (steepness * sin(f))
+          );
+
+          return vec3(
+            direction.x * (amplitude * cos(f)),
+            amplitude * sin(f),
+            direction.y * (amplitude * cos(f))
+          );
+
+        }
+
+
+        void main() {
+          // Get position
+          vec3 modPos = position;
+
+          // Declare tangent and binormal
+          vec3 tangent = vec3(1.0, 0.0, 0.0);
+          vec3 binormal = vec3(0.0, 0.0, 1.0);
+
+          // Gerstner Wave
+          modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
+          modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
+          modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+
+          // Normal
+			    vec3 normal = normalize(cross(binormal, tangent));
+          v_Normal = normal;
+
 
           // World position
           vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
@@ -211,24 +255,6 @@ function main() {
 
           // Screen space position
           gl_Position = projectionMatrix * modelViewMatrix * vec4(modPos, 1.0);
-
-          // Recalculate normal
-          // https://catlikecoding.com/unity/tutorials/flow/waves/
-          // Calculate tangent
-          vec3 tangent = normalize(vec3(
-            1.0 - direction.x * direction.x * u_steepness * sin(fxz), 
-            direction.x * u_steepness * cos(fxz), 
-            -direction.x * direction.y * u_steepness * sin(fxz)
-          ));
-          // Binormal
-          vec3 binormal = vec3(
-            -direction.x * direction.y * u_steepness * sin(fxz),
-            direction.y * u_steepness * cos(fxz),
-            1.0 - direction.y * direction.y * u_steepness * sin(fxz)
-          );
-          // Normal
-			    vec3 normal = normalize(cross(binormal, tangent));
-          v_Normal = normal;
         }
         `,
         fragmentShader: `
@@ -268,9 +294,9 @@ function main() {
       // TODO: mesh instancing and repeating
       // https://codeburst.io/infinite-scene-with-threejs-and-instancedmesh-adc74b8efcf4
       // TODO: adding another mesh does not fit with the previous one
-      //let oceanMRTile = root.children[1];
-      //oceanMRTile.translateX(10.0);
-      //oceanMRTile.material = oceanMaterial;
+      // let oceanMRTile = root.children[1];
+      // oceanMRTile.translateX(10.0);
+      // oceanMRTile.material = oceanMaterial;
       root.children[1].visible = false;
       root.children[2].visible = false;
     
@@ -446,6 +472,37 @@ function main() {
   }
 
 
+
+  function getWaveParametersHTML(id){
+    // Get wave height from slider
+    let el = document.getElementById("sliderWaveHeight" + id);
+    let wHeight = parseFloat(el.value);
+    el = document.getElementById("infoWaveHeight" + id);
+    el.innerHTML = wHeight + " m";
+
+    // Get wind direction from slider
+    el = document.getElementById("sliderSwellDirection" + id);
+    let swellDir = parseFloat(el.value);
+    el = document.getElementById("infoSwellDirection" + id);
+    el.innerHTML = swellDir + " degrees";
+
+    let dirZ = Math.cos(swellDir * Math.PI / 180);
+    let dirX = Math.sin(swellDir * Math.PI / 180);
+
+    // Get steepness from slider
+    el = document.getElementById("sliderWaveSteepness" + id);
+    let steepness  = parseFloat(el.value);
+    el = document.getElementById("infoWaveSteepness" + id);
+    el.innerHTML = steepness + " steep";
+
+    // Update uniform
+    let wavelength = wHeight; //* 2 * Math.PI / steepness; // divided by steepness
+
+    return [steepness, wavelength, dirX, dirZ];
+  }
+
+
+
   // UPDATE LOOP
   function render() {
 
@@ -460,26 +517,20 @@ function main() {
     // Uniforms update
     if (oceanHRTile != undefined){
       oceanHRTile.material.uniforms.u_time.value = time; // dt
+      
+      let params = getWaveParametersHTML("1");
+      params[0] = 0.5; // custom steepness
+      oceanHRTile.material.uniforms.u_wave1Params.value = new THREE.Vector4(...params);
 
-      // Get wave height from slider
-      let el = document.getElementById("sliderWaveHeight");
-      let wHeight = parseFloat(el.value);
-      el = document.getElementById("infoWaveHeight");
-      el.innerHTML = wHeight + " m";
 
-      oceanHRTile.material.uniforms.u_wavelength.value = wHeight * 2 * Math.PI / 0.5; // divided by steepness
+      params = getWaveParametersHTML("2");
+      params[0] = 0.25; // custom steepness
+      oceanHRTile.material.uniforms.u_wave2Params.value = new THREE.Vector4(...params);
 
-      // Get wind direction from slider
-      el = document.getElementById("sliderSwellDirection");
-      let swellDir = parseFloat(el.value);
-      el = document.getElementById("infoSwellDirection");
-      el.innerHTML = swellDir + " degrees";
-
-      let dirZ = Math.cos(swellDir * Math.PI / 180);
-      let dirX = Math.sin(swellDir * Math.PI / 180);
-
-      oceanHRTile.material.uniforms.u_direction.value = new THREE.Vector2(dirX, dirZ);
-      //oceanHRTile.material.uniforms.u_direction.value = new THREE.Vector2(0, 1);
+      params = getWaveParametersHTML("3");
+      params[0] = 0.2; // custom steepness
+      oceanHRTile.material.uniforms.u_wave3Params.value = new THREE.Vector4(...params);
+      
 
 
       oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
