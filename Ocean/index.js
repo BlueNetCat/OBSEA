@@ -262,28 +262,43 @@ function main() {
           varying vec3 v_Normal;
 
           void main(){
-            vec3 color = vec3(0.2, 0.2, 1.0);
-
+            // Sun position
             vec3 sunPosition = vec3(0.0, 1.0, 0.0);
+
+            // Ocean color
+            vec3 oceanColor = vec3(0.016, 0.064, 0.192);//(0.2, 0.2, 1.0);  
             
             // Diffuse color
-            vec3 diffuseColor = color * max(0.0, dot(normalize(sunPosition), v_Normal));
+            vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), v_Normal));
 
             // Ambient color
             vec3 ambientColor = vec3(0.0,0.0,0.1);
+
+            // Sky color
+            vec3 skyColor = vec3(0.51, 0.75, 1.0);
             
             // Specular color
             vec3 reflection = normalize(reflect(normalize(-sunPosition), v_Normal));
             vec3 cameraRay = v_WorldPosition - cameraPosition;
             float specIncidence = max(0.0, dot(normalize(-cameraRay), reflection));
-            float shiny = 20.0;
-            vec3 specularColor = vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
-
-            gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
+            float shiny = 50.0;
+            vec3 specularColor = 0.5 * vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
 
 
 
-            //gl_FragColor = vec4(color*(v_WorldPosition.y*0.5+1.0) + vec3(0.0,0.0,0.2), 1.0);
+            // Fresnel
+            float fresnel = 0.02 + 0.15 * pow(1.0 - dot(v_Normal, normalize(-cameraRay)), 5.0);
+            vec3 skyFresnel = fresnel * skyColor;
+            vec3 waterFresnel = (1.0 - fresnel) * oceanColor;//u_oceanColor * u_skyColor * diffuse;
+            
+
+
+            gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 1.0);
+            
+            //gl_FragColor = vec4(diffuseColor + specularColor + sky, 1.0);
+            //gl_FragColor = vec4( specularColor + sky, 1.0);
+            //gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
+
           }
         `,
       });
