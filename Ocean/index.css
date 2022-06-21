@@ -9,3 +9,13 @@ body {
   height: 100%;
   display: block;
 }
+
+#direction {
+  display: inline-flex;
+}
+#intensity {
+  display: inline-flex;
+}
+#steepness {
+  display: inline-flex;
+}
