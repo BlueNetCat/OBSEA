@@ -187,6 +187,7 @@ function main() {
 
 
         // Gerstner Wave
+        // https://catlikecoding.com/unity/tutorials/flow/waves/
         vec3 GerstnerWave(
             vec4 waveParams, vec3 position, 
             inout vec3 tangent, inout vec3 binormal){
@@ -286,8 +287,23 @@ function main() {
 
 
 
-            // Fresnel
-            float fresnel = 0.02 + 0.15 * pow(1.0 - dot(v_Normal, normalize(-cameraRay)), 5.0);
+            // Fresnel - CAMERARAY NEEDS A HACK? SWAP X BY Z AND NEGATE FIRST COMPONENT?
+            // https://github.com/dli/waves/blob/master/simulation.js
+            // https://www.shadertoy.com/view/4scSW4 with named variables
+            // HACK - WARNING
+            //float fresnel = 0.02 + 0.5 * pow(1.0 - dot(v_Normal, normalize(-cameraRay)), 5.0);
+            // TODO: something wrong with the fresnel
+            //float fresnel = 1.0 - (dot(vec3(0.0,1.0,0.0), normalize(cameraPosition))); // Camera position working
+            //float fresnel = 1.0 - (dot(normalize(v_Normal), vec3(0.0,1.0,0.0))); // Normal working
+            
+            vec3 camR = normalize(-cameraRay);
+            vec3 vN = v_Normal;
+            float dotOperation = -(vN.x*camR.z) + (vN.y*camR.y) + (vN.z*camR.x);
+            //float fresnel = 1.0 - (dot(normalize(v_Normal), normalize(-cameraRay)));
+            //float fresnel = 1.0 - (dotOperation);
+            float fresnel = 0.02 + 0.98 * pow(1.0 - (dotOperation), 5.0);
+
+            fresnel = clamp(fresnel, 0.0, 1.0);
             vec3 skyFresnel = fresnel * skyColor;
             vec3 waterFresnel = (1.0 - fresnel) * oceanColor;//u_oceanColor * u_skyColor * diffuse;
             
@@ -295,6 +311,9 @@ function main() {
 
             gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 1.0);
             
+            //gl_FragColor = vec4(skyFresnel, 1.0);
+
+
             //gl_FragColor = vec4(diffuseColor + specularColor + sky, 1.0);
             //gl_FragColor = vec4( specularColor + sky, 1.0);
             //gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
@@ -589,15 +608,25 @@ function main() {
 
       // Get y position and normal of the wave on that point
       let position = new THREE.Vector3();
-      getGestnerNormal(position, params1, params2, params3);
+      let normal = getGestnerNormal(position, params1, params2, params3);
       // vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
 
       // Change buoy position
       if (buoy !== undefined){
+        // Exponential Moving Average (EMA) for position
         let coef = 0.98;
         buoy.position.x = buoy.position.x * coef + (1 - coef)*position.x;
         buoy.position.y = buoy.position.y * coef + (1 - coef) *position.y;
         buoy.position.z = buoy.position.z * coef + (1 - coef) *position.z;
+
+        // EMA for rotation
+        normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
+        let tempQuat = new THREE.Quaternion();
+        tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
+        tempQuat.normalize();
+        //buoy.quaternion.set(...tempQuat);
+        buoy.quaternion.slerp(tempQuat, 0.002);
+        
       }
       
     }
