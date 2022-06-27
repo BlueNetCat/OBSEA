@@ -5,7 +5,7 @@ import { Vector3 } from 'three';
 // 28 km/h --> fully extended
 // 5.6 km/h --> move freely
 // There's no requirement that the windsock has stripes at all.
-class Windsock{
+class WindsockBehavior{
 
   
   constructor(windSockObj, scene){
@@ -297,4 +297,4 @@ class SockSection {
 
 }
 
-export {Windsock, SockSection}
+export { WindsockBehavior}
