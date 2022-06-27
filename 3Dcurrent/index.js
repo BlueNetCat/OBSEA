@@ -50,7 +50,7 @@ function main() {
   {
     const pBottomSize = 5;
     const loader = new THREE.TextureLoader();
-    const bottTexture = loader.load('Bottom.png');
+    const bottTexture = loader.load('../Assets/Terrain/Bottom.png');
     
     const planeBottom = new THREE.PlaneGeometry(pBottomSize, pBottomSize);
     const pBottMat = new THREE.MeshPhongMaterial({
@@ -87,7 +87,7 @@ function main() {
     
     const objLoader = new OBJLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-    objLoader.load('ArrowX.obj', (root) => {
+    objLoader.load('../Assets/Arrow/ArrowX.obj', (root) => {
 
       // Add material
       const arrowMaterial = new THREE.MeshPhongMaterial({
@@ -101,9 +101,6 @@ function main() {
       // Sea water velocity data (2022-03-15 16:00:00)
       let cspd = [0.791, 0.880, 0.616, 0.465, 0.475, 0.457, 0.487, 0.456, 0.487, 0.458, 0.465, 0.445, 0.463, 0.422, 0.415];
       let cdir = [247, 241, 238, 240, 248, 248, 246, 248, 248, 248, 248, 250, 253, 249, 249];
-
-      debugger;
-
       
       // Other arrows
       for (let i = 0; i < cspd.length; i++){
