@@ -14,6 +14,7 @@ class OceanEntity {
   direction = new THREE.Vector2();
 
   tempVec3 = new THREE.Vector3();
+  tempVec2 = new THREE.Vector2();
   
   // Constructor
   constructor(url, scene){
@@ -193,16 +194,10 @@ class OceanEntity {
       });
 
 
-      // Double sided
-      // gltf.scene.children.forEach(child => {
-      //   child.material.side = THREE.DoubleSide;
-      // });
 
       oceanMaterial.side = THREE.DoubleSide;
       this.oceanHRTile.material = oceanMaterial;
 
-      // Fix frustrum culling
-      //root.children[0].children[1].frustumCulled = false;
       // Scene direction fix
       const angleFix = 90;
 
@@ -235,7 +230,7 @@ class OceanEntity {
     let velocity = 0.35 * Math.sqrt(9.8 / k);
 
     direction = direction.normalize();
-    let f = k * direction.dot(new THREE.Vector2(position.x, position.z)) - velocity * this.time; // assume that we are always at x 0 and z 0 // float f = k * (dot(direction, position.xz) - velocity * u_time);
+    let f = k * direction.dot(this.tempVec2.set(position.x, position.z)) - velocity * this.time; // assume that we are always at x 0 and z 0 // float f = k * (dot(direction, position.xz) - velocity * u_time);
 
     this.tempVec3.set(
       -direction.x * direction.x * steepness * Math.sin(f),
@@ -244,13 +239,14 @@ class OceanEntity {
     );
     tangent.add(this.tempVec3);
 
-    binormal.add(new THREE.Vector3(
+    this.tempVec3.set(
       -direction.x * direction.y * (steepness * Math.sin(f)),
       direction.y * (steepness * Math.cos(f)),
       -direction.y * direction.y * (steepness * Math.sin(f))
-    ));
+    );
+    binormal.add(this.tempVec3);
 
-    return new THREE.Vector3(
+    return this.tempVec3.set(
       direction.x * (amplitude * Math.cos(f)),
       amplitude * Math.sin(f),
       direction.y * (amplitude * Math.cos(f)))
@@ -325,13 +321,6 @@ getWaveParametersHTML = function(id) {
 
 
 
-
-
-
-
-
-
-
   // Update
   update(dt){
     this.time += dt;
@@ -343,45 +332,17 @@ getWaveParametersHTML = function(id) {
 
       let params1 = this.getWaveParametersHTML("1");
       //params[0] = 0.5; // custom steepness
-      oceanHRTile.material.uniforms.u_wave1Params.value = new THREE.Vector4(...params1);
+      oceanHRTile.material.uniforms.u_wave1Params.value.set(...params1);
 
       let params2 = this.getWaveParametersHTML("2");
       //params[0] = 0.25; // custom steepness
-      oceanHRTile.material.uniforms.u_wave2Params.value = new THREE.Vector4(...params2);
+      oceanHRTile.material.uniforms.u_wave2Params.value.set(...params2);
 
       let params3 = this.getWaveParametersHTML("3");
       //params[0] = 0.2; // custom steepness
-      oceanHRTile.material.uniforms.u_wave3Params.value = new THREE.Vector4(...params3);
+      oceanHRTile.material.uniforms.u_wave3Params.value.set(...params3);
 
       oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
-
-
-      
-
-      // Change buoy position
-      // if (buoy !== undefined) {
-
-      //   // Get y position and normal of the wave on that point
-      //   let position = new THREE.Vector3();
-      //   let normal = this.getGestnerNormal(position, params1, params2, params3);
-      //   // vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
-
-      //   // Exponential Moving Average (EMA) for position
-      //   let coef = 0.98;
-      //   buoy.position.x = buoy.position.x * coef + (1 - coef) * position.x;
-      //   buoy.position.y = buoy.position.y * coef + (1 - coef) * position.y;
-      //   buoy.position.z = buoy.position.z * coef + (1 - coef) * position.z;
-
-      //   // EMA for rotation
-      //   normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
-      //   let tempQuat = new THREE.Quaternion();
-      //   tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
-      //   tempQuat.normalize();
-      //   //buoy.quaternion.set(...tempQuat);
-      //   buoy.quaternion.slerp(tempQuat, 0.002);
-
-      // }
-
     }
   }
 
