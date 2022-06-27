@@ -77,7 +77,7 @@ function main() {
   // ]);
   { // Skybox
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('./skybox/skybox.glb', (gltf) => {
+    gltfLoader.load('../Assets/Skybox/skybox.glb', (gltf) => {
       // GLTF scene
       const root = gltf.scene;
       // Scale

@@ -4,7 +4,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 import { Vector3 } from 'three';
-import { SockSection, Windsock } from './Windsock.js'
+import { WindsockBehavior } from '../Assets/Windsock/WindsockBehavior.js'
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -94,20 +94,20 @@ function main() {
   
 
   // Wind ragdoll class
-  let windsockEntity = undefined;
+  let windsockBehavior = undefined;
   let windsockObj = undefined;
   { // WIND SOCK
     const gltfLoader = new GLTFLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-    gltfLoader.load('windsock.glb', (gltf) => {
+    gltfLoader.load('../Assets/Windsock/windsock.glb', (gltf) => {
       // GLTF scene
       const root = gltf.scene;
       windsockObj = gltf.scene;
       // Fix frustrum culling
       root.children[0].children[1].frustumCulled = false;
       
-      // Create Windsock entity
-      windsockEntity = new Windsock(windsockObj, scene);
+      // Create Windsock Behavior
+      windsockBehavior = new WindsockBehavior(windsockObj, scene);
       
       scene.add(root);
 
@@ -170,8 +170,8 @@ function main() {
     el.innerHTML = windDir + " degrees";
 
     // Update loop
-    if (windsockEntity != undefined)
-      windsockEntity.updateWindSock(windsockObj, windInt, windDir, time);
+    if (windsockBehavior != undefined)
+      windsockBehavior.updateWindSock(windsockObj, windInt, windDir, time);
 
     renderer.render(scene, camera);
 
