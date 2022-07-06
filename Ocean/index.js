@@ -20,6 +20,9 @@ http://david.li/waves/
 https://www.shadertoy.com/view/4dBcRD#
 https://www.shadertoy.com/view/Xdlczl
 
+sky shader
+https://threejs.org/examples/?q=sky#webgl_shaders_sky
+
 
 TODO:
 - Decide about multiresolution plane
