@@ -3,6 +3,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 //import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js'
+import { RosaVentsEntity } from '/OBSEA/Assets/Orientation/RosaVentsEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
@@ -53,29 +54,7 @@ function main() {
   // Fog
   scene.fog = new THREE.FogExp2(new THREE.Color(0x47A0B9), 0.02);
 
-  { // TOP PLANE (ROSA DELS VENTS)
-    const planeSize = 5;
-
-    const loader = new THREE.TextureLoader();
-    // const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');
-    const texture = loader.load('../3Dcurrent/NESW.png');
-    texture.encoding = THREE.sRGBEncoding;
-    //texture.wrapS = THREE.RepeatWrapping;
-    //texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    //const repeats = planeSize / 10;
-    //texture.repeat.set(repeats, repeats);
-
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-      transparent: true
-    });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
-  }
+  let tmp = new RosaVentsEntity(null, scene);
 
   // BOTTOM PLANE (SAND)
   {

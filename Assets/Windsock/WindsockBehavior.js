@@ -73,7 +73,7 @@ class WindsockBehavior{
     //windSocks[0].parentBone.quaternion.setFromEuler(new THREE.Euler(-110 * Math.PI/180, 0, 0), true); // TODO: Memory loss
     let windSocks = this.sockSections;
     windSocks.forEach((ws => {
-      dt = 0.016;
+      dt = 0.016*1.8;
       // TODO: WIND INTENSITY IS DECLARED AS VELOCITY, BUT WE USE FORCES (OR ACCELERATION)
       // TODO: FORCE COULD DECREASE AS WIND GOES THROUGH SOCK ( MORE FORCE AT THE BEGINNING, LESS AT THE END )
       // Acceleration
