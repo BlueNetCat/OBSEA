@@ -9,3 +9,32 @@ body {
   height: 100%;
   display: block;
 }
+
+#sliderPanel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+#direction, #steepness, #intensity{
+  display: inline-flex;
+}
+
+#focusOnBuoy, #focusOnBase {
+  margin: 10px;
+  border-radius: 10px;
+  background-color: #9ddced;
+  cursor:pointer;
+}
+
+#focusOnBuoy:hover, #focusOnBase:hover {
+  background-color: #78b6c6;
+  cursor: pointer;
+}
+

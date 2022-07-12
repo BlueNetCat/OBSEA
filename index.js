@@ -32,11 +32,11 @@ function main() {
   const far = 2000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   
-
+  // CAMERA CONTROLS
   const controls = new OrbitControls(camera, canvas);
   // TODO: limit orbit controls
   // Surface
-  camera.position.set(5, 3, 5);
+  camera.position.set(15, 10, 15);
   controls.target.set(0, 1, 0);
   // OBSEA base
   // camera.position.set(3, -16, 3);
@@ -44,6 +44,23 @@ function main() {
 
   
   controls.update();
+  controls.enableDamping = true;
+  // User interaction
+  let focusOnBase = document.getElementById("focusOnBase");
+  if (focusOnBase){
+    focusOnBase.addEventListener("click", ()=>{
+      camera.position.set(5, -16, 5);
+      controls.target.set(0, -19, 0);
+    });
+  }
+  let focusOnBuoy = document.getElementById("focusOnBuoy");
+  if (focusOnBuoy) {
+    focusOnBuoy.addEventListener("click", () => {
+      camera.position.set(15, 10, 15);
+      controls.target.set(0, 1, 0);
+    });
+  }
+
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x47A0B9);
@@ -251,6 +268,8 @@ function main() {
     update(time);
 
     renderer.render(scene, camera);
+
+    controls.update();
 
     requestAnimationFrame(render);
   }

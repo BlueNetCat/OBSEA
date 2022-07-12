@@ -8,7 +8,7 @@
   <meta name="description"
     content="3D simulation of the state of the sea according to data collected by the underwater observatory and buoy OBSEA">
   <meta name="author" content="Gerard Llorach">
-
+  <link rel="shortcut icon" type="image/png" href="/OBSEA/favicon.ico"/>
 
   <!-- Main script -->
   <script type="module" src="index.js"></script>
@@ -25,7 +25,7 @@
 
 
 <!-- Ocean Sliders -->
-<div style="position: absolute; top: 10px; left: 10px; color:white; display: flex; flex-direction: column;">
+<div id="sliderPanel">
   <!-- Wave 1-->
   <!-- Swell direction -->
   <div id="direction">
@@ -95,15 +95,13 @@
     <input id="sliderWaveSteepness3" type="range" max="1" min="0.01" value="0.2" step="0.01" />
     <div id="infoWaveSteepness3"></div>
   </div>
-</div>
 
 
+  <div style="padding: 30px"></div>
 
-
-<!-- Wind Sliders -->
-<div style="position: absolute; top: 10px; left: 200px; color:white">
+  <!-- Wind Sliders -->
   <!-- Wind direction -->
-  <div id="direction" style="padding-bottom: 20px">
+  <div id="direction">
     <div>Wind direction</div>
     <input id="sliderWindDir" type="range" max="359" min="0" value="0" step="0.1"/>
     <div id="infoWindDir"></div>
@@ -115,6 +113,16 @@
     <input id="sliderWindIntensity" type="range" max="35" min="0.1" value="10" step="0.1" />
     <div id="infoWindIntensity"></div>
   </div>
+</div>
+
+
+
+
+
+<!-- Camera focus -->
+<div id="focus" style="position: absolute; top: 10px; right: 100px; color:white; display: flex; flex-direction: column;">
+  <button id="focusOnBuoy" style="font-size: larger; padding: 10px">OBSEA Buoy</button>
+  <button id="focusOnBase" style="font-size: larger;padding: 10px">OBSEA Underwater Base</button>
 </div>
 
 
