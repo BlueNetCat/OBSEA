@@ -4,7 +4,10 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js'
 import { OceanEntity } from './OceanEntity.js';
+import { SandEntity } from '../Assets/Terrain/SandEntity.js';
 import * as FogShader from '../Assets/Terrain/FogShader.js'
+import { OBSEAStationEntity } from '../Assets/OBSEAStation/ObseaStationEntity.js';
+import { OBSEABuoyEntity } from '../Assets/OBSEABuoy/OBSEABuoyEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
@@ -112,6 +115,13 @@ function main() {
   // OCEAN (loads and adds ocean to the scene)
   let oceanEntity = new OceanEntity('../Assets/Terrain/OceanSurface.glb', scene);//undefined;
  
+  // SAND (loads and aadds sand plane to the scene)
+  let sandEntity = new SandEntity('../Assets/Terrain/SandDiffuse.jpg', scene);
+
+  // OBSEA Station
+  let obseaSt = new OBSEAStationEntity('../Assets/OBSEAStation/OBSEAStation.glb', scene);
+
+  let buoyEntity = new OBSEABuoyEntity('../Assets/OBSEABuoy/OBSEABuoy.glb', scene);
 
 
 
@@ -139,30 +149,6 @@ function main() {
     scene.add(mesh);
   }
 
-  // BOTTOM PLANE (SAND)
-  {
-    const pBottomSize = 200;
-    const loader = new THREE.TextureLoader();
-    const bottTexture = loader.load('../Assets/Terrain/SandDiffuse.jpg');
-    bottTexture.wrapS = THREE.RepeatWrapping;
-    bottTexture.wrapT = THREE.RepeatWrapping;
-    bottTexture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    const repeats = pBottomSize / 10;
-    bottTexture.repeat.set(repeats, repeats);
-    
-    const planeBottom = new THREE.PlaneGeometry(pBottomSize, pBottomSize);
-    const pBottMat = new THREE.MeshPhongMaterial({
-      map: bottTexture,
-      side: THREE.DoubleSide,
-      transparent: true
-    });
-    const pBottMesh = new THREE.Mesh(planeBottom, pBottMat);
-    pBottMesh.translateY(-19.4);
-    pBottMesh.rotation.x = Math.PI * -.5;
-    
-    scene.add(pBottMesh);
-
-  }
   
 
 
@@ -184,57 +170,9 @@ function main() {
     scene.add(light.target);
   }
 
+
   
-  
-  
-  { // OBSEA Station
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load('../Assets/OBSEAStation/OBSEAStation.glb', (gltf) => {
-      // GLTF scene
-      const root = gltf.scene;
-      // Fix frustrum culling
-      root.children[0].children[1].frustumCulled = false;
-      // Scene direction fix
-      const angleFix = 90;
-      
-      root.rotation.y = angleFix * Math.PI / 180;
-      root.translateY(-19.4);
-      
-      scene.add(root);
-      console.log(dumpObject(root).join('\n'));
-    });
 
-
-  }
-
-
-  let buoy = undefined;
-  { // OBSEA Buoy
-    // https://www.youtube.com/watch?v=6LA8vEB47Nk&ab_channel=DirkTeucher
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load('../Assets/OBSEABuoy/OBSEABuoy.glb', (gltf) => {
-      // GLTF scene
-      const root = gltf.scene;
-      // Fix frustrum culling
-      root.children[0].children[1].frustumCulled = false;
-      // Scene direction fix
-      const angleFix = 90;
-
-      root.rotation.y = angleFix * Math.PI / 180;
-      scene.add(root);
-
-      buoy = root;
-
-      // Material AO
-      let mesh = root.children[0];
-      let material = mesh.material;
-      //material.aoMapIntensity = 2      
-
-      console.log(dumpObject(root).join('\n'));
-    });
-
-
-  }
 
 
 
@@ -307,25 +245,27 @@ function main() {
 
       
       // Change buoy position
-      if (buoy !== undefined){
-        // Get y position and normal of the wave on that point
-        let position = new THREE.Vector3();
-        let normal = new THREE.Vector3();
-        oceanEntity.getNormalAndPositionAt(position, normal);
+      if (buoyEntity !== undefined){
+        if (buoyEntity.isLoaded){
+          // Get y position and normal of the wave on that point
+          let position = new THREE.Vector3();
+          let normal = new THREE.Vector3();
+          oceanEntity.getNormalAndPositionAt(position, normal);
 
-        // Exponential Moving Average (EMA) for position
-        let coef = 0.98;
-        buoy.position.x = buoy.position.x * coef + (1 - coef)*position.x;
-        buoy.position.y = buoy.position.y * coef + (1 - coef) *position.y;
-        buoy.position.z = buoy.position.z * coef + (1 - coef) *position.z;
+          // Exponential Moving Average (EMA) for position
+          let coef = 0.98;
+          buoyEntity.root.position.x = buoyEntity.root.position.x * coef + (1 - coef)*position.x;
+          buoyEntity.root.position.y = buoyEntity.root.position.y * coef + (1 - coef) *position.y;
+          buoyEntity.root.position.z = buoyEntity.root.position.z * coef + (1 - coef) *position.z;
 
-        // EMA for rotation
-        normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
-        let tempQuat = new THREE.Quaternion();
-        tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
-        tempQuat.normalize();
-        //buoy.quaternion.set(...tempQuat);
-        buoy.quaternion.slerp(tempQuat, 0.002);
+          // EMA for rotation
+          normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
+          let tempQuat = new THREE.Quaternion();
+          tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
+          tempQuat.normalize();
+          //buoy.quaternion.set(...tempQuat);
+          buoyEntity.root.quaternion.slerp(tempQuat, 0.002);
+        }
         
       }
       
