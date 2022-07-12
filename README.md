@@ -1,4 +1,6 @@
 # OBSEA Data
+Link to the [3D simulation of the sea using OBSEA data](https://bluenetcat.github.io/OBSEA/).
+
 The underwater observatory collects data in real-time. It has been collecting data since around 2000. Currently their dashboard only shows data from the last 48h. The objective is to visualize and download historical data. The old database was not indexed and some of the streams had samples every 15 seconds. When asking data for a long period of time, the query took too long and the data had too much resolution.
 
 ## Collected data
