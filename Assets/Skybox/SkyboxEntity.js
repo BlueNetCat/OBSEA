@@ -1,23 +1,26 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
-class OBSEAStationEntity {
+class SkyboxEntity {
+
   constructor(scene){
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('/OBSEA/Assets/OBSEAStation/OBSEAStation.glb', (gltf) => {
+    gltfLoader.load('/OBSEA/Assets/Skybox/skybox.glb', (gltf) => { // '../Assets/Skybox/skybox.glb'
       // GLTF scene
       const root = gltf.scene;
-      // Fix frustrum culling
-      root.children[0].children[1].frustumCulled = false;
+      // Scale
+      root.scale.multiplyScalar(10);
       // Scene direction fix
       const angleFix = 90;
-
       root.rotation.y = angleFix * Math.PI / 180;
-      root.translateY(-19.4);
 
       scene.add(root);
     });
+
+    scene.background = new THREE.Color(0x47A0B9);
+
   }
+  
 }
 
-export { OBSEAStationEntity }
+export {SkyboxEntity}

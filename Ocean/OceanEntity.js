@@ -17,11 +17,11 @@ class OceanEntity {
   tempVec2 = new THREE.Vector2();
   
   // Constructor
-  constructor(url, scene){
+  constructor(scene){
 
     // Load ocean mesh
     let gltfLoader = new GLTFLoader();
-    gltfLoader.load(url, (gltf) => {
+    gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurface.glb', (gltf) => {
 
       // Keep HR tile and hide the other two
       this.oceanHRTile = gltf.scene.children[0];

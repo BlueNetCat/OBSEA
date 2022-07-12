@@ -8,6 +8,8 @@ import { SandEntity } from '../Assets/Terrain/SandEntity.js';
 import * as FogShader from '../Assets/Terrain/FogShader.js'
 import { OBSEAStationEntity } from '../Assets/OBSEAStation/ObseaStationEntity.js';
 import { OBSEABuoyEntity } from '../Assets/OBSEABuoy/OBSEABuoyEntity.js';
+import { SkyboxEntity } from '../Assets/Skybox/SkyboxEntity.js';
+import { RosaVentsEntity } from '../Assets/Orientation/RosaVentsEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
@@ -71,37 +73,11 @@ function main() {
   const scene = new THREE.Scene();
   let time = 0;
 
+
+
+
   // Skybox
-  // const cubeTextureLoader = new THREE.CubeTextureLoader();
-  // const cubeTexture = cubeTextureLoader.load([
-  //   './skybox/front.png',
-  //   './skybox/back.png',
-
-  //   './skybox/top.png',
-  //   './skybox/bottom.png',
-
-  //   './skybox/right.png',
-  //   './skybox/left.png',
-  // ]);
-  { // Skybox
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load('../Assets/Skybox/skybox.glb', (gltf) => {
-      // GLTF scene
-      const root = gltf.scene;
-      // Scale
-      root.scale.multiplyScalar(10);
-      // Scene direction fix
-      const angleFix = 90;
-      root.rotation.y = angleFix * Math.PI / 180;
-
-      scene.add(root);
-    });
-
-
-  }
-  scene.background = new THREE.Color(0x47A0B9);
-
-  
+  let skybox = new SkyboxEntity(scene);
   
   // Fog
   scene.fog = new THREE.FogExp2(new THREE.Color(0x47A0B9), 0.02);
@@ -113,41 +89,19 @@ function main() {
 
 
   // OCEAN (loads and adds ocean to the scene)
-  let oceanEntity = new OceanEntity('../Assets/Terrain/OceanSurface.glb', scene);//undefined;
+  let oceanEntity = new OceanEntity(scene);
  
-  // SAND (loads and aadds sand plane to the scene)
-  let sandEntity = new SandEntity('../Assets/Terrain/SandDiffuse.jpg', scene);
+  // Sand
+  let sandEntity = new SandEntity(scene);
 
   // OBSEA Station
-  let obseaSt = new OBSEAStationEntity('../Assets/OBSEAStation/OBSEAStation.glb', scene);
+  let obseaSt = new OBSEAStationEntity(scene);
 
-  let buoyEntity = new OBSEABuoyEntity('../Assets/OBSEABuoy/OBSEABuoy.glb', scene);
+  // OBSEA Buoy
+  let buoyEntity = new OBSEABuoyEntity(scene);
 
-
-
-  { // TOP PLANE (ROSA DELS VENTS)
-    const planeSize = 5;
-
-    const loader = new THREE.TextureLoader();
-    // const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');
-    const texture = loader.load('../3Dcurrent/NESW.png');
-    texture.encoding = THREE.sRGBEncoding;
-    //texture.wrapS = THREE.RepeatWrapping;
-    //texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    //const repeats = planeSize / 10;
-    //texture.repeat.set(repeats, repeats);
-
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-      transparent: true
-    });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
-  }
+  // Rosa dels Vents
+  let rosaVents = new RosaVentsEntity(scene);
 
   
 

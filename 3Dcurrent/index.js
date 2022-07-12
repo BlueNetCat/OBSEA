@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
+import { RosaVentsEntity } from '/OBSEA/Assets/Orientation/RosaVentsEntity.js';
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -22,29 +23,9 @@ function main() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('black');
 
-  { // TOP PLANE
-    const planeSize = 5;
-
-    const loader = new THREE.TextureLoader();
-    // const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');
-    const texture = loader.load('NESW.png');
-    texture.encoding = THREE.sRGBEncoding;
-    //texture.wrapS = THREE.RepeatWrapping;
-    //texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    //const repeats = planeSize / 10;
-    //texture.repeat.set(repeats, repeats);
-
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-      transparent: true
-    });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
-  }
+  
+  
+  let rosaVents = new RosaVentsEntity(null, scene);
 
   // BOTTOM PLANE
   {
@@ -87,7 +68,7 @@ function main() {
     
     const objLoader = new OBJLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-    objLoader.load('../Assets/Arrow/ArrowX.obj', (root) => {
+    objLoader.load('../Assets/Orientation/ArrowX.obj', (root) => {
 
       // Add material
       const arrowMaterial = new THREE.MeshPhongMaterial({

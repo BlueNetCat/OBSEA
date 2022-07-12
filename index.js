@@ -4,6 +4,10 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js'
 import { RosaVentsEntity } from '/OBSEA/Assets/Orientation/RosaVentsEntity.js';
+import { SandEntity } from '/OBSEA/Assets/Terrain/SandEntity.js';
+import { SkyboxEntity } from '/OBSEA/Assets/Skybox/SkyboxEntity.js';
+
+import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
@@ -33,7 +37,7 @@ function main() {
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.1;
-  const far = 1000;
+  const far = 2000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   
 
@@ -53,33 +57,19 @@ function main() {
   scene.background = new THREE.Color(0x47A0B9);
   // Fog
   scene.fog = new THREE.FogExp2(new THREE.Color(0x47A0B9), 0.02);
+  // Fog only below water
+  THREE.ShaderChunk.fog_fragment = FogShader.fogFrag;
+  THREE.ShaderChunk.fog_pars_fragment = FogShader.fogFragParams;
+  THREE.ShaderChunk.fog_vertex = FogShader.fogVertex;
+  THREE.ShaderChunk.fog_pars_vertex = FogShader.fogVertexParams;
 
+  // Skybox
+  let skybox = new SkyboxEntity(scene);
+
+  // Rosa dels vents
   let tmp = new RosaVentsEntity(null, scene);
-
-  // BOTTOM PLANE (SAND)
-  {
-    const pBottomSize = 200;
-    const loader = new THREE.TextureLoader();
-    const bottTexture = loader.load('../Assets/Terrain/SandDiffuse.jpg');
-    bottTexture.wrapS = THREE.RepeatWrapping;
-    bottTexture.wrapT = THREE.RepeatWrapping;
-    bottTexture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    const repeats = pBottomSize / 10;
-    bottTexture.repeat.set(repeats, repeats);
-    
-    const planeBottom = new THREE.PlaneGeometry(pBottomSize, pBottomSize);
-    const pBottMat = new THREE.MeshPhongMaterial({
-      map: bottTexture,
-      side: THREE.DoubleSide,
-      transparent: true
-    });
-    const pBottMesh = new THREE.Mesh(planeBottom, pBottMat);
-    pBottMesh.translateY(-19.4);
-    pBottMesh.rotation.x = Math.PI * -.5;
-    
-    scene.add(pBottMesh);
-
-  }
+  // Sand
+  tmp = new SandEntity(null, scene);
 
 
   

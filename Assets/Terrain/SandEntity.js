@@ -2,10 +2,10 @@ import * as THREE from 'three';
 
 class SandEntity {
   
-  constructor(url, scene) {
+  constructor(scene) {
     const pBottomSize = 200;
     const loader = new THREE.TextureLoader();
-    const bottTexture = loader.load(url);
+    const bottTexture = loader.load('/OBSEA/Assets/Terrain/SandDiffuse.jpg');
     bottTexture.wrapS = THREE.RepeatWrapping;
     bottTexture.wrapT = THREE.RepeatWrapping;
     bottTexture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;

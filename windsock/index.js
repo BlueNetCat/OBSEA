@@ -5,6 +5,8 @@ import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.
 import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 import { Vector3 } from 'three';
 import { WindsockBehavior } from '../Assets/Windsock/WindsockBehavior.js'
+import { RosaVentsEntity } from '../Assets/Orientation/RosaVentsEntity.js';
+import { WindsockEntity } from '../Assets/Windsock/WindsockEntity.js';
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -29,35 +31,15 @@ function main() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('black');
 
-  { // TOP PLANE
-    const planeSize = 5;
+  // Rosa dels Vents
+  let rosaVents = new RosaVentsEntity(scene);
 
-    const loader = new THREE.TextureLoader();
-    // const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');
-    const texture = loader.load('../3Dcurrent/NESW.png');
-    texture.encoding = THREE.sRGBEncoding;
-    //texture.wrapS = THREE.RepeatWrapping;
-    //texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    //const repeats = planeSize / 10;
-    //texture.repeat.set(repeats, repeats);
-
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-      transparent: true
-    });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
-  }
 
   // BOTTOM PLANE
   {
     const pBottomSize = 5;
     const loader = new THREE.TextureLoader();
-    const bottTexture = loader.load('../3Dcurrent/Bottom.png');
+    const bottTexture = loader.load('../Assets/Terrain/Bottom.png');
     
     const planeBottom = new THREE.PlaneGeometry(pBottomSize, pBottomSize);
     const pBottMat = new THREE.MeshPhongMaterial({
@@ -90,32 +72,9 @@ function main() {
     scene.add(light.target);
   }
 
+  // Windsock
+  let windsock = new WindsockEntity(scene);
 
-  
-
-  // Wind ragdoll class
-  let windsockBehavior = undefined;
-  let windsockObj = undefined;
-  { // WIND SOCK
-    const gltfLoader = new GLTFLoader();
-    // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-    gltfLoader.load('../Assets/Windsock/windsock.glb', (gltf) => {
-      // GLTF scene
-      const root = gltf.scene;
-      windsockObj = gltf.scene;
-      // Fix frustrum culling
-      root.children[0].children[1].frustumCulled = false;
-      
-      // Create Windsock Behavior
-      windsockBehavior = new WindsockBehavior(windsockObj, scene);
-      
-      scene.add(root);
-
-      console.log(dumpObject(root).join('\n'));
-    });
-
-
-  }
 
 
 
@@ -170,8 +129,12 @@ function main() {
     el.innerHTML = windDir + " degrees";
 
     // Update loop
-    if (windsockBehavior != undefined)
-      windsockBehavior.updateWindSock(windsockObj, windInt, windDir, time);
+    if (windsock){
+      if (windsock.isLoaded){
+        windsock.setWindParams(windInt, windDir);
+        windsock.update(time);
+      }
+    }
 
     renderer.render(scene, camera);
 
