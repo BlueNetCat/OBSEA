@@ -4,6 +4,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js'
 import { OceanEntity } from './OceanEntity.js';
+import * as FogShader from '../Assets/Terrain/FogShader.js'
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
@@ -102,50 +103,10 @@ function main() {
   // Fog
   scene.fog = new THREE.FogExp2(new THREE.Color(0x47A0B9), 0.02);
 
-  THREE.ShaderChunk.fog_fragment = `
-    #ifdef USE_FOG
-      vec3 fogOrigin = cameraPosition;
-      vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
-      float fogDepth = distance(vWorldPosition, fogOrigin);
-
-      #ifdef FOG_EXP2
-        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
-      #else
-        float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
-      #endif
-
-      float underwaterFactor = max( -vWorldPosition.y / abs(vWorldPosition.y), 0.0);
-      fogFactor = min(1.0, fogFactor * underwaterFactor);
-
-      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
-    #endif
-  `;
-
-  THREE.ShaderChunk.fog_pars_fragment = `
-    #ifdef USE_FOG
-      uniform vec3 fogColor;
-      varying vec3 vWorldPosition;
-      #ifdef FOG_EXP2
-        uniform float fogDensity;
-      #else
-        uniform float fogNear;
-        uniform float fogFar;
-      #endif
-    #endif
-  `;
-
-  THREE.ShaderChunk.fog_vertex = `
-    #ifdef USE_FOG
-      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-      vWorldPosition = worldPosition.xyz;
-    #endif
-  `;
-
-  THREE.ShaderChunk.fog_pars_vertex = `
-    #ifdef USE_FOG
-      varying vec3 vWorldPosition;
-    #endif
-  `;
+  THREE.ShaderChunk.fog_fragment = FogShader.fogFrag;
+  THREE.ShaderChunk.fog_pars_fragment = FogShader.fogFragParams;
+  THREE.ShaderChunk.fog_vertex = FogShader.fogVertex;
+  THREE.ShaderChunk.fog_pars_vertex = FogShader.fogVertexParams;
 
 
   // OCEAN (loads and adds ocean to the scene)
