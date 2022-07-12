@@ -301,6 +301,8 @@ getWaveParametersHTML = function(id) {
   el = document.getElementById("infoSwellDirection" + id);
   el.innerHTML = swellDir + " degrees";
 
+  // Direction correction
+  swellDir = -swellDir - 90;
   let dirZ = Math.cos(swellDir * Math.PI / 180);
   let dirX = Math.sin(swellDir * Math.PI / 180);
 

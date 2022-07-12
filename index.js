@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-//import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
+import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://threejs.org/examples/jsm/loaders/FBXLoader.js'
 import { RosaVentsEntity } from '/OBSEA/Assets/Orientation/RosaVentsEntity.js';
@@ -8,22 +8,14 @@ import { SandEntity } from '/OBSEA/Assets/Terrain/SandEntity.js';
 import { SkyboxEntity } from '/OBSEA/Assets/Skybox/SkyboxEntity.js';
 
 import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
+import { OceanEntity } from '/OBSEA/Ocean/OceanEntity.js';
+import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
+import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
+import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
+import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
-/* OCEAN
-https://threejs.org/examples/webgl_shaders_ocean.html
-https://29a.ch/slides/2012/webglwater/
-https://29a.ch/sandbox/2012/terrain/
-https://www.tamats.com/work/bwr/
-https://madebyevan.com/webgl-water/
-https://www.youtube.com/watch?v=kGEqaX4Y4bQ&ab_channel=JumpTrajectory
-https://doc.babylonjs.com/advanced_topics/webGPU/computeShader
-https://playground.babylonjs.com/?webgpu#YX6IB8#55
-http://david.li/waves/
-https://www.shadertoy.com/view/4dBcRD#
-https://www.shadertoy.com/view/Xdlczl
-*/
 
 
 function main() {
@@ -65,12 +57,65 @@ function main() {
 
   // Skybox
   let skybox = new SkyboxEntity(scene);
+  // Sand
+  let sand = new SandEntity(scene);
+  // Ocean
+  let ocean = new OceanEntity(scene);
+  // OBSEA Buoy
+  let obseaBuoy = new OBSEABuoyEntity(scene);
+  // OBSEA Base
+  let obseaBase = new OBSEAStationEntity(scene);
+
+  // Windsock
+  let windsock = new WindsockEntity(scene, ()=>{
+    windsock.root.position.y = 1;
+    windsock.root.scale.addScalar(2);
+  });
 
   // Rosa dels vents
-  let tmp = new RosaVentsEntity(null, scene);
-  // Sand
-  tmp = new SandEntity(null, scene);
+  let rosaVents = new RosaVentsEntity(scene);
+  rosaVents.root.position.y = 7;
 
+
+  let currents = new CurrentEntity(scene);
+
+  // { // ARROW OBJECT
+
+  //   const objLoader = new OBJLoader();
+  //   // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
+  //   objLoader.load('/OBSEA/Assets/Orientation/ArrowX.obj', (root) => {
+
+  //     // Add material
+  //     const arrowMaterial = new THREE.MeshPhongMaterial({
+  //       color: 0xFF0000,    // red (can also use a CSS color string here)
+  //       flatShading: false,
+  //     });
+  //     root.children[0].material = arrowMaterial;
+
+  //     //scene.add(root);
+
+  //     // Sea water velocity data (2022-03-15 16:00:00)
+  //     let cspd = [0.791, 0.880, 0.616, 0.465, 0.475, 0.457, 0.487, 0.456, 0.487, 0.458, 0.465, 0.445, 0.463, 0.422, 0.415];
+  //     let cdir = [247, 241, 238, 240, 248, 248, 246, 248, 248, 248, 248, 250, 253, 249, 249];
+
+  //     // Other arrows
+  //     for (let i = 0; i < cspd.length; i++) {
+  //       let arr = root.clone();
+  //       arr.translateY(-i);
+  //       arr.scale.x = cspd[i];
+  //       arr.scale.y = cspd[i];
+  //       arr.scale.z = cspd[i];
+
+  //       arr.rotation.y = cdir[i] * Math.PI / 180;
+  //       scene.add(arr);
+  //     }
+
+
+  //   });
+
+
+  // }
+  
 
   
 
@@ -94,53 +139,7 @@ function main() {
   }
 
   
-  
-  
-  { // OBSEA Station
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load('../Assets/OBSEAStation/OBSEAStation.glb', (gltf) => {
-      // GLTF scene
-      const root = gltf.scene;
-      // Fix frustrum culling
-      root.children[0].children[1].frustumCulled = false;
-      // Scene direction fix
-      const angleFix = 90;
-      
-      root.rotation.y = angleFix * Math.PI / 180;
-      root.translateY(-19.4);
-      
-      scene.add(root);
-      console.log(dumpObject(root).join('\n'));
-    });
 
-
-  }
-
-
-  { // OBSEA Buoy
-    // https://www.youtube.com/watch?v=6LA8vEB47Nk&ab_channel=DirkTeucher
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load('../Assets/OBSEABuoy/OBSEABuoy.glb', (gltf) => {
-      // GLTF scene
-      const root = gltf.scene;
-      // Fix frustrum culling
-      root.children[0].children[1].frustumCulled = false;
-      // Scene direction fix
-      const angleFix = 90;
-
-      root.rotation.y = angleFix * Math.PI / 180;
-      scene.add(root);
-
-      // Material AO
-      let mesh = root.children[0];
-      let material = mesh.material;
-      //material.aoMapIntensity = 2      
-
-      console.log(dumpObject(root).join('\n'));
-    });
-
-
-  }
 
 
 
@@ -160,48 +159,72 @@ function main() {
 
 
 
-  // Bones GUI
-  function setupGui(bones) {
 
-    let folder = gui.addFolder('Wind');
+  function update(time){
 
-    //folder.add(windInt)
+    // Ocean updates
+    if (ocean){
+      if (ocean.isLoaded){
+        ocean.update(0.016);
 
-    //const bones = mesh.skeleton.bones;
+        // Change buoy position
+        if (obseaBuoy !== undefined) {
+          if (obseaBuoy.isLoaded) {
+            // Get y position and normal of the wave on that point
+            let position = new THREE.Vector3();
+            let normal = new THREE.Vector3();
+            ocean.getNormalAndPositionAt(position, normal);
 
-    for (let i = 0; i < bones.length; i++) {
+            // Exponential Moving Average (EMA) for position
+            let coef = 0.98;
+            obseaBuoy.root.position.x = obseaBuoy.root.position.x * coef + (1 - coef) * position.x;
+            obseaBuoy.root.position.y = obseaBuoy.root.position.y * coef + (1 - coef) * position.y;
+            obseaBuoy.root.position.z = obseaBuoy.root.position.z * coef + (1 - coef) * position.z;
 
-      const bone = bones[i];
+            // EMA for rotation
+            normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
+            let tempQuat = new THREE.Quaternion();
+            tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
+            tempQuat.normalize();
+            //buoy.quaternion.set(...tempQuat);
+            obseaBuoy.root.quaternion.slerp(tempQuat, 0.002);
+          }
 
-      folder = gui.addFolder('Bone ' + i);
+        }
 
-      folder.add(bone.position, 'x', - 10 + bone.position.x, 10 + bone.position.x);
-      folder.add(bone.position, 'y', - 10 + bone.position.y, 10 + bone.position.y);
-      folder.add(bone.position, 'z', - 10 + bone.position.z, 10 + bone.position.z);
-
-      folder.add(bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5);
-      folder.add(bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5);
-      folder.add(bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5);
-
-      folder.add(bone.scale, 'x', 0, 2);
-      folder.add(bone.scale, 'y', 0, 2);
-      folder.add(bone.scale, 'z', 0, 2);
-
-      folder.controllers[0].name('position.x');
-      folder.controllers[1].name('position.y');
-      folder.controllers[2].name('position.z');
-
-      folder.controllers[3].name('rotation.x');
-      folder.controllers[4].name('rotation.y');
-      folder.controllers[5].name('rotation.z');
-
-      folder.controllers[6].name('scale.x');
-      folder.controllers[7].name('scale.y');
-      folder.controllers[8].name('scale.z');
-
+      }
     }
 
+    // Windsock updates
+    if (windsock){
+      if (windsock.isLoaded){
+        windsock.update(time);
+
+        // Get wind intensity from slider
+        let el = document.getElementById("sliderWindIntensity");
+        let windInt = parseFloat(el.value);
+        el = document.getElementById("infoWindIntensity");
+        el.innerHTML = windInt + " km/h";
+
+        // Get wind direction from slider
+        el = document.getElementById("sliderWindDir");
+        let windDir = parseFloat(el.value);
+        el = document.getElementById("infoWindDir");
+        el.innerHTML = windDir + " degrees";
+
+        windsock.setWindParams(windInt, windDir);
+
+      }
+    }
+
+    // Current
+    if (currents){
+      if (currents.isLoaded){
+        currents.update(0.016);
+      }
+    }
   }
+
 
 
 
@@ -217,13 +240,15 @@ function main() {
     return needResize;
   }
 
-  function render() {
+  function render(time) {
 
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
+
+    update(time);
 
     renderer.render(scene, camera);
 

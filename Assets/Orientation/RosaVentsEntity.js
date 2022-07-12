@@ -23,6 +23,7 @@ class RosaVentsEntity {
     });
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -.5;
+    this.root = mesh;
     scene.add(mesh);
   }
 }

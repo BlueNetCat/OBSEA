@@ -9,7 +9,7 @@ class WindsockEntity {
   windDirection;
   time = 0;
   
-  constructor(scene){
+  constructor(scene, onload){
 
     // Initial variables
     this.windIntensity = 10; // km/h
@@ -30,6 +30,8 @@ class WindsockEntity {
       scene.add(this.root);
 
       this.isLoaded = true;
+
+      onload();
     });
 
   }
