@@ -45,7 +45,10 @@ function main() {
   
   controls.update();
   controls.enableDamping = true;
-  // User interaction
+
+
+  // USER INTERACTION
+  // Focus on buoy or base
   let focusOnBase = document.getElementById("focusOnBase");
   if (focusOnBase){
     focusOnBase.addEventListener("click", ()=>{
@@ -61,6 +64,8 @@ function main() {
     });
   }
 
+  // Click on object
+  // TODO:
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x47A0B9);
