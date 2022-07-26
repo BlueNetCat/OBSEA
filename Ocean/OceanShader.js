@@ -1,15 +1,22 @@
+// https://threejs.org/docs/index.html#api/en/materials/ShaderMaterial
+// https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html
+// https://www.khronos.org/files/opengles_shading_language.pdf
+// https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
 
 export const OceanVertShader = `
         
   #define PI 3.141592653589793
 
   uniform float u_time;
+  uniform sampler2D u_paramsTexture;
+
   uniform vec4 u_wave1Params;
   uniform vec4 u_wave2Params;
   uniform vec4 u_wave3Params;
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
+  varying vec4 v_OceanColor;
 
 
 
@@ -67,6 +74,11 @@ export const OceanVertShader = `
     vec3 tangent = vec3(1.0, 0.0, 0.0);
     vec3 binormal = vec3(0.0, 0.0, 1.0);
 
+    // Get texture size
+    vec2 texSize = vec2(16.0 ,16.0);
+    vec4 texValue = texture2D(u_paramsTexture, vec2(0.0/16.0, 0.0/16.0));
+    v_OceanColor = texValue;
+
     // Gerstner Wave
     modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
     modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
@@ -91,6 +103,7 @@ export const OceanFragShader = `
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
+  varying vec4 v_OceanColor;
 
   void main(){
     // Sun position
@@ -139,7 +152,7 @@ export const OceanFragShader = `
     
 
 
-    gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
+    //gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
     
     //gl_FragColor = vec4(skyFresnel, 1.0);
 
@@ -147,6 +160,7 @@ export const OceanFragShader = `
     //gl_FragColor = vec4(diffuseColor + specularColor + sky, 1.0);
     //gl_FragColor = vec4( specularColor + sky, 1.0);
     //gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
+    gl_FragColor = vec4(v_OceanColor.rgb, 1.0);
 
   }
   `;

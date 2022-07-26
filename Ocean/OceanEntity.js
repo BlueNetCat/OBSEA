@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import {OceanVertShader, OceanFragShader} from '/OBSEA/Ocean/OceanShader.js';
+import { createWaveParamsTexture } from '/OBSEA/Ocean/OceanParams.js';
 
 class OceanEntity {
 
@@ -19,6 +20,23 @@ class OceanEntity {
   
   // Constructor
   constructor(scene){
+
+    // Creates a texture that has parameters for generating waves. It includes wave height, direction X, direction Z, and steepness (RGBA).
+    // let paramsCanvas = createWaveParamsTexture();
+    // let paramsTexture = new THREE.TextureLoader().load(paramsCanvas.toDataURL());
+    // paramsTexture.magFilter = THREE.NearestFilter;
+    // paramsTexture.minFilter = THREE.NearestFilter;
+    //console.log(paramsTexture);
+    // sqrt(Number of waves)
+    // Creates a texture that has parameters for generating waves. It includes wave height, direction X, direction Z, and steepness (RGBA).
+    // TODO: instead of getting image data, I think I could use directly floats to create THREE.DataTexture.
+    let imgSize = 16;
+    let numWaves = imgSize * imgSize;
+    let paramsData = createWaveParamsImageData(imgSize);
+    let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+    paramsTexture.magFilter = THREE.NearestFilter;
+    paramsTexture.needsUpdate = true;
+    
 
     // Load ocean mesh
     let gltfLoader = new GLTFLoader();
@@ -38,6 +56,7 @@ class OceanEntity {
         // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
           u_time: { value: this.time },
+          u_paramsTexture: {value: paramsTexture},
           // u_steepness: { value: 0.5 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
