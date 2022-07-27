@@ -8,6 +8,7 @@ export const OceanVertShader = `
   #define PI 3.141592653589793
 
   uniform float u_time;
+  uniform vec3 u_imgSize;
   uniform sampler2D u_paramsTexture;
 
   uniform vec4 u_wave1Params;
@@ -41,7 +42,7 @@ export const OceanVertShader = `
     // Normalize direction
     direction = normalize(direction);
     // Trochoidal wave movement
-    float f = k * (dot(direction, position.xz) - velocity * u_time);
+    float f = k * (dot(direction, position.xz) - velocity * u_time); // + randomPhase
 
     // Tangent
     tangent += vec3(
@@ -74,28 +75,26 @@ export const OceanVertShader = `
     vec3 tangent = vec3(1.0, 0.0, 0.0);
     vec3 binormal = vec3(0.0, 0.0, 1.0);
 
-    // Get data texture values
-    vec4 params1 = texture2D(u_paramsTexture, vec2(0.0/16.0, 0.0/16.0));
-    vec4 params2 = texture2D(u_paramsTexture, vec2(1.0/16.0, 0.0/16.0));
-    vec4 params3 = texture2D(u_paramsTexture, vec2(2.0/16.0, 0.0/16.0));
-
-    // Rescale parameters
-    params1.g = 6.0 * params1.g; // height
-    params2.g = 6.0 * params2.g;
-    params3.g = 6.0 * params3.g;
-
-
-    vec2 texSize = vec2(16.0 ,16.0);
-    //vec4 texValue = texture2D(u_paramsTexture, vec2(0.0/16.0, 0.0/16.0));
-    //v_OceanColor = texValue;
 
     // Gerstner Wave
     // modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
     // modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
     // modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
-    modPos += GerstnerWave(params1, modPos, tangent, binormal);
-    modPos += GerstnerWave(params2, modPos, tangent, binormal);
-    modPos += GerstnerWave(params3, modPos, tangent, binormal);
+
+
+    // Iterate over all the waves
+    for (int i = 0; i < int(u_imgSize.x); i++){
+      for (int j = 0; j < int(u_imgSize.y); j++){
+        vec4 params = texture2D(u_paramsTexture, vec2(float(i)/u_imgSize.x, float(j)/u_imgSize.y));
+        // Steepness factor
+        params.r = params.r *u_wave1Params.r;
+        //params.g = params.g/(u_imgSize.x*u_imgSize.y);
+        modPos += GerstnerWave(params, modPos, tangent, binormal);
+      }
+    }
+
+
+
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));

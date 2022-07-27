@@ -30,7 +30,7 @@ class OceanEntity {
     // sqrt(Number of waves)
     // Creates a texture that has parameters for generating waves. It includes wave height, direction X, direction Z, and steepness (RGBA).
     // TODO: instead of getting image data, I think I could use directly floats to create THREE.DataTexture.
-    let imgSize = 16;
+    let imgSize = 5;
     let numWaves = imgSize * imgSize;
     let paramsData = createWaveParamsImageData(imgSize);
     let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
@@ -57,6 +57,7 @@ class OceanEntity {
         uniforms: {
           u_time: { value: this.time },
           u_paramsTexture: {value: paramsTexture},
+          u_imgSize: {value: new THREE.Vector2(imgSize, imgSize)},
           // u_steepness: { value: 0.5 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },

@@ -33,9 +33,10 @@ export const createWaveParamsImageData = function(imgSize){
 
 
   // Params
-  let hm0 = 1.5; // Hm0_ADCPWaves
+  let hm0 = 1; // Hm0_ADCPWaves
   let hOneThird = 2; // avHeightOnethirdADCPWaves
   let hOneTenth = 2.5; // Hsig_upper_10_per_cent
+  let hMax = 3; // Hmax_ADCP
 
   let meanDir = 0; // MeanDir_ADCPWaves
   let stdDir = 90; // ?
@@ -65,6 +66,9 @@ export const createWaveParamsImageData = function(imgSize){
 
   // Generate gaussian distribution for wave height
   let waveHeights = generateGaussianDistribution(meanHeight, stdHeight, numWaves);
+  // Limit wave heights
+  waveHeights.forEach((el, index) => waveHeights[index] = el > hMax ? el/5 : el);
+  //console.log("Maximum wave height: " + Math.max(...waveHeights));
 
   // Generate direction distribution
   let waveDirections = generateGaussianDistribution(meanDir, stdDir, numWaves);
@@ -72,7 +76,7 @@ export const createWaveParamsImageData = function(imgSize){
   // Generate steepness distribution
   let waveSteepness = generateGaussianDistribution(0.25, 0.1, numWaves);
 
-
+  
 
   // Create HTML widget
   {
@@ -91,12 +95,12 @@ export const createWaveParamsImageData = function(imgSize){
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // WAVE HEIGHTS
-    context.translate(10, 180);
+    context.translate(30, 200);
     context.scale(1, -1);
     let xFactor = 50;
     // Axis
     context.strokeStyle = "rgb(255,255,255)";
-    context.lineWidth = "2px";
+    context.lineWidth = 1;
     context.beginPath();
     context.moveTo(0,100);
     context.lineTo(0,0);
@@ -120,7 +124,14 @@ export const createWaveParamsImageData = function(imgSize){
     context.moveTo(hOneTenth * xFactor, 100);
     context.lineTo(hOneTenth * xFactor, 0);
     context.stroke();
+    // hMax
+    context.strokeStyle = "rgba(255, 0, 0, 0.8)";
+    context.beginPath();
+    context.moveTo(hMax * xFactor, 100);
+    context.lineTo(hMax * xFactor, 0);
+    context.stroke();
     // Gaussian histogram
+    context.lineWidth = 2;
     context.strokeStyle = "rgba(255, 255, 255, 0.8)";
     context.beginPath();
     context.moveTo(0,0);
@@ -131,7 +142,7 @@ export const createWaveParamsImageData = function(imgSize){
     context.stroke();
     context.resetTransform();
 
-    context.translate(5, 20);
+    context.translate(10, 20);
     // Informative text
     let textSeparation = 15;
     context.font = '12pt Calibri';
@@ -142,6 +153,8 @@ export const createWaveParamsImageData = function(imgSize){
     context.fillText('Hm0_ADCPWaves: ' + hm0 + "m", 0, textSeparation);
     context.fillText("avHeightOnethirdADCPWaves: " + hOneThird + "m", 0, textSeparation*2);
     context.fillText("Hsig_upper_10_per_cent: " + hOneTenth, 0, textSeparation*3);
+    context.fillText('Hmax_ADCP: ' + hMax + "m", 0, textSeparation*4);
+
     context.resetTransform();
 
     
@@ -149,6 +162,7 @@ export const createWaveParamsImageData = function(imgSize){
     context.translate(canvas.width/2, 400);
     // Circle
     let radius = 50;
+    context.lineWidth = 1;
     context.beginPath();
     context.arc(0, 0, radius, 0, 2 * Math.PI);
     context.stroke();
@@ -161,8 +175,17 @@ export const createWaveParamsImageData = function(imgSize){
       context.lineTo(0,0);
     }
     context.stroke();
+    
+    context.rotate(-Math.PI / 2)
+    // Selected orientation
+    context.lineWidth = 5;
+    context.strokeStyle = "rgba(0,255,0,1)";
+    context.beginPath();
+    context.moveTo(0,0);
+    context.lineTo(Math.cos(meanDir * Math.PI / 180) * radius * 1.2, Math.sin(meanDir * Math.PI / 180) * radius * 1.2);
+    context.stroke();
     // Histogram
-    context.rotate(-Math.PI/2)
+    context.lineWidth = 2;
     let step = 15;
     context.strokeStyle = "rgba(255, 255, 255, 0.8)";
     context.beginPath();
@@ -181,7 +204,7 @@ export const createWaveParamsImageData = function(imgSize){
     context.stroke();
     context.resetTransform();
 
-    context.translate(5, 280);
+    context.translate(10, 280);
     // Informative text
     textSeparation = 15;
     context.font = '12pt Calibri';
@@ -212,50 +235,40 @@ export const createWaveParamsImageData = function(imgSize){
 
   // Fill pixels and scale values from 0 to 255
   for (let i = 0; i < numWaves; i++){
+    // Steepness range
+    let waveSteep = Math.abs(waveSteepness[i]);
+    imageData.data[i * 4] = 255 * waveSteep;
     // Wave range
-    // let waveHeight = Math.abs(waveHeights[i]);
-    // imageData.data[i * 4] = 255 * waveHeight / WAVE_MAX;
-    // // Direction range
-    // let dirX = Math.cos(waveDirections[i] * Math.PI / 180)
-    // imageData.data[i * 4 + 1] = 255 * (dirX + 1) / 2;
-    // let dirZ = Math.sin(waveDirections[i] * Math.PI / 180);
-    // imageData.data[i * 4 + 2] = 255 * (dirZ + 1) / 2;
-    // // Steepness range
-    // let waveSteep = Math.abs(waveSteepness[i]);
-    // imageData.data[i * 4 + 3] = 255 * waveSteep;
-    if (i%2 == 0){
-      imageData.data[i * 4] = 255;
-      imageData.data[i * 4 + 1] = 0;
-      imageData.data[i * 4 + 2] = 255;
-      imageData.data[i * 4 + 3] = 255;
-    } else{
-      imageData.data[i * 4] = 0;
-      imageData.data[i * 4 + 1] = 0;
-      imageData.data[i * 4 + 2] = 255;
-      imageData.data[i * 4 + 3] = 255;
-    }
+    let waveHeight = Math.abs(waveHeights[i]);
+    imageData.data[i * 4 + 1] = 255 * waveHeight / WAVE_MAX;
+    // Direction range -- SOME HACK WITH ORIENTATION HERE
+    let dirX = Math.sin( (-waveDirections[i]-90) * Math.PI / 180)
+    imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
+    let dirZ = Math.cos((-waveDirections[i] - 90) * Math.PI / 180);
+    imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
+    
   }
-  let i = 0;
-  imageData.data[i * 4] = 255 * 0.5;
-  imageData.data[i * 4 + 1] = 255 * 0.6 / WAVE_MAX;
-  imageData.data[i * 4 + 2] = 255;
-  imageData.data[i * 4 + 3] = 0;
+  // let i = 0;
+  // imageData.data[i * 4] = 255 * 0.5;
+  // imageData.data[i * 4 + 1] = 255 * 0.6 / WAVE_MAX;
+  // imageData.data[i * 4 + 2] = 255;
+  // imageData.data[i * 4 + 3] = 0;
   
-  i = 1;
-  imageData.data[i * 4] = 255 * 0.25;
-  imageData.data[i * 4 + 1] = 255 * 0.05 / WAVE_MAX;
-  let dirX = Math.sin((-48-90) * Math.PI / 180)
-  let dirZ = Math.cos((-48 - 90) * Math.PI / 180);
-  imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
-  imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
+  // i = 1;
+  // imageData.data[i * 4] = 255 * 0.25;
+  // imageData.data[i * 4 + 1] = 255 * 0.05 / WAVE_MAX;
+  // let dirX = Math.sin((-48-90) * Math.PI / 180)
+  // let dirZ = Math.cos((-48 - 90) * Math.PI / 180);
+  // imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
+  // imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
   
-  i = 2;
-  imageData.data[i * 4] = 255 * 0.2;
-  imageData.data[i * 4 + 1] = 255 * 0.25 / WAVE_MAX;
-  dirX = Math.sin((-276 - 90) * Math.PI / 180)
-  dirZ = Math.cos((-276 - 90) * Math.PI / 180);
-  imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
-  imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
+  // i = 2;
+  // imageData.data[i * 4] = 255 * 0.2;
+  // imageData.data[i * 4 + 1] = 255 * 0.25 / WAVE_MAX;
+  // dirX = Math.sin((-276 - 90) * Math.PI / 180)
+  // dirZ = Math.cos((-276 - 90) * Math.PI / 180);
+  // imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
+  // imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
   
 
   // Put data into the texture
@@ -275,6 +288,7 @@ export const createWaveParamsImageData = function(imgSize){
 // From uniform noise to normal noise (gaussian)
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
   // If skew needed, use https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve
+  // Or better here: https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/
 const generateGaussianDistribution = function(targetMean, targetStd, numPoints, out){
 
   out = out || [];
