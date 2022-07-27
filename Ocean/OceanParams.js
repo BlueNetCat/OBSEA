@@ -23,7 +23,7 @@ Unidir_Ind_ADCP_Waves : Unidirectivity index of waves on the water body by acous
 */
 
 
-const WAVE_MAX = 15;
+const WAVE_MAX = 6;
 
 
 // Create wave parameters
@@ -37,7 +37,7 @@ export const createWaveParamsImageData = function(imgSize){
   let hOneThird = 2; // avHeightOnethirdADCPWaves
   let hOneTenth = 2.5; // Hsig_upper_10_per_cent
 
-  let meanDir = 95; // MeanDir_ADCPWaves
+  let meanDir = 0; // MeanDir_ADCPWaves
   let stdDir = 90; // ?
 
 
@@ -74,7 +74,127 @@ export const createWaveParamsImageData = function(imgSize){
 
 
 
-  
+  // Create HTML widget
+  {
+    let canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 500;
+    canvas.style.position = "absolute";
+    canvas.style.bottom = "0px";
+    canvas.style.right = "0px";
+    document.body.append(canvas);
+
+    let context = canvas.getContext('2d');
+
+    // Background
+    context.fillStyle = "rgba(0,0,0,0.7)";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // WAVE HEIGHTS
+    context.translate(10, 180);
+    context.scale(1, -1);
+    let xFactor = 50;
+    // Axis
+    context.strokeStyle = "rgb(255,255,255)";
+    context.lineWidth = "2px";
+    context.beginPath();
+    context.moveTo(0,100);
+    context.lineTo(0,0);
+    context.lineTo(Math.max(...waveHeights) * xFactor,0);
+    context.stroke();
+    // hm0
+    context.strokeStyle = "rgba(0, 255, 0, 0.8)";
+    context.beginPath();
+    context.moveTo(hm0 * xFactor, 100);
+    context.lineTo(hm0 * xFactor, 0);
+    context.stroke();
+    // h 1/3
+    context.strokeStyle = "rgba(0, 255, 0, 0.8)";
+    context.beginPath();
+    context.moveTo(hOneThird * xFactor, 100);
+    context.lineTo(hOneThird * xFactor, 0);
+    context.stroke();
+    // h 1/10
+    context.strokeStyle = "rgba(0, 255, 0, 0.8)";
+    context.beginPath();
+    context.moveTo(hOneTenth * xFactor, 100);
+    context.lineTo(hOneTenth * xFactor, 0);
+    context.stroke();
+    // Gaussian histogram
+    context.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    context.beginPath();
+    context.moveTo(0,0);
+    for (let i = 0; i < Math.max(...waveHeights); i=i+0.5){
+      let filtered = waveHeights.filter(el => (el< i+0.5)&& (el>i) );
+      context.lineTo( (i + 0.25) * xFactor, filtered.length/waveHeights.length * 200);
+    }
+    context.stroke();
+    context.resetTransform();
+
+    context.translate(5, 20);
+    // Informative text
+    let textSeparation = 15;
+    context.font = '12pt Calibri';
+    context.textAlign = 'left';
+    context.fillStyle = 'white';
+    context.fillText('Wave heights. Num. waves: ' + waveHeights.length, 0,0)
+    context.font = '10pt Calibri';
+    context.fillText('Hm0_ADCPWaves: ' + hm0 + "m", 0, textSeparation);
+    context.fillText("avHeightOnethirdADCPWaves: " + hOneThird + "m", 0, textSeparation*2);
+    context.fillText("Hsig_upper_10_per_cent: " + hOneTenth, 0, textSeparation*3);
+    context.resetTransform();
+
+    
+    // WAVE DIRECTIONS
+    context.translate(canvas.width/2, 400);
+    // Circle
+    let radius = 50;
+    context.beginPath();
+    context.arc(0, 0, radius, 0, 2 * Math.PI);
+    context.stroke();
+    // Axis
+    context.strokeStyle = "rgba(255,255,255,0.2)";
+    context.beginPath();
+    context.moveTo(0,0);
+    for (let i = 0; i< 360; i += 360/12){
+      context.lineTo(Math.cos(i * Math.PI / 180) * radius, Math.sin(i * Math.PI / 180) * radius);
+      context.lineTo(0,0);
+    }
+    context.stroke();
+    // Histogram
+    context.rotate(-Math.PI/2)
+    let step = 15;
+    context.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    context.beginPath();
+    context.moveTo(0, 0);
+    for (let i = 0; i < 360+step; i = i + step) {
+      let filtered = waveDirections.filter(el => {
+        el = (el + 360*10)%360; // Transform to 0-360 space
+        return ((el < i%360 + step) && (el > i%360))
+      });
+      let amount = 12 * radius * filtered.length / waveDirections.length;
+      if (i == 0)
+        context.moveTo(Math.cos((i + step / 2) * Math.PI / 180) * amount, Math.sin((i + step / 2) * Math.PI / 180) * amount);
+      else
+        context.lineTo(Math.cos((i + step / 2) * Math.PI / 180) * amount, Math.sin((i + step / 2) * Math.PI / 180) * amount);
+    }
+    context.stroke();
+    context.resetTransform();
+
+    context.translate(5, 280);
+    // Informative text
+    textSeparation = 15;
+    context.font = '12pt Calibri';
+    context.textAlign = 'left';
+    context.fillStyle = 'white';
+    context.fillText('Wave directions', 0, 0)
+    context.font = '10pt Calibri';
+    context.fillText('MeanDir_ADCPWaves: ' + meanDir + " º", 0, textSeparation);
+    context.fillText("Standard deviation: " + stdDir + " º", 0, textSeparation * 2);
+    context.resetTransform();
+  }
+
+
 
 
 
@@ -115,17 +235,37 @@ export const createWaveParamsImageData = function(imgSize){
       imageData.data[i * 4 + 3] = 255;
     }
   }
-
-  imageData.data[0] = 255;
-  imageData.data[1] = 0;
-  imageData.data[2] = 0;
-  imageData.data[3] = 255;
+  let i = 0;
+  imageData.data[i * 4] = 255 * 0.5;
+  imageData.data[i * 4 + 1] = 255 * 0.6 / WAVE_MAX;
+  imageData.data[i * 4 + 2] = 255;
+  imageData.data[i * 4 + 3] = 0;
+  
+  i = 1;
+  imageData.data[i * 4] = 255 * 0.25;
+  imageData.data[i * 4 + 1] = 255 * 0.05 / WAVE_MAX;
+  let dirX = Math.sin((-48-90) * Math.PI / 180)
+  let dirZ = Math.cos((-48 - 90) * Math.PI / 180);
+  imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
+  imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
+  
+  i = 2;
+  imageData.data[i * 4] = 255 * 0.2;
+  imageData.data[i * 4 + 1] = 255 * 0.25 / WAVE_MAX;
+  dirX = Math.sin((-276 - 90) * Math.PI / 180)
+  dirZ = Math.cos((-276 - 90) * Math.PI / 180);
+  imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
+  imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
+  
 
   // Put data into the texture
   //context.putImageData(imageData, 0, 0);
   return imageData.data;
   //return canvas;
   //let dataURL = canvas.toDataURL();
+
+
+  
 }
 
 
@@ -162,4 +302,10 @@ const generateGaussianDistribution = function(targetMean, targetStd, numPoints, 
   // console.log("Std: " + std);
 
   return out;
+}
+
+
+
+const createHTMLGidget = function(){
+
 }

@@ -74,15 +74,28 @@ export const OceanVertShader = `
     vec3 tangent = vec3(1.0, 0.0, 0.0);
     vec3 binormal = vec3(0.0, 0.0, 1.0);
 
-    // Get texture size
+    // Get data texture values
+    vec4 params1 = texture2D(u_paramsTexture, vec2(0.0/16.0, 0.0/16.0));
+    vec4 params2 = texture2D(u_paramsTexture, vec2(1.0/16.0, 0.0/16.0));
+    vec4 params3 = texture2D(u_paramsTexture, vec2(2.0/16.0, 0.0/16.0));
+
+    // Rescale parameters
+    params1.g = 6.0 * params1.g; // height
+    params2.g = 6.0 * params2.g;
+    params3.g = 6.0 * params3.g;
+
+
     vec2 texSize = vec2(16.0 ,16.0);
-    vec4 texValue = texture2D(u_paramsTexture, vec2(0.0/16.0, 0.0/16.0));
-    v_OceanColor = texValue;
+    //vec4 texValue = texture2D(u_paramsTexture, vec2(0.0/16.0, 0.0/16.0));
+    //v_OceanColor = texValue;
 
     // Gerstner Wave
-    modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
-    modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
-    modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+    // modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
+    // modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
+    // modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(params1, modPos, tangent, binormal);
+    modPos += GerstnerWave(params2, modPos, tangent, binormal);
+    modPos += GerstnerWave(params3, modPos, tangent, binormal);
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
@@ -103,7 +116,7 @@ export const OceanFragShader = `
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
-  varying vec4 v_OceanColor;
+  //varying vec4 v_OceanColor;
 
   void main(){
     // Sun position
@@ -152,7 +165,7 @@ export const OceanFragShader = `
     
 
 
-    //gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
+    gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
     
     //gl_FragColor = vec4(skyFresnel, 1.0);
 
@@ -160,7 +173,7 @@ export const OceanFragShader = `
     //gl_FragColor = vec4(diffuseColor + specularColor + sky, 1.0);
     //gl_FragColor = vec4( specularColor + sky, 1.0);
     //gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
-    gl_FragColor = vec4(v_OceanColor.rgb, 1.0);
+    //gl_FragColor = vec4(v_OceanColor.rgb, 1.0);
 
   }
   `;
