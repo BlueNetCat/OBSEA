@@ -88,7 +88,11 @@ export const OceanVertShader = `
         vec4 params = texture2D(u_paramsTexture, vec2(float(i)/u_imgSize.x, float(j)/u_imgSize.y));
         // Steepness factor
         params.r = params.r *u_wave1Params.r;
+        // Wave height
         //params.g = params.g/(u_imgSize.x*u_imgSize.y);
+        // Direction
+        params.b = params.b - 0.5;
+        params.a = params.a - 0.5;
         modPos += GerstnerWave(params, modPos, tangent, binormal);
       }
     }

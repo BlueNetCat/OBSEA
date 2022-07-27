@@ -244,7 +244,7 @@ export const createWaveParamsImageData = function(imgSize){
     // Direction range -- SOME HACK WITH ORIENTATION HERE
     let dirX = Math.sin( (-waveDirections[i]-90) * Math.PI / 180)
     imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
-    let dirZ = Math.cos((-waveDirections[i] - 90) * Math.PI / 180);
+    let dirZ = Math.cos((-waveDirections[i]-90) * Math.PI / 180);
     imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
     
   }
