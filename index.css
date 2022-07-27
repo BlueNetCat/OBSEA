@@ -26,6 +26,19 @@ body {
   display: inline-flex;
 }
 
+#randomWaveHeights, #randomWaveDirs {
+  color: white;
+  background-color:rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  z-index: 1;
+}
+
+#randomWaveHeights:hover,
+#randomWaveDirs:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  cursor: pointer
+}
+
 #focusOnBuoy, #focusOnBase {
   margin: 10px;
   border-radius: 10px;
