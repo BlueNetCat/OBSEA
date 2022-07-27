@@ -26,6 +26,17 @@
 
 <!-- Ocean Sliders -->
 <div id="sliderPanel">
+  <!-- Sea steepness -->
+  <div id="direction">
+    <div>Ocean steepness factor</div>
+    <input id="sliderOceanSteepness" type="range" max="1" min="0.01" value="0.4" step="0.01" />
+    <div id="infoSeaSteepness"></div>
+
+  </div>
+
+  <div style="padding: 20px"></div>
+
+
   <!-- Wave 1-->
   <!-- Swell direction -->
   <div id="direction">
@@ -44,7 +55,7 @@
   <!-- Wave Steepness -->
   <div id="steepness">
     <div>Wave 1 steepness</div>
-    <input id="sliderWaveSteepness1" type="range" max="1" min="0.01" value="0.5" step="0.01" />
+    <input id="sliderWaveSteepness1" type="range" max="1" min="0.01" value="0.1" step="0.01" />
     <div id="infoWaveSteepness1"></div>
   </div>
 
@@ -68,7 +79,7 @@
   <!-- Wave Steepness -->
   <div id="steepness">
     <div>Wave 2 steepness</div>
-    <input id="sliderWaveSteepness2" type="range" max="1" min="0.01" value="0.25" step="0.01" />
+    <input id="sliderWaveSteepness2" type="range" max="1" min="0.01" value="0.1" step="0.01" />
     <div id="infoWaveSteepness2"></div>
   </div>
 
@@ -92,7 +103,7 @@
   <!-- Wave Steepness -->
   <div id="steepness">
     <div>Wave 3 steepness</div>
-    <input id="sliderWaveSteepness3" type="range" max="1" min="0.01" value="0.2" step="0.01" />
+    <input id="sliderWaveSteepness3" type="range" max="1" min="0.01" value="0.1" step="0.01" />
     <div id="infoWaveSteepness3"></div>
   </div>
 
@@ -114,6 +125,14 @@
     <div id="infoWindIntensity"></div>
   </div>
 </div>
+
+
+
+
+<!-- Random seed buttons -->
+<!-- Random wave heights -->
+<button id="randomWaveHeights" style="position: absolute; bottom: 260px; right: 100px; z-index: 1">Randomize wave heights</button>
+<button id="randomWaveDirs" style="position: absolute; bottom: 20px; right: 80px;">Randomize wave directions</button>
 
 
 

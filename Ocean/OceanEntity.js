@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import {OceanVertShader, OceanFragShader} from '/OBSEA/Ocean/OceanShader.js';
-import { createWaveParamsImageData } from '/OBSEA/Ocean/OceanParams.js';
+import { OceanParameters } from '/OBSEA/Ocean/OceanParams.js';
 
 class OceanEntity {
 
@@ -17,22 +17,18 @@ class OceanEntity {
 
   tempVec3 = new THREE.Vector3();
   tempVec2 = new THREE.Vector2();
+
   
   // Constructor
   constructor(scene){
 
-    // Creates a texture that has parameters for generating waves. It includes wave height, direction X, direction Z, and steepness (RGBA).
-    // let paramsCanvas = createWaveParamsTexture();
-    // let paramsTexture = new THREE.TextureLoader().load(paramsCanvas.toDataURL());
-    // paramsTexture.magFilter = THREE.NearestFilter;
-    // paramsTexture.minFilter = THREE.NearestFilter;
-    //console.log(paramsTexture);
-    // sqrt(Number of waves)
-    // Creates a texture that has parameters for generating waves. It includes wave height, direction X, direction Z, and steepness (RGBA).
-    // TODO: instead of getting image data, I think I could use directly floats to create THREE.DataTexture.
+    // Creates a texture that has parameters for generating waves. It includes wave steepness, height, direction X, and direction Z (RGBA).
     let imgSize = 5;
-    let numWaves = imgSize * imgSize;
-    let paramsData = createWaveParamsImageData(imgSize);
+    this.oceanParams = new OceanParameters({}, imgSize);
+    
+    
+
+    let paramsData = this.oceanParams.getWaveParamsImageData();//createWaveParamsImageData({}, imgSize);
     let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
     paramsTexture.magFilter = THREE.NearestFilter;
     paramsTexture.needsUpdate = true;
@@ -58,12 +54,12 @@ class OceanEntity {
           u_time: { value: this.time },
           u_paramsTexture: {value: paramsTexture},
           u_imgSize: {value: new THREE.Vector2(imgSize, imgSize)},
-          // u_steepness: { value: 0.5 },
+          u_steepnessFactor: { value: 0.4 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
-          u_wave1Params: { value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0) }, // steepness, waveHeight, directionx, directiony
-          u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directiony
-          u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directiony
+          u_wave1Params: { value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
         },
         vertexShader: OceanVertShader,
         fragmentShader: OceanFragShader,
@@ -88,6 +84,30 @@ class OceanEntity {
 
     });
 
+
+    // USER ACTIONS
+    let el = document.getElementById("randomWaveHeights");
+    el.addEventListener("click", () => {
+      this.oceanParams.randomizeWaveHeightDistribution();
+      let paramsData = this.oceanParams.getWaveParamsImageData();
+      let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+      paramsTexture.magFilter = THREE.NearestFilter;
+      paramsTexture.needsUpdate = true;
+      // Update uniforms
+      this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+      this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    });
+    el = document.getElementById("randomWaveDirs");
+    el.addEventListener("click", () => {
+      this.oceanParams.randomizeWaveDirectionDistribution();
+      let paramsData = this.oceanParams.getWaveParamsImageData();
+      let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+      paramsTexture.magFilter = THREE.NearestFilter;
+      paramsTexture.needsUpdate = true;
+      // Update uniforms
+      this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+      this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    });
   }
 
 
@@ -164,7 +184,7 @@ class OceanEntity {
 
 
 
-
+// TODO: MAKE EVENT LISTENERS. IF SOMETHING CHANGES UPDATE THE VARIABLE
 getWaveParametersHTML = function(id) {
   // Get wave height from slider
   let el = document.getElementById("sliderWaveHeight" + id);
@@ -195,6 +215,20 @@ getWaveParametersHTML = function(id) {
 
 
 
+getOceanParameters = function(){
+{/* <input id="seaSteepness" type="range" max="1" min="0" value="1" step="0.01" /> */}
+    // <div id="infoSeaSteepness"></div>
+  // Get sea steepness factor slider
+  let el = document.getElementById("sliderOceanSteepness");
+  let steepFactor = parseFloat(el.value);
+  el = document.getElementById("infoSeaSteepness");
+  el.innerHTML = steepFactor;
+
+  return steepFactor;
+}
+
+
+
 
 
 
@@ -209,6 +243,10 @@ getWaveParametersHTML = function(id) {
       let oceanHRTile = this.oceanHRTile;
       oceanHRTile.material.uniforms.u_time.value = this.time; // dt
       this.oceanLRTile.material.uniforms.u_time.value = this.time; // dt
+
+      let oceanSteepness = this.getOceanParameters();
+      oceanHRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
+      this.oceanLRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
 
       let params1 = this.getWaveParametersHTML("1");
       //params[0] = 0.5; // custom steepness

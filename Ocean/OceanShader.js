@@ -10,6 +10,7 @@ export const OceanVertShader = `
   uniform float u_time;
   uniform vec3 u_imgSize;
   uniform sampler2D u_paramsTexture;
+  uniform float u_steepnessFactor;
 
   uniform vec4 u_wave1Params;
   uniform vec4 u_wave2Params;
@@ -77,9 +78,9 @@ export const OceanVertShader = `
 
 
     // Gerstner Wave
-    // modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
-    // modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
-    // modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
 
 
     // Iterate over all the waves
@@ -87,7 +88,7 @@ export const OceanVertShader = `
       for (int j = 0; j < int(u_imgSize.y); j++){
         vec4 params = texture2D(u_paramsTexture, vec2(float(i)/u_imgSize.x, float(j)/u_imgSize.y));
         // Steepness factor
-        params.r = params.r *u_wave1Params.r;
+        params.r = params.r * u_steepnessFactor;
         // Wave height
         //params.g = params.g/(u_imgSize.x*u_imgSize.y);
         // Direction
