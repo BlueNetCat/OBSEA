@@ -31,20 +31,18 @@ class OceanEntity {
     paramsTexture.needsUpdate = true;
 
     // Load normal texture for smaller waves that the geometry cannot capture
-    let normalTexture = new THREE.TextureLoader().load('/OBSEA/Assets/Terrain/OceanNormal.png');
-    normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+    // let normalTexture = new THREE.TextureLoader().load('/OBSEA/Assets/Terrain/OceanNormal.png');
+    // normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
 
     // Create video texture
+    // https://blenderartists.org/t/animated-water-normal-map-tileable-looped/673140
     // https://threejs.org/examples/?q=video#webgl_materials_video
     // https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_video.html
     let videoEl = document.createElement("video");
-    videoEl.loop = true;
-    videoEl.crossOrigin = 'anonymous';
-    videoEl.playsInline = true;
+    videoEl.loop = true; videoEl.crossOrigin = 'anonymous'; videoEl.playsInline = true; videoEl.muted = "muted";
     videoEl.src = '/OBSEA/Assets/Terrain/OceanNormal.mp4';
-    videoEl.muted = "muted"
     videoEl.play();
-    normalTexture = new THREE.VideoTexture(videoEl);
+    let normalTexture = new THREE.VideoTexture(videoEl);
     normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
     // document.body.append(videoEl);
     // videoEl.style.position = 'absolute';

@@ -3,6 +3,13 @@
 // https://www.khronos.org/files/opengles_shading_language.pdf
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
 
+// 2D water effect
+// https://brandenstrochinsky.blogspot.com/2016/06/water-effect.html
+
+// Read more about normal mapping
+// https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
+// https://www.youtube.com/watch?v=JNj1A1bl7gg&ab_channel=VictorGordan
+
 // Use VS plugin "Comment tagged templates" and add /* glsl */
 export const OceanVertShader = /* glsl */ `
         
