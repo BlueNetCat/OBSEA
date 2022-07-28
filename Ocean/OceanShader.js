@@ -3,7 +3,8 @@
 // https://www.khronos.org/files/opengles_shading_language.pdf
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
 
-export const OceanVertShader = `
+// Use VS plugin "Comment tagged templates" and add /* glsl */
+export const OceanVertShader = /* glsl */ `
         
   #define PI 3.141592653589793
 
@@ -15,6 +16,8 @@ export const OceanVertShader = `
   uniform vec4 u_wave1Params;
   uniform vec4 u_wave2Params;
   uniform vec4 u_wave3Params;
+
+  
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
@@ -99,16 +102,14 @@ export const OceanVertShader = `
     }
 
 
-
-
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
     v_Normal = normal;
 
-
     // World position
     vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
     v_WorldPosition = worldPosition.xyz;
+
 
     // Screen space position
     gl_Position = projectionMatrix * modelViewMatrix * vec4(modPos, 1.0);
@@ -116,13 +117,42 @@ export const OceanVertShader = `
   `;
 
 
-export const OceanFragShader = `
+
+
+
+
+
+
+
+
+
+
+export const OceanFragShader = /* glsl */`
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
+  uniform sampler2D u_normalTexture;
+    uniform float u_time;
+
   //varying vec4 v_OceanColor;
 
   void main(){
+
+    // Bump texture
+    vec2 scale = vec2(0.5,0.5);
+    float speedFactor = 1.0;
+    vec2 textCoord =  vec2(v_WorldPosition.xz + u_time * speedFactor);
+    textCoord.x = textCoord.x * scale.x;
+    textCoord.y = textCoord.y * scale.y;
+    //textCoord.y *= scale.y;
+    vec4 normalTexel = texture2D(u_normalTexture, textCoord) * 2.0 - 1.0; // Should be world position or local position?
+    // In principle, we only need the deviation from 0,0,1. 
+    //normalTexel.z -= 1.0;
+    float glossyFactor = 0.5;
+    vec3 normal = normalize(normalTexel.xzy)*glossyFactor + v_Normal.xyz; // HACK: v_Normal seems to have the z and the y flipped.
+
+    normal = normalize(normal);
+
     // Sun position
     vec3 sunPosition = vec3(0.0, 1.0, 0.0);
 
@@ -130,7 +160,7 @@ export const OceanFragShader = `
     vec3 oceanColor = vec3(0.016, 0.064, 0.192);//(0.2, 0.2, 1.0);  
     
     // Diffuse color
-    vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), v_Normal));
+    vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
 
     // Ambient color
     vec3 ambientColor = vec3(0.0,0.0,0.1);
@@ -139,7 +169,7 @@ export const OceanFragShader = `
     vec3 skyColor = vec3(0.51, 0.75, 1.0);
     
     // Specular color
-    vec3 reflection = normalize(reflect(normalize(-sunPosition), v_Normal));
+    vec3 reflection = normalize(reflect(normalize(-sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
     vec3 cameraRay = v_WorldPosition - cameraPosition;
     float specIncidence = max(0.0, dot(normalize(-cameraRay), reflection));
     float shiny = 50.0;
@@ -151,15 +181,14 @@ export const OceanFragShader = `
     // https://github.com/dli/waves/blob/master/simulation.js
     // https://www.shadertoy.com/view/4scSW4 with named variables
     // HACK - WARNING
-    //float fresnel = 0.02 + 0.5 * pow(1.0 - dot(v_Normal, normalize(-cameraRay)), 5.0);
+    //float fresnel = 0.02 + 0.5 * pow(1.0 - dot(normal, normalize(-cameraRay)), 5.0);
     // TODO: something wrong with the fresnel
     //float fresnel = 1.0 - (dot(vec3(0.0,1.0,0.0), normalize(cameraPosition))); // Camera position working
     //float fresnel = 1.0 - (dot(normalize(v_Normal), vec3(0.0,1.0,0.0))); // Normal working
     
-    vec3 camR = normalize(-cameraRay);
-    vec3 vN = v_Normal;
-    float dotOperation = -(vN.x*camR.z) + (vN.y*camR.y) + (vN.z*camR.x);
-    //float fresnel = 1.0 - (dot(normalize(v_Normal), normalize(-cameraRay)));
+    vec3 camR = normalize(-cameraRay); // TODO: NORMAL HAS Z AND Y FLIPPED
+    float dotOperation = -(normal.x*camR.z) + (normal.y*camR.y) + (normal.z*camR.x); // TODO: NORMAL HAS Z AND Y FLIPPED
+    //float fresnel = 1.0 - (dot(normalize(normal), normalize(-cameraRay)));
     //float fresnel = 1.0 - (dotOperation);
     float fresnel = 0.02 + 0.98 * pow(1.0 - (dotOperation), 5.0);
 
@@ -178,6 +207,7 @@ export const OceanFragShader = `
     //gl_FragColor = vec4( specularColor + sky, 1.0);
     //gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
     //gl_FragColor = vec4(v_OceanColor.rgb, 1.0);
-
+    //gl_FragColor = vec4((temp.xzy + 1.0)/2.0, 1.0);
+    //gl_FragColor = vec4((normalTexel.xyz + 1.0)/2.0, 1.0);
   }
   `;

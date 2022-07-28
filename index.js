@@ -65,8 +65,7 @@ function main() {
   }
 
   // Click on object
-  // TODO:
-
+  // TODO: https://www.youtube.com/watch?v=VwSRizyr1pI&ab_channel=LateNightCoders
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x47A0B9);
   // Fog
