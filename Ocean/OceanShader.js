@@ -132,19 +132,19 @@ export const OceanFragShader = /* glsl */`
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
   uniform sampler2D u_normalTexture;
-    uniform float u_time;
+  uniform float u_time;
 
   //varying vec4 v_OceanColor;
 
   void main(){
 
     // Bump texture
-    vec2 scale = vec2(0.5,0.5);
-    float speedFactor = 1.0;
+    vec2 scale = vec2(5.0,5.0);
+    float speedFactor = 0.0;
     vec2 textCoord =  vec2(v_WorldPosition.xz + u_time * speedFactor);
-    textCoord.x = textCoord.x * scale.x;
-    textCoord.y = textCoord.y * scale.y;
-    //textCoord.y *= scale.y;
+    textCoord.x = textCoord.x / scale.x;
+    textCoord.y = textCoord.y / scale.y;
+  
     vec4 normalTexel = texture2D(u_normalTexture, textCoord) * 2.0 - 1.0; // Should be world position or local position?
     // In principle, we only need the deviation from 0,0,1. 
     //normalTexel.z -= 1.0;

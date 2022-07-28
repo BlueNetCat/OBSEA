@@ -33,6 +33,28 @@ class OceanEntity {
     // Load normal texture for smaller waves that the geometry cannot capture
     let normalTexture = new THREE.TextureLoader().load('/OBSEA/Assets/Terrain/OceanNormal.png');
     normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+
+    // Create video texture
+    // https://threejs.org/examples/?q=video#webgl_materials_video
+    // https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_video.html
+    let videoEl = document.createElement("video");
+    videoEl.loop = true;
+    videoEl.crossOrigin = 'anonymous';
+    videoEl.playsInline = true;
+    videoEl.src = '/OBSEA/Assets/Terrain/OceanNormal.mp4';
+    videoEl.muted = "muted"
+    videoEl.play();
+    normalTexture = new THREE.VideoTexture(videoEl);
+    normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+    // document.body.append(videoEl);
+    // videoEl.style.position = 'absolute';
+    // videoEl.style.top = '0px';
+    // videoEl.style.left = '0px';
+    // <video id="video" loop crossOrigin="anonymous" playsinline style="display:none">
+		// 	<source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
+		// 	<source src="textures/sintel.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+		// </video>
+
     
 
     // Load ocean mesh
