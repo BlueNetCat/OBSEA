@@ -2,10 +2,15 @@
 // https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html
 // https://www.khronos.org/files/opengles_shading_language.pdf
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
+// Ben Cloward has some interesting tutorials with Unreal Engine on how to make water effects
 // UE Ocean using texture https://www.youtube.com/watch?v=r68DnTMeFFQ&list=PL78XDi0TS4lGXKflD2Z5aY2sLuIln6-sD&ab_channel=BenCloward
+// Adding a Gestner wave to that https://www.youtube.com/watch?v=BJSMVvZMQ1w&ab_channel=BenCloward
 
 // 2D water effect
 // https://brandenstrochinsky.blogspot.com/2016/06/water-effect.html
+// Screen space reflections (SSR)
+// https://www.youtube.com/watch?v=K2rs7K4y_sY&ab_channel=NullPointer
+// https://threejs.org/examples/?q=post#webgl_postprocessing_ssr
 
 // Blending normals
 // https://blog.selfshadow.com/publications/blending-in-detail/
@@ -225,7 +230,7 @@ export const OceanFragShader = /* glsl */`
     //vec3 waterFresnel = (1.0 - fresnel) * (oceanColor*3.0 + skyColor + diffuseColor) / 5.0;
     
 
-    vec3 color = skyFresnel + waterFresnel + diffuseColor*0.5 + specularColor;
+    vec3 color = skyFresnel*2.0 + waterFresnel*2.0 + diffuseColor + specularColor;
 
     color = hdr(color, 0.99); // From David Li https://github.com/dli/waves/blob/master/simulation.js
 

@@ -45,6 +45,8 @@ function main() {
   
   controls.update();
   controls.enableDamping = true;
+  // controls.autoRotate = true;
+  // controls.autoRotateSpeed = 1;
 
 
   // USER INTERACTION
