@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats from 'https://threejs.org/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
@@ -15,7 +16,7 @@ import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
-
+let stats;
 
 
 function main() {
@@ -77,6 +78,12 @@ function main() {
   THREE.ShaderChunk.fog_pars_fragment = FogShader.fogFragParams;
   THREE.ShaderChunk.fog_vertex = FogShader.fogVertex;
   THREE.ShaderChunk.fog_pars_vertex = FogShader.fogVertexParams;
+
+  // STATS
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
+  stats.dom.style.right = '0px';
+  stats.dom.style.left = null;
 
   // Skybox
   let skybox = new SkyboxEntity(scene);
@@ -265,6 +272,9 @@ function main() {
 
   function render(time) {
 
+    stats.update();
+    
+
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -278,6 +288,7 @@ function main() {
     controls.update();
 
     requestAnimationFrame(render);
+
   }
 
   requestAnimationFrame(render);
