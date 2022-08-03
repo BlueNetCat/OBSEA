@@ -2,9 +2,13 @@
 // https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html
 // https://www.khronos.org/files/opengles_shading_language.pdf
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
+// UE Ocean using texture https://www.youtube.com/watch?v=r68DnTMeFFQ&list=PL78XDi0TS4lGXKflD2Z5aY2sLuIln6-sD&ab_channel=BenCloward
 
 // 2D water effect
 // https://brandenstrochinsky.blogspot.com/2016/06/water-effect.html
+
+// Blending normals
+// https://blog.selfshadow.com/publications/blending-in-detail/
 
 // Read more about normal mapping
 // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
@@ -111,7 +115,8 @@ export const OceanVertShader = /* glsl */ `
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
-    v_Normal = normal;
+    //normal = (modelMatrix * vec4(normal, 1.0)).xyz; // Produces strange blending between ocean meshes
+    v_Normal = normal.xzy; // Do the rotation manually
 
     // World position
     vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
@@ -143,9 +148,17 @@ export const OceanFragShader = /* glsl */`
 
   //varying vec4 v_OceanColor;
 
+
+  // https://github.com/dli/waves/blob/master/simulation.js
+  vec3 hdr (vec3 color, float exposure) {
+      return 1.0 - exp(-color * exposure);
+  }
+
+
+
   void main(){
 
-    // Bump texture
+    // Bump texture for specular reflections
     vec2 scale = vec2(5.0,5.0);
     float speedFactor = 0.0;
     vec2 textCoord =  vec2(v_WorldPosition.xz + u_time * speedFactor);
@@ -153,21 +166,30 @@ export const OceanFragShader = /* glsl */`
     textCoord.y = textCoord.y / scale.y;
   
     vec4 normalTexel = texture2D(u_normalTexture, textCoord) * 2.0 - 1.0; // Should be world position or local position?
-    // In principle, we only need the deviation from 0,0,1. 
-    //normalTexel.z -= 1.0;
-    float glossyFactor = 0.5;
-    vec3 normal = normalize(normalTexel.xzy)*glossyFactor + v_Normal.xyz; // HACK: v_Normal seems to have the z and the y flipped.
+    //normalTexel.xyz = normalTexel.xzy; // Put normal texel in the same coordinates as the v_Normal
+    // Normal blending
+    // https://blog.selfshadow.com/publications/blending-in-detail/
+    // Partial derivative blending
+    vec3 n1 = v_Normal;
+    vec3 n2 = normalTexel.xyz;
+    vec2 pd = n1.xy/n1.z + n2.xy/n2.z; // Add the PDs
+    vec3 normal  = normalize(vec3(pd, 1.0)); // Partial derivative
+    //vec3 normal = normalize(vec3(n1.xy + n2.xy, n1.z*n2.z)); // Whiteout blending
+    //vec3 normal = v_Normal;
 
-    normal = normalize(normal);
+    // float glossyFactor = 0.0;
+    // vec3 normal = normalize(normalTexel.xzy)*glossyFactor + v_Normal.xyz; // HACK: v_Normal seems to have the z and the y flipped.
+
+    // normal = normalize(normal.xyz);
 
     // Sun position
-    vec3 sunPosition = vec3(0.0, 1.0, 0.0);
+    vec3 sunPosition = vec3(0.0, 10.0, 0.0);
 
     // Ocean color
     vec3 oceanColor = vec3(0.016, 0.064, 0.192);//(0.2, 0.2, 1.0);  
     
     // Diffuse color
-    vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
+    vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), v_Normal)); // NORMAL WITHOUT TEXTURE
 
     // Ambient color
     vec3 ambientColor = vec3(0.0,0.0,0.1);
@@ -176,45 +198,56 @@ export const OceanFragShader = /* glsl */`
     vec3 skyColor = vec3(0.51, 0.75, 1.0);
     
     // Specular color
-    vec3 reflection = normalize(reflect(normalize(-sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
+    // -sunPosition = Incident ray
+    //vec3 reflection = normalize(reflect(normalize(-sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
+    vec3 reflection = normalize(reflect(normalize(sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
     vec3 cameraRay = v_WorldPosition - cameraPosition;
     float specIncidence = max(0.0, dot(normalize(-cameraRay), reflection));
-    float shiny = 50.0;
-    vec3 specularColor = 0.5 * vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
+    float shiny = 100.0;
+    float specFactor = 5.0;
+    vec3 specularColor = specFactor * vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
 
 
 
     // Fresnel - CAMERARAY NEEDS A HACK? SWAP X BY Z AND NEGATE FIRST COMPONENT?
     // https://github.com/dli/waves/blob/master/simulation.js
     // https://www.shadertoy.com/view/4scSW4 with named variables
-    // HACK - WARNING
-    //float fresnel = 0.02 + 0.5 * pow(1.0 - dot(normal, normalize(-cameraRay)), 5.0);
-    // TODO: something wrong with the fresnel
-    //float fresnel = 1.0 - (dot(vec3(0.0,1.0,0.0), normalize(cameraPosition))); // Camera position working
-    //float fresnel = 1.0 - (dot(normalize(v_Normal), vec3(0.0,1.0,0.0))); // Normal working
-    
+    // HACK - WARNING 
+    vec3 nFresnel = v_Normal; // USE NORMAL WITHOUT TEXTURE (from geometry)
     vec3 camR = normalize(-cameraRay); // TODO: NORMAL HAS Z AND Y FLIPPED
-    float dotOperation = -(normal.x*camR.z) + (normal.y*camR.y) + (normal.z*camR.x); // TODO: NORMAL HAS Z AND Y FLIPPED
-    //float fresnel = 1.0 - (dot(normalize(normal), normalize(-cameraRay)));
+    float dotOperation = -(nFresnel.x*camR.z) + (nFresnel.z*camR.y) + (nFresnel.y*camR.x); // SOME HACK THAT MAKES IT LOOK GOOD
     //float fresnel = 1.0 - (dotOperation);
     float fresnel = 0.02 + 0.98 * pow(1.0 - (dotOperation), 5.0);
 
     fresnel = clamp(fresnel, 0.0, 1.0);
     vec3 skyFresnel = fresnel * skyColor;
-    vec3 waterFresnel = (1.0 - fresnel) * oceanColor;//u_oceanColor * u_skyColor * diffuse;
+    vec3 waterFresnel = (1.0 - fresnel) * oceanColor;//(1.0 - fresnel) * u_oceanColor * u_skyColor * diffuse;
+    //vec3 waterFresnel = (1.0 - fresnel) * (oceanColor*3.0 + skyColor + diffuseColor) / 5.0;
     
 
+    vec3 color = skyFresnel + waterFresnel + diffuseColor*0.5 + specularColor;
 
-    gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
+    color = hdr(color, 0.99); // From David Li https://github.com/dli/waves/blob/master/simulation.js
+
+    gl_FragColor = vec4(color, 0.9);
+    //gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
     
+
     //gl_FragColor = vec4(skyFresnel, 1.0);
+    //gl_FragColor = vec4(waterFresnel, 1.0);
+    //gl_FragColor = vec4(dotOperation, dotOperation, dotOperation, 1.0);
+    //gl_FragColor = vec4(fresnel, fresnel, fresnel, 1.0);
 
 
-    //gl_FragColor = vec4(diffuseColor + specularColor + sky, 1.0);
-    //gl_FragColor = vec4( specularColor + sky, 1.0);
+    //gl_FragColor = vec4(diffuseColor + specularColor + skyColor, 1.0);
+    //gl_FragColor = vec4( specularColor + skyColor, 1.0);
     //gl_FragColor = vec4(diffuseColor + specularColor, 1.0);
     //gl_FragColor = vec4(v_OceanColor.rgb, 1.0);
     //gl_FragColor = vec4((temp.xzy + 1.0)/2.0, 1.0);
     //gl_FragColor = vec4((normalTexel.xyz + 1.0)/2.0, 1.0);
+    //gl_FragColor = vec4((normal.xyz + 1.0)/2.0, 1.0);
+    //gl_FragColor = vec4(diffuseColor*5.0, 1.0);
+    //gl_FragColor = vec4(diffuseColor +  specularColor, 1.0);
+    //gl_FragColor = vec4(specIncidence, specIncidence, specIncidence, 1.0);
   }
   `;
