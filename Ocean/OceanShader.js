@@ -1,6 +1,8 @@
 // https://threejs.org/docs/index.html#api/en/materials/ShaderMaterial
+// https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram -- cameraPosition matrices etc...
 // https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html
 // https://www.khronos.org/files/opengles_shading_language.pdf
+// https://registry.khronos.org/OpenGL/specs/es/2.0/GLSL_ES_Specification_1.00.pdf // For WebGL
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
 // Ben Cloward has some interesting tutorials with Unreal Engine on how to make water effects
 // UE Ocean using texture https://www.youtube.com/watch?v=r68DnTMeFFQ&list=PL78XDi0TS4lGXKflD2Z5aY2sLuIln6-sD&ab_channel=BenCloward
@@ -37,6 +39,7 @@ export const OceanVertShader = /* glsl */ `
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
+  varying mat3 v_TBN;
   varying vec4 v_OceanColor;
 
 
@@ -91,15 +94,41 @@ export const OceanVertShader = /* glsl */ `
     // Get position
     vec3 modPos = position;
 
+    // Attenuate waves as they get further away form the center (avoids artifacts)
+    float distanceToCenter = distance(vec3(0.0, 0.0, 0.0), position);
+    float distanceStart = 200.0;
+    distanceToCenter = min(1000.0, max(distanceStart, distanceToCenter));
+    float distanceFactor = max(0.1, distanceStart/(distanceToCenter));
+
     // Declare tangent and binormal
     vec3 tangent = vec3(1.0, 0.0, 0.0);
     vec3 binormal = vec3(0.0, 0.0, 1.0);
 
 
-    // Gerstner Wave
+    // Gerstner Waves
     modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
+    // Attenuation
+    modPos.y *= distanceFactor;
+    tangent.x /= distanceFactor;
+    binormal.z /= distanceFactor;
+    tangent = normalize(tangent);
+    binormal = normalize(binormal);
+
     modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
+    // Attenuation
+    modPos.y *= distanceFactor;
+    tangent.x /= distanceFactor;
+    binormal.z /= distanceFactor;
+    tangent = normalize(tangent);
+    binormal = normalize(binormal);
+
     modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+    // Attenuation
+    modPos.y *= distanceFactor;
+    tangent.x /= distanceFactor;
+    binormal.z /= distanceFactor;
+    tangent = normalize(tangent);
+    binormal = normalize(binormal);
 
 
     // Iterate over all the waves
@@ -108,24 +137,33 @@ export const OceanVertShader = /* glsl */ `
         vec4 params = texture2D(u_paramsTexture, vec2(float(i)/u_imgSize.x, float(j)/u_imgSize.y));
         // Steepness factor
         params.r = params.r * u_steepnessFactor;
-        // Wave height
+        // Wave height factor
         //params.g = params.g/(u_imgSize.x*u_imgSize.y);
         // Direction
         params.b = params.b - 0.5;
         params.a = params.a - 0.5;
         modPos += GerstnerWave(params, modPos, tangent, binormal);
+        // Attenuation
+        modPos.y *= distanceFactor;
+        tangent.x /= distanceFactor;
+        binormal.z /= distanceFactor;
+        tangent = normalize(tangent);
+        binormal = normalize(binormal);
       }
     }
 
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
-    //normal = (modelMatrix * vec4(normal, 1.0)).xyz; // Produces strange blending between ocean meshes
-    v_Normal = normal.xzy; // Do the rotation manually
+    normal = (modelMatrix * vec4(normal, 1.0)).xyz; // Produces strange blending between ocean meshes
+    v_Normal = normal.xyz; // Do the rotation manually
 
     // World position
     vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
     v_WorldPosition = worldPosition.xyz;
+
+    // Model
+    v_TBN = mat3(tangent, binormal, normal);
 
 
     // Screen space position
@@ -148,6 +186,8 @@ export const OceanFragShader = /* glsl */`
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
+  varying mat3 v_TBN;
+
   uniform sampler2D u_normalTexture;
   uniform float u_time;
 
@@ -170,25 +210,26 @@ export const OceanFragShader = /* glsl */`
     textCoord.x = textCoord.x / scale.x;
     textCoord.y = textCoord.y / scale.y;
   
-    vec4 normalTexel = texture2D(u_normalTexture, textCoord) * 2.0 - 1.0; // Should be world position or local position?
-    //normalTexel.xyz = normalTexel.xzy; // Put normal texel in the same coordinates as the v_Normal
-    // Normal blending
+    // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
+    vec3 tangentNormal = (texture2D(u_normalTexture, textCoord) * 2.0 - 1.0).xyz; // Should be world position or local position?
+    vec3 normalTexel = tangentNormal.z * vec3(0.0,1.0,0.0) + tangentNormal.y * vec3(1.0,0.0,0.0) + tangentNormal.x * vec3(0.0,0.0,1.0);
+
+    vec3 normal = tangentNormal.z * v_TBN[2] + tangentNormal.y * v_TBN[1] + tangentNormal.x * v_TBN[0];
+
+
+
+    // Normal blending - In case of having two normal maps. Normal blending is solved above using TBN
     // https://blog.selfshadow.com/publications/blending-in-detail/
     // Partial derivative blending
-    vec3 n1 = v_Normal;
-    vec3 n2 = normalTexel.xyz;
-    vec2 pd = n1.xy/n1.z + n2.xy/n2.z; // Add the PDs
-    vec3 normal  = normalize(vec3(pd, 1.0)); // Partial derivative
+    //vec3 n1 = v_Normal;
+    //vec3 n2 = normalTexel;
+    //vec2 pd = n1.xy/n1.z + n2.xy/n2.z; // Add the PDs
+    //vec3 normal  = normalize(vec3(pd, 1.0)); // Partial derivative
     //vec3 normal = normalize(vec3(n1.xy + n2.xy, n1.z*n2.z)); // Whiteout blending
     //vec3 normal = v_Normal;
 
-    // float glossyFactor = 0.0;
-    // vec3 normal = normalize(normalTexel.xzy)*glossyFactor + v_Normal.xyz; // HACK: v_Normal seems to have the z and the y flipped.
-
-    // normal = normalize(normal.xyz);
-
     // Sun position
-    vec3 sunPosition = vec3(0.0, 10.0, 0.0);
+    vec3 sunPosition = vec3(0.0, 1.0, 0.0);
 
     // Ocean color
     vec3 oceanColor = vec3(0.016, 0.064, 0.192);//(0.2, 0.2, 1.0);  
@@ -204,11 +245,10 @@ export const OceanFragShader = /* glsl */`
     
     // Specular color
     // -sunPosition = Incident ray
-    //vec3 reflection = normalize(reflect(normalize(-sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
-    vec3 reflection = normalize(reflect(normalize(sunPosition), normal)); // TODO: NORMAL HAS Z AND Y FLIPPED
-    vec3 cameraRay = v_WorldPosition - cameraPosition;
+    vec3 reflection = normalize(reflect(normalize(-sunPosition), normal)); 
+    vec3 cameraRay = v_WorldPosition - cameraPosition; // Camera and worldpos are correct
     float specIncidence = max(0.0, dot(normalize(-cameraRay), reflection));
-    float shiny = 100.0;
+    float shiny = 80.0;
     float specFactor = 5.0;
     vec3 specularColor = specFactor * vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
 
@@ -217,10 +257,8 @@ export const OceanFragShader = /* glsl */`
     // Fresnel - CAMERARAY NEEDS A HACK? SWAP X BY Z AND NEGATE FIRST COMPONENT?
     // https://github.com/dli/waves/blob/master/simulation.js
     // https://www.shadertoy.com/view/4scSW4 with named variables
-    // HACK - WARNING 
-    vec3 nFresnel = v_Normal; // USE NORMAL WITHOUT TEXTURE (from geometry)
-    vec3 camR = normalize(-cameraRay); // TODO: NORMAL HAS Z AND Y FLIPPED
-    float dotOperation = -(nFresnel.x*camR.z) + (nFresnel.z*camR.y) + (nFresnel.y*camR.x); // SOME HACK THAT MAKES IT LOOK GOOD
+    vec3 camR = normalize(-cameraRay); 
+    float dotOperation = dot(v_Normal, camR); // USE NORMAL WITHOUT TEXTURE (from geometry)
     //float fresnel = 1.0 - (dotOperation);
     float fresnel = 0.02 + 0.98 * pow(1.0 - (dotOperation), 5.0);
 
@@ -254,5 +292,11 @@ export const OceanFragShader = /* glsl */`
     //gl_FragColor = vec4(diffuseColor*5.0, 1.0);
     //gl_FragColor = vec4(diffuseColor +  specularColor, 1.0);
     //gl_FragColor = vec4(specIncidence, specIncidence, specIncidence, 1.0);
+    //gl_FragColor = vec4(specularColor, 1.0);
+    
+    //gl_FragColor = vec4(normalize(reflection), 1.0);
+    //gl_FragColor = vec4(normalize(v_WorldPosition), 1.0);
+    //gl_FragColor = vec4((cameraPosition), 1.0);
+    //gl_FragColor = vec4((normalTexel), 1.0);
   }
   `;
