@@ -104,7 +104,7 @@ export class OceanParameters{
   // Given parameters by the csv
   updateParams = function(params){
     this.oceanParameters.Hm0 = params.Hm0;
-    this.oceanParameters.H3 = params.H3 < 0 ? params.H0 : params.H3; // Could have invalid number (-999.99);
+    this.oceanParameters.H3 = params.H3 < 0 ? params.Hm0 : params.H3; // Could have invalid number (-999.99);
     this.oceanParameters.H10 = params.H10;
     this.oceanParameters.hMax = params.Hmax;
 
