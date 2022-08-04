@@ -47,6 +47,7 @@ class OceanEntity {
     videoEl.play();
     let normalTexture = new THREE.VideoTexture(videoEl);
     normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+    normalTexture.encoding = THREE.sRGBEncoding;
     // document.body.append(videoEl);
     // videoEl.style.position = 'absolute';
     // videoEl.style.top = '0px';
