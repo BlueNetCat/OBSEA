@@ -24,6 +24,7 @@ class OceanEntity {
 
     // Creates a texture that has parameters for generating waves. It includes wave steepness, height, direction X, and direction Z (RGBA).
     let imgSize = 5;
+    this.imgSize = imgSize;
     this.oceanParams = new OceanParameters({}, imgSize);
     let paramsData = this.oceanParams.getWaveParamsImageData();//createWaveParamsImageData({}, imgSize);
     let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
@@ -88,7 +89,6 @@ class OceanEntity {
       });
 
 
-
       oceanMaterial.side = THREE.DoubleSide;
       this.oceanHRTile.material = oceanMaterial;
       this.oceanLRTile.material = oceanMaterial;
@@ -112,7 +112,7 @@ class OceanEntity {
     el.addEventListener("click", () => {
       this.oceanParams.randomizeWaveHeightDistribution();
       let paramsData = this.oceanParams.getWaveParamsImageData();
-      let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+      let paramsTexture = new THREE.DataTexture(paramsData, this.imgSize, this.imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
       paramsTexture.magFilter = THREE.NearestFilter;
       paramsTexture.needsUpdate = true;
       // Update uniforms
@@ -130,6 +130,25 @@ class OceanEntity {
       this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
       this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
     });
+  }
+
+  
+
+
+  // USER INPUT RANGE SLIDER
+  updateOceanParameters = function(params){
+    this.oceanParams.updateParams(params);
+    this.updateParamsTexture();
+  }
+
+  updateParamsTexture() {
+    let paramsData = this.oceanParams.getWaveParamsImageData();
+    let paramsTexture = new THREE.DataTexture(paramsData, this.imgSize, this.imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+    paramsTexture.magFilter = THREE.NearestFilter;
+    paramsTexture.needsUpdate = true;
+    // Update uniforms
+    this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
   }
 
 
