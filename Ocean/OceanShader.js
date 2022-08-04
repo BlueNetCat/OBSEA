@@ -2,6 +2,7 @@
 // https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram -- cameraPosition matrices etc...
 // https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html
 // https://www.khronos.org/files/opengles_shading_language.pdf
+// https://registry.khronos.org/OpenGL/specs/es/2.0/GLSL_ES_Specification_1.00.pdf // For WebGL
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
 // Ben Cloward has some interesting tutorials with Unreal Engine on how to make water effects
 // UE Ocean using texture https://www.youtube.com/watch?v=r68DnTMeFFQ&list=PL78XDi0TS4lGXKflD2Z5aY2sLuIln6-sD&ab_channel=BenCloward
@@ -93,15 +94,41 @@ export const OceanVertShader = /* glsl */ `
     // Get position
     vec3 modPos = position;
 
+    // Attenuate waves as they get further away form the center (avoids artifacts)
+    float distanceToCenter = distance(vec3(0.0, 0.0, 0.0), position);
+    float distanceStart = 200.0;
+    distanceToCenter = min(1000.0, max(distanceStart, distanceToCenter));
+    float distanceFactor = max(0.1, distanceStart/(distanceToCenter));
+
     // Declare tangent and binormal
     vec3 tangent = vec3(1.0, 0.0, 0.0);
     vec3 binormal = vec3(0.0, 0.0, 1.0);
 
 
-    // Gerstner Wave
+    // Gerstner Waves
     modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
+    // Attenuation
+    modPos.y *= distanceFactor;
+    tangent.x /= distanceFactor;
+    binormal.z /= distanceFactor;
+    tangent = normalize(tangent);
+    binormal = normalize(binormal);
+
     modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
+    // Attenuation
+    modPos.y *= distanceFactor;
+    tangent.x /= distanceFactor;
+    binormal.z /= distanceFactor;
+    tangent = normalize(tangent);
+    binormal = normalize(binormal);
+
     modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+    // Attenuation
+    modPos.y *= distanceFactor;
+    tangent.x /= distanceFactor;
+    binormal.z /= distanceFactor;
+    tangent = normalize(tangent);
+    binormal = normalize(binormal);
 
 
     // Iterate over all the waves
@@ -110,12 +137,18 @@ export const OceanVertShader = /* glsl */ `
         vec4 params = texture2D(u_paramsTexture, vec2(float(i)/u_imgSize.x, float(j)/u_imgSize.y));
         // Steepness factor
         params.r = params.r * u_steepnessFactor;
-        // Wave height
+        // Wave height factor
         //params.g = params.g/(u_imgSize.x*u_imgSize.y);
         // Direction
         params.b = params.b - 0.5;
         params.a = params.a - 0.5;
         modPos += GerstnerWave(params, modPos, tangent, binormal);
+        // Attenuation
+        modPos.y *= distanceFactor;
+        tangent.x /= distanceFactor;
+        binormal.z /= distanceFactor;
+        tangent = normalize(tangent);
+        binormal = normalize(binormal);
       }
     }
 
