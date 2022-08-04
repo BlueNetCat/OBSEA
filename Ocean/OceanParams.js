@@ -86,15 +86,17 @@ export class OceanParameters{
     // Limit wave heights
     this.waveHeights.forEach((el, index) => this.waveHeights[index] = el > this.oceanParameters.hMax ? el / 5 : el);
     this.waveHeights.forEach((el, index) => this.waveHeights[index] = el < 0 ? Math.abs(meanHeight + stdHeight*(Math.random()- 0.5)) : el); // If negative, resample as Hm0 + sigma*0.5*rand(-1,1);
-    this.waveHeights[0] = 0.001;
-    console.log("Maximum wave height: " + Math.max(...this.waveHeights));
-    console.log("Minimum wave height: " + Math.min(...this.waveHeights));
+    //console.log("Maximum wave height: " + Math.max(...this.waveHeights));
+    //console.log("Minimum wave height: " + Math.min(...this.waveHeights));
 
     // Generate direction distribution
     this.waveDirections = this.generateGaussianDistribution(this.oceanParameters.Mdir, this.oceanParameters.Spr1, this.numWaves);
 
     // Generate steepness distribution
     this.waveSteepness = this.generateGaussianDistribution(0.25, 0.1, this.numWaves);
+    this.waveSteepness.forEach((el, index) => this.waveSteepness[index] = Math.abs(el));
+    //console.log("Maximum wave steepness: " + Math.max(...this.waveSteepness));
+    //console.log("Minimum wave steepness: " + Math.min(...this.waveSteepness));
   }
 
 
