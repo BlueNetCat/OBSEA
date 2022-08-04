@@ -4,6 +4,14 @@ import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.
 import {OceanVertShader, OceanFragShader} from '/OBSEA/Ocean/OceanShader.js';
 import { OceanParameters } from '/OBSEA/Ocean/OceanParams.js';
 
+
+import { EffectComposer } from 'https://threejs.org/examples/jsm/postprocessing/EffectComposer.js';
+import { SSRPass } from 'https://threejs.org/examples/jsm/postprocessing/SSRPass.js';
+import { ShaderPass } from 'https://threejs.org/examples/jsm/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from 'https://threejs.org/examples/jsm/shaders/GammaCorrectionShader.js';
+import { ReflectorForSSRPass } from 'https://threejs.org/examples/jsm/objects/ReflectorForSSRPass.js';
+
+
 class OceanEntity {
 
   isLoaded = false;
@@ -18,9 +26,13 @@ class OceanEntity {
   tempVec3 = new THREE.Vector3();
   tempVec2 = new THREE.Vector2();
 
+  // SSR
+  composer;
+  ssrPass;
+
   
   // Constructor
-  constructor(scene){
+  constructor(scene, renderer, camera, ssrObjects){
 
     // Creates a texture that has parameters for generating waves. It includes wave steepness, height, direction X, and direction Z (RGBA).
     let imgSize = 5;
@@ -130,6 +142,25 @@ class OceanEntity {
       this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
       this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
     });
+
+
+
+
+
+    // SSR
+    this.composer = new EffectComposer(renderer);
+    this.ssrPass = new SSRPass({
+      renderer,
+      scene,
+      camera,
+      width: document.innerWidth,
+      height: document.innerHeight,
+      //groundReflector: params.groundReflector ? groundReflector : null,
+      selects: ssrObjects || null,
+    });
+
+    this.composer.addPass(this.ssrPass);
+    this.composer.addPass(new ShaderPass(GammaCorrectionShader));
   }
 
 
@@ -288,6 +319,9 @@ getOceanParameters = function(){
       oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
       this.oceanLRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
     }
+
+    // SSR
+    this.composer.render();
   }
 
 }

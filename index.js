@@ -89,8 +89,6 @@ function main() {
   let skybox = new SkyboxEntity(scene);
   // Sand
   let sand = new SandEntity(scene);
-  // Ocean
-  let ocean = new OceanEntity(scene);
   // OBSEA Buoy
   let obseaBuoy = new OBSEABuoyEntity(scene);
   // OBSEA Base
@@ -101,6 +99,9 @@ function main() {
     windsock.root.position.y = 1;
     windsock.root.scale.addScalar(2);
   });
+
+  // Ocean
+  let ocean = new OceanEntity(scene, renderer, camera, [obseaBuoy, windsock]);
 
   // Rosa dels vents
   let rosaVents = new RosaVentsEntity(scene);
