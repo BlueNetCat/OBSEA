@@ -68,6 +68,12 @@ function main() {
 
   // Click on object
   // TODO: https://www.youtube.com/watch?v=VwSRizyr1pI&ab_channel=LateNightCoders
+
+
+  
+
+
+  // SCENE
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x47A0B9);
   // Fog
@@ -102,43 +108,82 @@ function main() {
 
   let currents = new CurrentEntity(scene);
 
-  // { // ARROW OBJECT
 
-  //   const objLoader = new OBJLoader();
-  //   // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-  //   objLoader.load('/OBSEA/Assets/Orientation/ArrowX.obj', (root) => {
-
-  //     // Add material
-  //     const arrowMaterial = new THREE.MeshPhongMaterial({
-  //       color: 0xFF0000,    // red (can also use a CSS color string here)
-  //       flatShading: false,
-  //     });
-  //     root.children[0].material = arrowMaterial;
-
-  //     //scene.add(root);
-
-  //     // Sea water velocity data (2022-03-15 16:00:00)
-  //     let cspd = [0.791, 0.880, 0.616, 0.465, 0.475, 0.457, 0.487, 0.456, 0.487, 0.458, 0.465, 0.445, 0.463, 0.422, 0.415];
-  //     let cdir = [247, 241, 238, 240, 248, 248, 246, 248, 248, 248, 248, 250, 253, 249, 249];
-
-  //     // Other arrows
-  //     for (let i = 0; i < cspd.length; i++) {
-  //       let arr = root.clone();
-  //       arr.translateY(-i);
-  //       arr.scale.x = cspd[i];
-  //       arr.scale.y = cspd[i];
-  //       arr.scale.z = cspd[i];
-
-  //       arr.rotation.y = cdir[i] * Math.PI / 180;
-  //       scene.add(arr);
-  //     }
-
-
-  //   });
-
-
-  // }
   
+
+
+
+  // DRAG AND DROP
+  document.body.addEventListener('drop', (e) => {
+    // Prevent default behavior (Prevent file from being opened)
+    e.preventDefault();
+    e.stopPropagation();
+
+    var files = e.dataTransfer.files;
+    if (files.length > 1)
+      console.log("Multiple files dragged. Reading the first .csv only.");
+
+    // Load files
+    var count = 0;
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      let extension = file.name.substring(file.name.length - 3);
+      if (extension != "csv") {
+        console.error("Only csv files accepted. Format found: " + extension);
+        continue;
+      }
+      console.log("File droped: " + file.name);
+
+      var reader = new FileReader();
+      reader.fname = file.name;
+      // Load files
+      reader.onload = (e) => {
+        // Read csv
+        let rawSS = e.target.result;
+        let rowsSS = rawSS.split("\n");
+        for (let i = 0; i < rowsSS.length; i++) {
+          rowsSS[i] = rowsSS[i].split(",");
+        }
+
+        // Process csv file
+        // Create HTML slider on the bottom
+        let slider = document.createElement("input");
+        slider.type = "range";
+        slider.max = rowsSS.length - 2; // Last row is empty
+        slider.min = 1;
+        slider.step = 1;
+        slider.value = 1;
+
+        slider.onchange = (e) => {
+          let index = parseInt(e.target.value);
+          let header = rowsSS[0];
+          let data = rowsSS[index];
+          // Parse parameters from csv
+          let params = {};
+          params[header[0]] = data[0].substring(0, data[0].length - 3) + 'h'; // timestamp
+          for (let i = 1; i < header.length; i++){
+            params[header[i]] = parseFloat(data[i]);
+          }
+          // Modify ocean parameters
+          ocean.updateOceanParameters(params);
+        }
+        slider.style.position = "absolute";
+        slider.style.bottom = "10%";
+        slider.style.width = "80%";
+        slider.style.left = "10%";
+        slider.style.right = "10%";
+        document.body.appendChild(slider);
+
+        // <input id="sliderWaveHeight1" type="range" max="6" min="0.1" value="0.6" step="0.1" />
+
+      }
+      reader.readAsText(file);
+    }
+  });
+  document.body.addEventListener('dragover', (event) => {
+    // Prevent default behavior (Prevent file from being opened)
+    event.preventDefault();
+  });
 
   
 

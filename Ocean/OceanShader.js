@@ -48,7 +48,7 @@ export const OceanVertShader = /* glsl */ `
       inout vec3 tangent, inout vec3 binormal){
 
     float steepness = waveParams.x;
-    float amplitude = waveParams.y / 2.0;
+    float amplitude = max(waveParams.y, 0.01) / 2.0;
     float wavelength = amplitude * 2.0 * PI / steepness;
     vec2 direction = waveParams.zw;
 
