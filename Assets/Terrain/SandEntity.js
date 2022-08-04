@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+// Sand textures - CC0 - https://polyhaven.com/a/aerial_beach_01
 class SandEntity {
   
   constructor(scene) {

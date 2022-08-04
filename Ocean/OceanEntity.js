@@ -25,13 +25,34 @@ class OceanEntity {
     // Creates a texture that has parameters for generating waves. It includes wave steepness, height, direction X, and direction Z (RGBA).
     let imgSize = 5;
     this.oceanParams = new OceanParameters({}, imgSize);
-    
-    
-
     let paramsData = this.oceanParams.getWaveParamsImageData();//createWaveParamsImageData({}, imgSize);
     let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
     paramsTexture.magFilter = THREE.NearestFilter;
     paramsTexture.needsUpdate = true;
+
+    // Load normal texture for smaller waves that the geometry cannot capture
+    // let normalTexture = new THREE.TextureLoader().load('/OBSEA/Assets/Terrain/OceanNormal.png');
+    // normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+
+    // Create video texture
+    // https://blenderartists.org/t/animated-water-normal-map-tileable-looped/673140
+    // https://threejs.org/examples/?q=video#webgl_materials_video
+    // https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_video.html
+    let videoEl = document.createElement("video");
+    videoEl.loop = true; videoEl.crossOrigin = 'anonymous'; videoEl.playsInline = true; videoEl.muted = "muted";
+    videoEl.src = '/OBSEA/Assets/Terrain/OceanNormal.mp4';
+    videoEl.play();
+    let normalTexture = new THREE.VideoTexture(videoEl);
+    normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+    // document.body.append(videoEl);
+    // videoEl.style.position = 'absolute';
+    // videoEl.style.top = '0px';
+    // videoEl.style.left = '0px';
+    // <video id="video" loop crossOrigin="anonymous" playsinline style="display:none">
+		// 	<source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
+		// 	<source src="textures/sintel.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+		// </video>
+
     
 
     // Load ocean mesh
@@ -60,6 +81,7 @@ class OceanEntity {
           u_wave1Params: { value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
           u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
+          u_normalTexture: {value: normalTexture}, // TODO: WHAT IF THE TEXTURE TAKES TOO LONG TO LOAD?
         },
         vertexShader: OceanVertShader,
         fragmentShader: OceanFragShader,
