@@ -204,7 +204,7 @@ export const OceanFragShader = /* glsl */`
   void main(){
 
     // Bump texture for specular reflections
-    vec2 scale = vec2(5.0,5.0);
+    vec2 scale = vec2(2.0,2.0);
     float speedFactor = 0.0;
     vec2 textCoord =  vec2(v_WorldPosition.xz + u_time * speedFactor);
     textCoord.x = textCoord.x / scale.x;

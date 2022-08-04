@@ -179,8 +179,7 @@ class OceanEntity {
     paramsTexture.magFilter = THREE.NearestFilter;
     paramsTexture.needsUpdate = true;
     // Update uniforms
-    this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-    this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
   }
 
 

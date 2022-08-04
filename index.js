@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats from 'https://threejs.org/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
@@ -16,6 +17,7 @@ import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 
+let stats;
 
 
 function main() {
@@ -47,6 +49,13 @@ function main() {
   controls.enableDamping = true;
   // controls.autoRotate = true;
   // controls.autoRotateSpeed = 1;
+
+
+  // STATS
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
+  stats.dom.style.right = '0px';
+  stats.dom.style.left = null;
 
 
   // USER INTERACTION
@@ -229,6 +238,9 @@ function main() {
 
 
   function update(time){
+
+    stats.update();
+    
 
     // Ocean updates
     if (ocean){
