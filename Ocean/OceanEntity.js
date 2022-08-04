@@ -18,6 +18,9 @@ class OceanEntity {
   tempVec3 = new THREE.Vector3();
   tempVec2 = new THREE.Vector2();
 
+  // LOD - Ocean resolutions
+  oceanLOD = {'HR': undefined,'MR': undefined, 'LR': undefined, 'LLR': undefined};
+
   
   // Constructor
   constructor(scene){
@@ -57,15 +60,9 @@ class OceanEntity {
 
     // Load ocean mesh
     let gltfLoader = new GLTFLoader();
-    gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurface.glb', (gltf) => {
 
-      // Keep HR tile and hide the other two
-      this.oceanHRTile = gltf.scene.children[0];
-      this.oceanLRTile = gltf.scene.children[1];
-      //gltf.scene.children[1].visible = false;
-      //gltf.scene.children[2].visible = false;
-
-      
+    gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurfaceLR.glb', (gltf) => {
+   
       // Define material and shaders
       let oceanMaterial = new THREE.ShaderMaterial({
         blending: THREE.NormalBlending,
@@ -86,21 +83,53 @@ class OceanEntity {
         vertexShader: OceanVertShader,
         fragmentShader: OceanFragShader,
       });
-
-
-
       oceanMaterial.side = THREE.DoubleSide;
-      this.oceanHRTile.material = oceanMaterial;
-      this.oceanLRTile.material = oceanMaterial;
+
+
+      // Store the version
+      this.oceanLOD.LR = gltf.scene.children[0];
+      // Assign current version to oceanTile
+      this.oceanTile = gltf.scene.children[0];
+      this.oceanTile.material = oceanMaterial;
 
       // Scene direction fix
       const angleFix = 90;
-
       gltf.scene.rotation.y = angleFix * Math.PI / 180;
       gltf.scene.translateY(-0.001);
 
-
       scene.add(gltf.scene);
+      let lowResScene = gltf.scene;
+
+      // LEVEL OF DETAIL INCREASE WHEN HIGHER RESOLUTIONS ARE LOADED
+      // Load next resolution and add
+      gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurfaceMR.glb', (gltf) => {
+        // Store the version
+        this.oceanLOD.MR = gltf.scene.children[0];
+        this.oceanTile = gltf.scene.children[0];
+        this.oceanTile.material = oceanMaterial;
+        // Scene direction fix
+        const angleFix = 90;
+        gltf.scene.rotation.y = angleFix * Math.PI / 180;
+        gltf.scene.translateY(-0.001);
+        // Remove previous version and add new
+        scene.remove(this.oceanLOD.LR.parent);
+        scene.add(gltf.scene);
+        let midResScene = gltf.scene;
+        // Load next resolution and add
+        gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurfaceHR.glb', (gltf) => {
+          this.oceanLOD.HR = gltf.scene.children[0];
+          this.oceanTile = gltf.scene.children[0];
+          this.oceanTile.material = oceanMaterial;
+          // Scene direction fix
+          const angleFix = 90;
+          gltf.scene.rotation.y = angleFix * Math.PI / 180;
+          gltf.scene.translateY(-0.001);
+          // Remove previous version and add new
+          scene.remove(this.oceanLOD.MR.parent);
+          scene.add(gltf.scene);
+        });
+      });
+
 
       this.isLoaded = true;
 
@@ -116,8 +145,8 @@ class OceanEntity {
       paramsTexture.magFilter = THREE.NearestFilter;
       paramsTexture.needsUpdate = true;
       // Update uniforms
-      this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-      this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+      this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+      //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
     });
     el = document.getElementById("randomWaveDirs");
     el.addEventListener("click", () => {
@@ -127,8 +156,8 @@ class OceanEntity {
       paramsTexture.magFilter = THREE.NearestFilter;
       paramsTexture.needsUpdate = true;
       // Update uniforms
-      this.oceanHRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-      this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+      this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+      //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
     });
   }
 
@@ -261,32 +290,32 @@ getOceanParameters = function(){
     this.time += dt;
 
     // Update shader parameters
-    if (this.oceanHRTile != undefined) {
-      let oceanHRTile = this.oceanHRTile;
-      oceanHRTile.material.uniforms.u_time.value = this.time; // dt
-      this.oceanLRTile.material.uniforms.u_time.value = this.time; // dt
+    if (this.oceanTile != undefined) {
+      let oceanTile = this.oceanTile;
+      oceanTile.material.uniforms.u_time.value = this.time; // dt
+      //this.oceanLRTile.material.uniforms.u_time.value = this.time; // dt
 
       let oceanSteepness = this.getOceanParameters();
-      oceanHRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
-      this.oceanLRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
+      oceanTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
+      //this.oceanLRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
 
       let params1 = this.getWaveParametersHTML("1");
       //params[0] = 0.5; // custom steepness
-      oceanHRTile.material.uniforms.u_wave1Params.value.set(...params1);
-      this.oceanLRTile.material.uniforms.u_wave1Params.value.set(...params1);
+      oceanTile.material.uniforms.u_wave1Params.value.set(...params1);
+      //this.oceanLRTile.material.uniforms.u_wave1Params.value.set(...params1);
 
       let params2 = this.getWaveParametersHTML("2");
       //params[0] = 0.25; // custom steepness
-      oceanHRTile.material.uniforms.u_wave2Params.value.set(...params2);
-      this.oceanLRTile.material.uniforms.u_wave2Params.value.set(...params2);
+      oceanTile.material.uniforms.u_wave2Params.value.set(...params2);
+      //this.oceanLRTile.material.uniforms.u_wave2Params.value.set(...params2);
 
       let params3 = this.getWaveParametersHTML("3");
       //params[0] = 0.2; // custom steepness
-      oceanHRTile.material.uniforms.u_wave3Params.value.set(...params3);
-      this.oceanLRTile.material.uniforms.u_wave3Params.value.set(...params3);
+      oceanTile.material.uniforms.u_wave3Params.value.set(...params3);
+      //this.oceanLRTile.material.uniforms.u_wave3Params.value.set(...params3);
 
-      oceanHRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
-      this.oceanLRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
+      oceanTile.material.uniforms.u_time.uniformsNeedUpdate = true;
+      //this.oceanLRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
     }
   }
 
