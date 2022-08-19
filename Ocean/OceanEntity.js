@@ -308,7 +308,7 @@ getOceanParameters = function(){
 
   // Update
   update(dt){
-    this.time += dt;
+    this.time += dt*1.2;
 
     // Update shader parameters
     if (this.oceanTile != undefined) {

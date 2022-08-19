@@ -18,6 +18,7 @@ import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
 
 
 let stats;
+let prevTime = 0;
 
 
 function main() {
@@ -239,13 +240,16 @@ function main() {
 
   function update(time){
 
+    if (prevTime == 0) prevTime = time; // Initial timestamp
+    let dt = (time - prevTime)/1000;
+    prevTime = time;
     stats.update();
     
 
     // Ocean updates
     if (ocean){
       if (ocean.isLoaded){
-        ocean.update(0.016);
+        ocean.update(dt);
 
         // Change buoy position
         if (obseaBuoy !== undefined) {
