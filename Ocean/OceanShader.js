@@ -247,7 +247,7 @@ export const OceanFragShader = /* glsl */`
     vec3 skyColor = vec3(0.51, 0.75, 1.0);
 
 
-    // Underwater factor
+    // Underwater factor (if camera is above or below water)
     float underwaterFactor = (abs(cameraPosition.y)/cameraPosition.y)*0.5 + 0.5;
     // Fog underwater (Fog exp 2)
     float fogDepth = distance(v_WorldPosition, cameraPosition);
