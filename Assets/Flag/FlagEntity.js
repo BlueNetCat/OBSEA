@@ -22,7 +22,10 @@ class FlagEntity {
       this.root = gltf.scene;
   
       // Fix frustrum culling
-      debugger;
+      this.root.children[0].frustumCulled = false; // Flag
+      this.root.children[1].frustumCulled = false; // Pole
+
+
       //this.root.children[0].children[1].frustumCulled = false;
 
       // Create Windsock Behavior

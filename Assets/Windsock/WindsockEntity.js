@@ -31,7 +31,8 @@ class WindsockEntity {
 
       this.isLoaded = true;
 
-      onload();
+      if (onload)
+        onload();
     });
 
   }
