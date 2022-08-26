@@ -190,6 +190,9 @@ export const OceanFragShader = /* glsl */`
 
   uniform sampler2D u_normalTexture;
   uniform float u_time;
+  // Fog
+  uniform vec3 u_fogUnderwaterColor;
+  uniform float u_fogDensity;
 
   //varying vec4 v_OceanColor;
 
@@ -242,6 +245,17 @@ export const OceanFragShader = /* glsl */`
 
     // Sky color
     vec3 skyColor = vec3(0.51, 0.75, 1.0);
+
+
+    // Underwater factor
+    float underwaterFactor = (abs(cameraPosition.y)/cameraPosition.y)*0.5 + 0.5;
+    // Fog underwater (Fog exp 2)
+    float fogDepth = distance(v_WorldPosition, cameraPosition);
+    float fogDensity = u_fogDensity - u_fogDensity * 0.5 * underwaterFactor;
+    float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
+    vec3 fogAirColor = vec3(0.8, 0.93, 1.0);
+    vec3 fogColor = mix(u_fogUnderwaterColor, fogAirColor, underwaterFactor) ;
+
     
     // Specular color
     // -sunPosition = Incident ray
@@ -249,8 +263,8 @@ export const OceanFragShader = /* glsl */`
     vec3 cameraRay = v_WorldPosition - cameraPosition; // Camera and worldpos are correct
     float specIncidence = max(0.0, dot(normalize(-cameraRay), reflection));
     float shiny = 80.0;
-    float specFactor = 5.0;
-    vec3 specularColor = specFactor * vec3(1.0,1.0,1.0) * pow(specIncidence, shiny); // * sunColor
+    float specFactor = 5.0 * pow(specIncidence, shiny);
+    vec3 specularColor = specFactor * vec3(1.0,1.0,1.0) ; // * sunColor
 
 
 
@@ -272,7 +286,10 @@ export const OceanFragShader = /* glsl */`
 
     color = hdr(color, 0.99); // From David Li https://github.com/dli/waves/blob/master/simulation.js
 
-    gl_FragColor = vec4(color, 0.9);
+    // Add fog
+    color = mix( color, fogColor, fogFactor );
+
+    gl_FragColor = vec4(color, 0.9 + fogFactor*0.1);
     //gl_FragColor = vec4(skyFresnel + waterFresnel + diffuseColor + specularColor, 0.92);
     
 
