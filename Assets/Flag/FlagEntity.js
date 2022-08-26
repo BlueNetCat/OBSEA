@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
-//import { WindsockBehavior } from '/OBSEA/Assets/Windsock/WindsockBehavior.js'
+import { FlagBehavior } from '/OBSEA/Assets/Flag/FlagBehavior.js'
 
 class FlagEntity {
   
@@ -20,16 +20,18 @@ class FlagEntity {
     gltfLoader.load('/OBSEA/Assets/Flag/flag.glb', (gltf) => {
       // GLTF scene
       this.root = gltf.scene;
+      this.flagObj = this.root.children[0];
+      this.poleObj = this.root.children[1];
   
       // Fix frustrum culling
-      this.root.children[0].frustumCulled = false; // Flag
-      this.root.children[1].frustumCulled = false; // Pole
+      this.flagObj.frustumCulled = false; // Flag
+      this.poleObj.frustumCulled = false; // Pole
 
 
-      //this.root.children[0].children[1].frustumCulled = false;
+      // Create Flag Behavior
+      this.flagBehavior = new FlagBehavior(this.flagObj, scene);
 
-      // Create Windsock Behavior
-      //this.windsockBehavior = new WindsockBehavior(this.root, scene);
+      this.root.position.y += 0.5;
 
       scene.add(this.root);
 
@@ -44,7 +46,7 @@ class FlagEntity {
   // UPDATE
   update(time){
     this.time = time; // TODO: USE dt instead of time. Should also change the function inside windsockBehavior
-    //this.windsockBehavior.updateWindSock(this.root, this.windIntensity, this.windDirection, this.time);
+    this.flagBehavior.updateFlag(this.flagObj, this.windIntensity, this.windDirection, this.time);
   }
 
   // Set wind parameters

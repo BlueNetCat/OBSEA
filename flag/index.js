@@ -64,7 +64,6 @@ function main() {
 
 
 
-
   // Print scene outline
   function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     const localPrefix = isLast ? '└─' : '├─';
