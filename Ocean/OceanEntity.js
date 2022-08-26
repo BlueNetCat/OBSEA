@@ -64,7 +64,7 @@ class OceanEntity {
     let gltfLoader = new GLTFLoader();
 
     gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurfaceLR.glb', (gltf) => {
-   
+
       // Define material and shaders
       let oceanMaterial = new THREE.ShaderMaterial({
         blending: THREE.NormalBlending,
@@ -72,6 +72,8 @@ class OceanEntity {
         // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
           u_time: { value: this.time },
+          u_fogUnderwaterColor: { value: new THREE.Vector3(scene.fog.color.r, scene.fog.color.g, scene.fog.color.b)},
+          u_fogDensity: {value: scene.fog.density},
           u_paramsTexture: {value: paramsTexture},
           u_imgSize: {value: new THREE.Vector2(imgSize, imgSize)},
           u_steepnessFactor: { value: 0.4 },
