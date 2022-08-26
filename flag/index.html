@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <meta name="viewport" content="width=device-width">
+  <title>Wind flag</title>
+  <meta name="description"
+    content="3D simulation of the state of the sea according to data collected by the underwater observatory and buoy OBSEA">
+  <meta name="author" content="Gerard Llorach">
+  <link rel="shortcut icon" type="image/png" href="/OBSEA/favicon.ico"/>
+
+  <!-- Main script -->
+  <script type="module" src="index.js"></script>
+
+  <!-- Style -->
+  <link rel="stylesheet" type="text/css" href="index.css" />
+
+
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+
+
+<!-- Ocean Sliders -->
+<div id="sliderPanel">
+  
+
+  <!-- Wind Sliders -->
+  <!-- Wind direction -->
+  <div id="direction">
+    <div>Wind direction</div>
+    <input id="sliderWindDir" type="range" max="359" min="0" value="0" step="0.1"/>
+    <div id="infoWindDir"></div>
+  </div>
+
+  <!-- Wind intensity -->
+  <div id="intensity">
+    <div>Wind intensity</div>
+    <input id="sliderWindIntensity" type="range" max="35" min="0.1" value="10" step="0.1" />
+    <div id="infoWindIntensity"></div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="importmap">{
+	"imports": {
+		"three": "https://threejs.org/build/three.module.js"
+	}
+}</script><!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+</body>
+</html>
