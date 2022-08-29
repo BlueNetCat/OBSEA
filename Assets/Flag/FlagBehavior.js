@@ -1,14 +1,21 @@
 import * as THREE from 'three';
-import { DataTexture3D, Vector3, Vector4 } from 'three';
+import { AmbientLight, Vector3, Vector4 } from 'three';
 
-// https://www.reddit.com/r/flying/comments/ip7k0y/faa_standard_windsock_should_indicate_direction/
-// 28 km/h --> fully extended
-// 5.6 km/h --> move freely
-// There's no requirement that the windsock has stripes at all.
+
 class FlagBehavior {
 
   fixedTimestamp = 0.016;
   constraintAccuracy = 3;
+
+  tempVec3 = new Vector3();
+  tempVec3B = new Vector3();
+  tempVec3C = new Vector3();
+  neutralVec3 = new Vector3();
+  tempEuler = new THREE.Euler();
+  tempQuaternion = new THREE.Quaternion();
+  tempQuatB = new THREE.Quaternion();
+  tempM4 = new THREE.Matrix4();
+  
 
   constructor(flagObj, scene) {
     // Scene object
@@ -33,6 +40,8 @@ class FlagBehavior {
         // Assign setWorldPosition function to the bone
         boneEl.scene = scene;
         boneEl.setWorldPosition = this.setWorldPosition;
+        boneEl.setWorldRotation = this.setWorldRotation;
+        
         // Assign physics to the bone
         boneEl.physics = new BonePhysics(boneEl);
         // Assign bone to matrix position
@@ -94,9 +103,9 @@ class FlagBehavior {
     // Divide dt in timestamps for a fixed-dt physics simulation
     let timeTicks = Math.floor(dt/this.fixedTimestamp) + 1;
     let lastTimeStamp = this.fixedTimestamp * timeTicks - dt;
-    console.log(timeTicks + " time ticks.");
+    //console.log(timeTicks + " time ticks.");
     if (timeTicks > 10){
-      console.log(dt);
+      //console.log(dt);
       return;
     }
     
@@ -109,6 +118,8 @@ class FlagBehavior {
       }
       // Update physics
       this.updatePhysics(timestamp, this.acc);
+      // Update orientation
+      this.updateRotations();
 
     }
     
@@ -165,8 +176,61 @@ class FlagBehavior {
   updatePhysics(dt, force) {
     for (let i = 0; i < this.bones.length; i++) {
       for (let j = 0; j < this.bones[0].length; j++) {
-        if (!this.bones[i][j].isFixed)
-          this.bones[i][j].physics.update(dt, force);
+        let bb = this.bones[i][j];
+        if (!bb.isFixed){
+          bb.physics.update(dt, force);
+        }
+      }
+    }
+  }
+
+
+  updateRotations(){
+    for (let i = 0; i < this.bones.length; i++) {
+      for (let j = 1; j < this.bones[0].length; j++) { // Starts at j=1
+        let bb = this.bones[i][j];
+        let bbPrev = this.bones[i][j-1];
+        // Find resting quaternion (first iteration)
+        if (bb.restQuat == undefined)
+          bb.restQuat = bb.getWorldQuaternion(new THREE.Quaternion());
+        // Get world positions
+        let pos = bb.getWorldPosition(this.tempVec3);
+        let anchor = bbPrev.getWorldPosition(this.tempVec3B);
+        // Direction (from point to anchor)
+        let direction = this.tempVec3C.subVectors(anchor, pos);
+        // Rotate the direction 90 (to make the orientation perpendicular)
+        //direction.applyEuler(this.tempEuler.set(Math.PI / 2, 0, 0));
+        // Calculate rotation matrix
+        let rotationMatrix = this.tempM4;
+        rotationMatrix.lookAt(this.neutralVec3, direction, new Vector3(0,1,0)); // eye, target, up
+        this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
+        // Apply rotation matrix
+        this.tempQuaternion.multiply(bb.restQuat); // Multiply by initial quaternion
+        bb.setWorldRotation(this.tempQuaternion);
+        //bb.setWorldRotation(new THREE.Quaternion(0,0,0,1));
+
+        // calcRotation() {
+
+        //   // Get direction
+        //   var direction = this.tempVec3.subVectors(this.neutralVec3, this.bone.position);
+        //   // Rotate -90 degrees. Neutral rotation should be in the first iterations. Thats how we find this initial rotation.
+        //   direction.applyEuler(this.tempEuler.set(Math.PI / 2, 0, 0));
+
+        //   // Look at
+        //   let rotationMatrix = this.tempM4;
+        //   rotationMatrix.lookAt(this.neutralVec3, direction, this.bone.up);
+        //   var quat = this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
+
+        //   return quat;
+        // }
+
+      //   localRots[i] = windSocks[i].calcRotation();
+      // }
+      // // Apply rotations
+      // for (let i = 0; i < windSocks.length; i++) {
+      //   windSocks[i].bone.quaternion.copy(localRots[i]);
+      // }
+
       }
     }
   }
@@ -180,6 +244,19 @@ class FlagBehavior {
     let parentNode = node.parent;
     this.scene.attach(node)
     node.position.set(...position);
+    parentNode.attach(node);
+
+    node.updateMatrix();
+    node.updateWorldMatrix();
+    node.updateMatrixWorld();
+  }
+
+  setWorldRotation(q_rotation){
+    let node = this;
+
+    let parentNode = node.parent;
+    this.scene.attach(node)
+    node.quaternion.copy(q_rotation);
     parentNode.attach(node);
 
     node.updateMatrix();

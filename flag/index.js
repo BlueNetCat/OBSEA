@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats from 'https://threejs.org/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 //import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
@@ -7,6 +8,8 @@ import { WindsockBehavior } from '../Assets/Windsock/WindsockBehavior.js'
 import { RosaVentsEntity } from '../Assets/Orientation/RosaVentsEntity.js';
 import { WindsockEntity } from '../Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '../Assets/Flag/FlagEntity.js';
+
+let stats;
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -27,6 +30,12 @@ function main() {
 
   // GUI
   //let gui = new GUI();
+
+  // STATS
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
+  stats.dom.style.right = '0px';
+  stats.dom.style.left = null;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('black');
@@ -92,6 +101,8 @@ function main() {
   }
 
   function render(time) {
+
+    stats.update();
 
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
