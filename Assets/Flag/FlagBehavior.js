@@ -61,6 +61,14 @@ class FlagBehavior {
           this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i][j + 1]));
       }
     }
+
+    // Create angle constrains
+    for (let i = 0; i < this.bones.length - 1; i++) { // Skip last row
+      for (let j = 0; j < this.bones[0].length - 1; j++) { // Skip last column
+        this.bones[i][j].angleContraint = new AngleConstraint(this.bones[i][j], this.bones[i][j + 1], this.bones[i + 1][j]);
+      }
+    }
+
     // Scene
     this.scene = scene;
 
@@ -104,7 +112,7 @@ class FlagBehavior {
     let timeTicks = Math.floor(dt/this.fixedTimestamp) + 1;
     let lastTimeStamp = this.fixedTimestamp * timeTicks - dt;
     //console.log(timeTicks + " time ticks.");
-    if (timeTicks > 10){
+    if (timeTicks > 20){
       //console.log(dt);
       return;
     }
@@ -112,8 +120,12 @@ class FlagBehavior {
 
     for (let i = 0; i < timeTicks; i++){
       let timestamp = timeTicks - 1 == i ? lastTimeStamp : this.fixedTimestamp;
+      
       // Update links
       for (let cAcc = 0; cAcc < this.constraintAccuracy; cAcc++){ // Constraint accuracy. The more it is solved the more accurate
+        // Update angle constraints
+        this.updateAngleConstraints();
+        // Update links
         this.updateLinks();
       }
       // Update physics
@@ -133,6 +145,14 @@ class FlagBehavior {
         for (let k = 0; k < bb.links.length; k++){
           bb.links[k].updateLink();
         }
+      }
+    }
+  }
+
+  updateAngleConstraints(){
+    for (let i = 0; i < this.bones.length - 1; i++) {
+      for (let j = 0; j < this.bones[0].length - 1; j++) {
+        this.bones[i][j].angleContraint.update();
       }
     }
   }
@@ -259,9 +279,6 @@ class Link {
     // Difference ratio of distance in respect to the resting distance
     let difference = (this.restingDistance - distance) / distance;
 
-    //if (difference > 0.01 && this.boneA.name == '23')
-    //  debugger;
-
     // Points can have different masses. Ignored for flag
     let massA = 1;
     let massB = 1;
@@ -279,7 +296,7 @@ class Link {
       posB.sub(this.tempVec3);
     }
 
-    let d2 = posA.distanceTo(posB);
+    //let d2 = posA.distanceTo(posB);
     //if (d2 > distance)
     //  debugger;
 
@@ -291,6 +308,63 @@ class Link {
 
 
 
+
+
+
+class AngleConstraint {
+
+  minimumAngle = 30;
+
+  posA = new Vector3();
+  posB = new Vector3();
+  posC = new Vector3();
+
+  vecBA = new Vector3();
+  vecCA = new Vector3();
+  vecCross = new Vector3();
+
+
+  constructor (boneA, boneB, boneC){
+    this.boneA = boneA;
+    this.boneB = boneB;
+    this.boneC = boneC;
+
+  }
+
+  update(){
+    // Get positions
+    this.boneA.getWorldPosition(this.posA);
+    this.boneB.getWorldPosition(this.posB);
+    this.boneC.getWorldPosition(this.posC);
+    
+    // Get vectors
+    this.vecBA.subVectors(this.posB, this.posA);
+    this.vecCA.subVectors(this.posC, this.posA);
+    // Get angle
+    let angleRad = this.vecBA.angleTo(this.vecCA);
+    let angle = angleRad * 180 / Math.PI;
+    
+    if (angle < this.minimumAngle){
+      //let randSign = (Math.round(Math.random())-0.5) * 2;
+      // Cross vectors to move the flag sideways
+      if( this.boneA.name[1] == '0'){
+        this.vecCross.crossVectors(this.vecBA, this.vecCA);
+        this.vecCross.normalize();
+        this.vecCross.multiplyScalar(0.0001); // ( this.minimumAngle - angle) / Math.max(angle, 1);
+        this.posB.add(this.vecCross);
+      } else {
+        // Cross vectors in different directions
+        this.vecCross.crossVectors(this.vecCA, this.vecBA);
+        this.vecCross.normalize();
+        this.vecCross.multiplyScalar(0.0001); // ( this.minimumAngle - angle) / Math.max(angle, 1);
+        this.posC.add(this.vecCross);
+      }
+      
+      this.boneB.setWorldPosition(this.posB);
+      // this.boneC.setWorldPosition(this.posC);
+    }
+  }
+}
 
 
 
@@ -331,7 +405,7 @@ class BonePhysics {
     this.vel.subVectors(this.pos, this.prevPos);
 
     //  Dampen velocity
-    this.vel.multiplyScalar(0.99);
+    this.vel.multiplyScalar(0.9999);
 
     // Calculate the next position using Verlet Integration
     this.tempVec3.set(...force);
