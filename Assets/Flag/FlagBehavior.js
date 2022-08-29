@@ -6,16 +6,6 @@ class FlagBehavior {
 
   fixedTimestamp = 0.016;
   constraintAccuracy = 3;
-
-  tempVec3 = new Vector3();
-  tempVec3B = new Vector3();
-  tempVec3C = new Vector3();
-  neutralVec3 = new Vector3();
-  upVec3 = new Vector3(0,1,0);
-  tempEuler = new THREE.Euler();
-  tempQuaternion = new THREE.Quaternion();
-  tempQuatB = new THREE.Quaternion();
-  tempM4 = new THREE.Matrix4();
   
 
   constructor(flagObj, scene) {
@@ -36,7 +26,7 @@ class FlagBehavior {
         
         // Fix the bones close to the pole
         if (jj == 0)
-          boneEl.isFixed = true;
+          boneEl.isFixed = true;        
 
         // Assign setWorldPosition function to the bone
         boneEl.scene = scene;
@@ -59,6 +49,13 @@ class FlagBehavior {
           this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i + 1][j]));
         if (j != this.bones[0].length - 1) // No link at the ends
           this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i][j + 1]));
+      }
+    }
+
+    // Create rotation corrections (orientates the bone towards the previous one)
+    for (let i = 0; i < this.bones.length; i++) { 
+      for (let j = 1; j < this.bones[0].length; j++) { // Skip first column
+        this.bones[i][j].boneRotCorr = new BoneRotationCorrections(this.bones[i][j], this.bones[i][j -1]);
       }
     }
 
@@ -124,14 +121,14 @@ class FlagBehavior {
       // Update links
       for (let cAcc = 0; cAcc < this.constraintAccuracy; cAcc++){ // Constraint accuracy. The more it is solved the more accurate
         // Update angle constraints
-        this.updateAngleConstraints();
+        //this.updateAngleConstraints();
         // Update links
         this.updateLinks();
       }
       // Update physics
       this.updatePhysics(timestamp, this.acc);
       // Update orientation
-      this.updateRotations();
+      this.updateBoneRotationCorrections();
 
     }
 
@@ -169,30 +166,10 @@ class FlagBehavior {
   }
 
 
-  updateRotations(){
+  updateBoneRotationCorrections(){
     for (let i = 0; i < this.bones.length; i++) {
-      for (let j = 1; j < this.bones[0].length; j++) { // Starts at j=1
-        let bb = this.bones[i][j];
-        let bbPrev = this.bones[i][j-1];
-        // Find resting quaternion (first iteration)
-        if (bb.restQuat == undefined)
-          bb.restQuat = bb.getWorldQuaternion(new THREE.Quaternion());
-        // Get world positions
-        let pos = bb.getWorldPosition(this.tempVec3);
-        let anchor = bbPrev.getWorldPosition(this.tempVec3B);
-        // Direction (from point to anchor)
-        let direction = this.tempVec3C.subVectors(anchor, pos);
-
-        // Calculate rotation matrix
-        let rotationMatrix = this.tempM4;
-        rotationMatrix.lookAt(this.neutralVec3, direction, this.upVec3); // eye, target, up
-        this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
-        
-        // Multiply by resting quaternion
-        this.tempQuaternion.multiply(bb.restQuat);
-        // Apply rotation matrix
-        bb.setWorldRotation(this.tempQuaternion);
-
+      for (let j = 1; j < this.bones[0].length; j++) {
+        this.bones[i][j].boneRotCorr.update();
       }
     }
   }
@@ -344,7 +321,7 @@ class AngleConstraint {
     let angleRad = this.vecBA.angleTo(this.vecCA);
     let angle = angleRad * 180 / Math.PI;
     
-    if (angle < this.minimumAngle){
+    if (true){
       //let randSign = (Math.round(Math.random())-0.5) * 2;
       // Cross vectors to move the flag sideways
       if( this.boneA.name[1] == '0'){
@@ -420,6 +397,63 @@ class BonePhysics {
     
   }
 
+}
+
+
+
+
+
+
+class BoneRotationCorrections {
+
+  tempVec3 = new Vector3();
+  tempVec3B = new Vector3();
+  tempVec3C = new Vector3();
+  neutralVec3 = new Vector3();
+  upVec3 = new Vector3(0, 1, 0);
+  tempEuler = new THREE.Euler();
+  tempQuaternion = new THREE.Quaternion();
+  tempQuatB = new THREE.Quaternion();
+  tempM4 = new THREE.Matrix4();
+
+  prevQuat = new THREE.Quaternion();
+
+  constructor(bone, prevBone){
+    this.bone = bone;
+    this.prevBone = prevBone;
+  }
+
+  update(){
+    let bb = this.bone;
+    let bbPrev = this.prevBone;
+    // Find resting quaternion (first iteration)
+    if (bb.restQuat == undefined){
+      bb.restQuat = bb.getWorldQuaternion(new THREE.Quaternion());
+    }
+    // Get world positions
+    let pos = bb.getWorldPosition(this.tempVec3);
+    let anchor = bbPrev.getWorldPosition(this.tempVec3B);
+    // Direction (from point to anchor)
+    let direction = this.tempVec3C.subVectors(anchor, pos);
+
+    // Calculate rotation matrix
+    let rotationMatrix = this.tempM4;
+    rotationMatrix.lookAt(this.neutralVec3, direction, this.upVec3); // eye, target, up
+    this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
+
+    // Multiply by resting quaternion
+    this.tempQuaternion.multiply(bb.restQuat);
+
+    // Compare with previous quaternion to avoid drastic changes
+    bb.getWorldQuaternion(this.tempQuatB);
+    let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
+    let angle = angleRad * 180 / Math.PI;
+
+    if (angle < 170) // Sometimes it goes to 179.99
+      // Apply rotation matrix
+      bb.setWorldRotation(this.tempQuaternion);
+    
+  }
 }
 
 
