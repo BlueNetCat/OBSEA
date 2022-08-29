@@ -11,6 +11,7 @@ class FlagBehavior {
   tempVec3B = new Vector3();
   tempVec3C = new Vector3();
   neutralVec3 = new Vector3();
+  upVec3 = new Vector3(0,1,0);
   tempEuler = new THREE.Euler();
   tempQuaternion = new THREE.Quaternion();
   tempQuatB = new THREE.Quaternion();
@@ -97,7 +98,6 @@ class FlagBehavior {
 
     // Force
     this.acc.set(-windX, -9.8, -windZ);
-    // this.acc.set(-windX, -9.8, -windZ);
 
 
     // Divide dt in timestamps for a fixed-dt physics simulation
@@ -121,42 +121,6 @@ class FlagBehavior {
       // Update orientation
       this.updateRotations();
 
-    }
-    
-    return;
-
-
-
-
-    // Rotate base wind sock - Does not work well, should rotate windSocks[0].bone, but it is messed up in the updates
-    //windSocks[0].parentBone.quaternion.setFromEuler(new THREE.Euler(-110 * Math.PI/180, 0, 0), true); // TODO: Memory loss
-    let windSocks = this.sockSections;
-    windSocks.forEach((ws => {
-      dt = 0.016 * 1.8;
-      // TODO: WIND INTENSITY IS DECLARED AS VELOCITY, BUT WE USE FORCES (OR ACCELERATION)
-      // TODO: FORCE COULD DECREASE AS WIND GOES THROUGH SOCK ( MORE FORCE AT THE BEGINNING, LESS AT THE END )
-      // Acceleration
-      this.acc.set(-windX, -9.8, -windZ);
-      ws.update(dt, this.acc);
-    }));
-
-    // Correct for rotations
-    // Store all world positions and rotations
-    let wPositions = [];
-    let localRots = [];
-    for (let i = 0; i < windSocks.length; i++) {
-      // World position
-      wPositions[i] = windSocks[i].bone.getWorldPosition(new Vector3()); // TODO: Memory loss
-      // Local rotation
-      localRots[i] = windSocks[i].calcRotation();
-    }
-    // Apply rotations
-    for (let i = 0; i < windSocks.length; i++) {
-      windSocks[i].bone.quaternion.copy(localRots[i]);
-    }
-    // Restore global positions
-    for (let i = 0; i < windSocks.length; i++) {
-      this.setWorldPosition(windSocks[i].bone, wPositions[i]);
     }
 
   }
@@ -198,38 +162,16 @@ class FlagBehavior {
         let anchor = bbPrev.getWorldPosition(this.tempVec3B);
         // Direction (from point to anchor)
         let direction = this.tempVec3C.subVectors(anchor, pos);
-        // Rotate the direction 90 (to make the orientation perpendicular)
-        //direction.applyEuler(this.tempEuler.set(Math.PI / 2, 0, 0));
+
         // Calculate rotation matrix
         let rotationMatrix = this.tempM4;
-        rotationMatrix.lookAt(this.neutralVec3, direction, new Vector3(0,1,0)); // eye, target, up
+        rotationMatrix.lookAt(this.neutralVec3, direction, this.upVec3); // eye, target, up
         this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
+        
+        // Multiply by resting quaternion
+        this.tempQuaternion.multiply(bb.restQuat);
         // Apply rotation matrix
-        this.tempQuaternion.multiply(bb.restQuat); // Multiply by initial quaternion
         bb.setWorldRotation(this.tempQuaternion);
-        //bb.setWorldRotation(new THREE.Quaternion(0,0,0,1));
-
-        // calcRotation() {
-
-        //   // Get direction
-        //   var direction = this.tempVec3.subVectors(this.neutralVec3, this.bone.position);
-        //   // Rotate -90 degrees. Neutral rotation should be in the first iterations. Thats how we find this initial rotation.
-        //   direction.applyEuler(this.tempEuler.set(Math.PI / 2, 0, 0));
-
-        //   // Look at
-        //   let rotationMatrix = this.tempM4;
-        //   rotationMatrix.lookAt(this.neutralVec3, direction, this.bone.up);
-        //   var quat = this.tempQuaternion.setFromRotationMatrix(rotationMatrix);
-
-        //   return quat;
-        // }
-
-      //   localRots[i] = windSocks[i].calcRotation();
-      // }
-      // // Apply rotations
-      // for (let i = 0; i < windSocks.length; i++) {
-      //   windSocks[i].bone.quaternion.copy(localRots[i]);
-      // }
 
       }
     }
