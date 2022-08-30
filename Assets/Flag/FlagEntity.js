@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
-import { WindsockBehavior } from '/OBSEA/Assets/Windsock/WindsockBehavior.js'
+import { FlagBehavior } from '/OBSEA/Assets/Flag/FlagBehavior.js'
 
-class WindsockEntity {
+class FlagEntity {
   
   isLoaded = false;
   windIntensity;
@@ -17,15 +17,20 @@ class WindsockEntity {
 
     const gltfLoader = new GLTFLoader();
     // objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-    gltfLoader.load('/OBSEA/Assets/Windsock/windsock.glb', (gltf) => {
+    gltfLoader.load('/OBSEA/Assets/Flag/flag.glb', (gltf) => {
       // GLTF scene
       this.root = gltf.scene;
+      this.flagObj = this.root.children[0];
+      this.poleObj = this.root.children[1];
   
       // Fix frustrum culling
-      this.root.children[0].children[1].frustumCulled = false;
+      this.flagObj.frustumCulled = false; // Flag
+      this.poleObj.frustumCulled = false; // Pole
 
-      // Create Windsock Behavior
-      this.windsockBehavior = new WindsockBehavior(this.root, scene);
+      this.root.scale.addScalar(2);
+
+      // Create Flag Behavior
+      this.flagBehavior = new FlagBehavior(this.flagObj, scene);
 
       scene.add(this.root);
 
@@ -40,7 +45,7 @@ class WindsockEntity {
   // UPDATE
   update(time){
     this.time = time; // TODO: USE dt instead of time. Should also change the function inside windsockBehavior
-    this.windsockBehavior.updateWindSock(this.root, this.windIntensity, this.windDirection, this.time);
+    this.flagBehavior.updateFlag(this.flagObj, this.windIntensity, this.windDirection, this.time);
   }
 
   // Set wind parameters
@@ -50,4 +55,4 @@ class WindsockEntity {
   }
 }
 
-export {WindsockEntity}
+export { FlagEntity }

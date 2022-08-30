@@ -12,7 +12,8 @@ import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
 import { OceanEntity } from '/OBSEA/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
-import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
+//import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
+import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
 import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
@@ -106,9 +107,15 @@ function main() {
   let obseaBase = new OBSEAStationEntity(scene);
 
   // Windsock
-  let windsock = new WindsockEntity(scene, ()=>{
-    windsock.root.position.y = 1;
-    windsock.root.scale.addScalar(2);
+  // let windsock = new WindsockEntity(scene, ()=>{
+  //   windsock.root.position.y = 1;
+  //   windsock.root.scale.addScalar(2);
+  // });
+
+  // Flag
+  let flag = new FlagEntity(scene, ()=>{
+    flag.root.position.y = 1.3;
+    //flag.root.scale.addScalar(2);
   });
 
   // Rosa dels vents
@@ -279,10 +286,10 @@ function main() {
       }
     }
 
-    // Windsock updates
-    if (windsock){
-      if (windsock.isLoaded){
-        windsock.update(time);
+    // Flag updates
+    if (flag){
+      if (flag.isLoaded){
+        
 
         // Get wind intensity from slider
         let el = document.getElementById("sliderWindIntensity");
@@ -296,10 +303,12 @@ function main() {
         el = document.getElementById("infoWindDir");
         el.innerHTML = windDir + " degrees";
 
-        windsock.setWindParams(windInt, windDir);
+        flag.setWindParams(windInt, windDir);
+        flag.update(time);
 
       }
     }
+
 
     // Current
     if (currents){
