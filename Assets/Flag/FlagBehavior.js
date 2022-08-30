@@ -62,10 +62,13 @@ class FlagBehavior {
       }
     }
 
-    // Create angle constrains
-    for (let i = 0; i < this.bones.length - 1; i++) { // Skip last row
+    // Create turbulences
+    for (let i = 0; i < this.bones.length; i++) {
       for (let j = 0; j < this.bones[0].length - 1; j++) { // Skip last column
-        this.bones[i][j].angleContraint = new AngleConstraint(this.bones[i][j], this.bones[i][j + 1], this.bones[i + 1][j]);
+        if (i != this.bones.length - 1)
+          this.bones[i][j].turbulence = new Turbulence(this.bones[i][j], this.bones[i][j + 1], this.bones[i + 1][j]);
+        else // Last row
+          this.bones[i][j].turbulence = new Turbulence(this.bones[i][j], this.bones[i][j + 1], this.bones[i - 1][j]); // Use bone above
       }
     }
 
@@ -124,7 +127,7 @@ class FlagBehavior {
       // Update links
       for (let cAcc = 0; cAcc < this.constraintAccuracy; cAcc++){ // Constraint accuracy. The more it is solved the more accurate
         // Update angle constraints
-        this.updateAngleConstraints();
+        this.updateTurbulences(windInt);
         // Update links
         this.updateLinks();
       }
@@ -149,10 +152,10 @@ class FlagBehavior {
     }
   }
 
-  updateAngleConstraints(){
-    for (let i = 0; i < this.bones.length - 1; i++) {
+  updateTurbulences(windInt){
+    for (let i = 0; i < this.bones.length; i++) {
       for (let j = 0; j < this.bones[0].length - 1; j++) {
-        this.bones[i][j].angleContraint.update();
+        this.bones[i][j].turbulence.update(windInt);
       }
     }
   }
@@ -291,7 +294,7 @@ class Link {
 
 
 
-class AngleConstraint {
+class Turbulence {
 
   posA = new Vector3();
   posB = new Vector3();
@@ -309,7 +312,7 @@ class AngleConstraint {
 
   }
 
-  update(){
+  update(windInt){
     // Get positions
     this.boneA.getWorldPosition(this.posA);
     this.boneB.getWorldPosition(this.posB);
@@ -318,24 +321,27 @@ class AngleConstraint {
     // Get vectors
     this.vecBA.subVectors(this.posB, this.posA);
     this.vecCA.subVectors(this.posC, this.posA);
-    // Get angle
-    let angleRad = this.vecBA.angleTo(this.vecCA);
-    let angle = angleRad * 180 / Math.PI;
+
+    // Wind intensity goes from 0 to 36 km/h
+    // Below 0, we want a very small factor
+    // Higher numbers demand higher factor
+
+    let factor = 0.0001 * 5 * windInt/36;
+
     
     if (true){
       let randSign = (Math.round(Math.random())-0.5) * 2;
       // Cross vectors to move the flag sideways
-      //if( this.boneA.name[1] == '0'){
       if (randSign > 0) {
         this.vecCross.crossVectors(this.vecBA, this.vecCA);
         this.vecCross.normalize();
-        this.vecCross.multiplyScalar(0.0001); // ( this.minimumAngle - angle) / Math.max(angle, 1);
+        this.vecCross.multiplyScalar(factor); // ( this.minimumAngle - angle) / Math.max(angle, 1);
         this.posB.add(this.vecCross);
       } else {
         // Cross vectors in different directions
         this.vecCross.crossVectors(this.vecCA, this.vecBA);
         this.vecCross.normalize();
-        this.vecCross.multiplyScalar(0.0001); // ( this.minimumAngle - angle) / Math.max(angle, 1);
+        this.vecCross.multiplyScalar(factor); // ( this.minimumAngle - angle) / Math.max(angle, 1);
         this.posB.add(this.vecCross);
       }
       
