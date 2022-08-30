@@ -329,8 +329,8 @@ class Turbulence {
     // Below 0, we want a very small factor
     // Higher numbers demand higher factor
     
-    // Transform from 0 to 1
-    let ww = windInt / 36;
+    // Transform from 0 to 1 (36 is max, but at 20 km/h is already a lot of wind)
+    let ww = windInt / 20;
     // Transform wind intensity with a logarithmic function (google "ln((x*10)^2+1)/5 from 0 to 1")
     let wwLog = Math.log((ww * 10) * (ww * 10) + 1) / 5;
     
