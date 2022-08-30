@@ -89,6 +89,9 @@ class FlagBehavior {
     if (flagObj == undefined)
       return;
 
+    // Limit wind int to 1.5
+    windInt = Math.max(windInt, 1);
+
     // Time elapsed
     let dt = time * 0.001 - this.prevTime;
     this.prevTime = time * 0.001;
@@ -325,8 +328,13 @@ class Turbulence {
     // Wind intensity goes from 0 to 36 km/h
     // Below 0, we want a very small factor
     // Higher numbers demand higher factor
-
-    let factor = 0.0001 * 5 * windInt/36;
+    
+    // Transform from 0 to 1
+    let ww = windInt / 36;
+    // Transform wind intensity with a logarithmic function (google "ln((x*10)^2+1)/5 from 0 to 1")
+    let wwLog = Math.log((ww * 10) * (ww * 10) + 1) / 5;
+    
+    let factor = 0.0001 * 5 * wwLog;
 
     
     if (true){
