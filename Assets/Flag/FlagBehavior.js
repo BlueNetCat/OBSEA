@@ -6,6 +6,9 @@ class FlagBehavior {
 
   fixedTimestamp = 0.016;
   constraintAccuracy = 3;
+
+  stiffness = 1;
+  damping = 0.99;
   
 
   constructor(flagObj, scene) {
@@ -34,7 +37,7 @@ class FlagBehavior {
         boneEl.setWorldRotation = this.setWorldRotation;
         
         // Assign physics to the bone
-        boneEl.physics = new BonePhysics(boneEl);
+        boneEl.physics = new BonePhysics(boneEl, this.damping);
         // Assign bone to matrix position
         this.bones[ii][jj] = boneEl;
       }
@@ -46,9 +49,9 @@ class FlagBehavior {
       for (let j = 0; j<this.bones[0].length; j++){
         this.bones[i][j].links = [];
         if (i != this.bones.length-1) // No link at the ends
-          this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i + 1][j]));
+          this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i + 1][j], this.stiffness));
         if (j != this.bones[0].length - 1) // No link at the ends
-          this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i][j + 1]));
+          this.bones[i][j].links.push(new Link(this.bones[i][j], this.bones[i][j + 1], this.stiffness));
       }
     }
 
@@ -121,7 +124,7 @@ class FlagBehavior {
       // Update links
       for (let cAcc = 0; cAcc < this.constraintAccuracy; cAcc++){ // Constraint accuracy. The more it is solved the more accurate
         // Update angle constraints
-        //this.updateAngleConstraints();
+        this.updateAngleConstraints();
         // Update links
         this.updateLinks();
       }
@@ -290,8 +293,6 @@ class Link {
 
 class AngleConstraint {
 
-  minimumAngle = 30;
-
   posA = new Vector3();
   posB = new Vector3();
   posC = new Vector3();
@@ -322,9 +323,10 @@ class AngleConstraint {
     let angle = angleRad * 180 / Math.PI;
     
     if (true){
-      //let randSign = (Math.round(Math.random())-0.5) * 2;
+      let randSign = (Math.round(Math.random())-0.5) * 2;
       // Cross vectors to move the flag sideways
-      if( this.boneA.name[1] == '0'){
+      //if( this.boneA.name[1] == '0'){
+      if (randSign > 0) {
         this.vecCross.crossVectors(this.vecBA, this.vecCA);
         this.vecCross.normalize();
         this.vecCross.multiplyScalar(0.0001); // ( this.minimumAngle - angle) / Math.max(angle, 1);
@@ -334,7 +336,7 @@ class AngleConstraint {
         this.vecCross.crossVectors(this.vecCA, this.vecBA);
         this.vecCross.normalize();
         this.vecCross.multiplyScalar(0.0001); // ( this.minimumAngle - angle) / Math.max(angle, 1);
-        this.posC.add(this.vecCross);
+        this.posB.add(this.vecCross);
       }
       
       this.boneB.setWorldPosition(this.posB);
@@ -349,8 +351,9 @@ class AngleConstraint {
 
 class BonePhysics {
 
-  constructor(bone){
+  constructor(bone, damping){
     this.bone = bone;
+    this.damping = damping || 0.9999;
 
     // Helpers
     this.pos = new Vector3();
@@ -382,7 +385,7 @@ class BonePhysics {
     this.vel.subVectors(this.pos, this.prevPos);
 
     //  Dampen velocity
-    this.vel.multiplyScalar(0.9999);
+    this.vel.multiplyScalar(this.damping);
 
     // Calculate the next position using Verlet Integration
     this.tempVec3.set(...force);
