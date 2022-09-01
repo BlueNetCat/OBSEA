@@ -28,6 +28,7 @@
 export const OceanVertShader = /* glsl */ `
         
   #define PI 3.141592653589793
+  precision lowp float;
 
   uniform float u_time;
   uniform vec3 u_imgSize;
@@ -184,6 +185,8 @@ export const OceanVertShader = /* glsl */ `
 
 
 export const OceanFragShader = /* glsl */`
+
+  precision lowp float;
 
   varying vec3 v_WorldPosition;
   varying vec3 v_Normal;
