@@ -21,6 +21,9 @@
 // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
 // https://www.youtube.com/watch?v=JNj1A1bl7gg&ab_channel=VictorGordan
 
+// GLSL OPTIMIZATIONS
+// https://www.khronos.org/opengl/wiki/GLSL_Optimizations
+
 // Use VS plugin "Comment tagged templates" and add /* glsl */
 export const OceanVertShader = /* glsl */ `
         
@@ -60,8 +63,6 @@ export const OceanVertShader = /* glsl */ `
     // Velocity (related to gravity and wavelength)
     float velocity = 0.35 * sqrt(9.8 / k);
     
-    
-
     // Normalize direction
     direction = normalize(direction);
     // Trochoidal wave movement
@@ -210,8 +211,7 @@ export const OceanFragShader = /* glsl */`
     vec2 scale = vec2(2.0,2.0);
     float speedFactor = 0.0;
     vec2 textCoord =  vec2(v_WorldPosition.xz + u_time * speedFactor);
-    textCoord.x = textCoord.x / scale.x;
-    textCoord.y = textCoord.y / scale.y;
+    textCoord.xy /= scale.xy;
   
     // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
     vec3 tangentNormal = (texture2D(u_normalTexture, textCoord) * 2.0 - 1.0).xyz; // Should be world position or local position?
@@ -273,7 +273,6 @@ export const OceanFragShader = /* glsl */`
     // https://www.shadertoy.com/view/4scSW4 with named variables
     vec3 camR = normalize(-cameraRay); 
     float dotOperation = dot(v_Normal, camR); // USE NORMAL WITHOUT TEXTURE (from geometry)
-    //float fresnel = 1.0 - (dotOperation);
     float fresnel = 0.02 + 0.98 * pow(1.0 - (dotOperation), 5.0);
 
     fresnel = clamp(fresnel, 0.0, 1.0);
