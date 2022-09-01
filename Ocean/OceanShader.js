@@ -98,8 +98,8 @@ export const OceanVertShader = /* glsl */ `
     // Attenuate waves as they get further away form the center (avoids artifacts)
     float distanceToCenter = distance(vec3(0.0, 0.0, 0.0), position);
     float distanceStart = 200.0;
-    distanceToCenter = min(1000.0, max(distanceStart, distanceToCenter));
-    float distanceFactor = max(0.1, distanceStart/(distanceToCenter));
+    distanceToCenter = min(10000.0, max(distanceStart, distanceToCenter));
+    float distanceFactor = max(0.0001, distanceStart/(distanceToCenter));
 
     // Declare tangent and binormal
     vec3 tangent = vec3(1.0, 0.0, 0.0);
@@ -156,8 +156,8 @@ export const OceanVertShader = /* glsl */ `
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
-    normal = (modelMatrix * vec4(normal, 1.0)).xyz; // Produces strange blending between ocean meshes
-    v_Normal = normal.xyz; // Do the rotation manually
+    normal = (modelMatrix * vec4(normal, 1.0)).xyz; 
+    v_Normal = normalize(normal.xyz); 
 
     // World position
     vec4 worldPosition = modelMatrix * vec4(modPos, 1.0);
@@ -219,6 +219,9 @@ export const OceanFragShader = /* glsl */`
 
     vec3 normal = tangentNormal.z * v_TBN[2] + tangentNormal.y * v_TBN[1] + tangentNormal.x * v_TBN[0];
 
+    // Normalize normals
+    normal = normalize(normal); // Geometric normal + texture normal
+    vec3 geoNormal = normalize(v_Normal); // Geometric normal
 
 
     // Normal blending - In case of having two normal maps. Normal blending is solved above using TBN
@@ -238,7 +241,7 @@ export const OceanFragShader = /* glsl */`
     vec3 oceanColor = vec3(0.016, 0.064, 0.192);//(0.2, 0.2, 1.0);  
     
     // Diffuse color
-    vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), v_Normal)); // NORMAL WITHOUT TEXTURE
+    vec3 diffuseColor = oceanColor * max(0.0, dot(normalize(sunPosition), geoNormal)); // NORMAL WITHOUT TEXTURE
 
     // Ambient color
     vec3 ambientColor = vec3(0.0,0.0,0.1);
@@ -272,7 +275,7 @@ export const OceanFragShader = /* glsl */`
     // https://github.com/dli/waves/blob/master/simulation.js
     // https://www.shadertoy.com/view/4scSW4 with named variables
     vec3 camR = normalize(-cameraRay); 
-    float dotOperation = dot(v_Normal, camR); // USE NORMAL WITHOUT TEXTURE (from geometry)
+    float dotOperation = dot(geoNormal, camR); // USE NORMAL WITHOUT TEXTURE (from geometry)
     float fresnel = 0.02 + 0.98 * pow(1.0 - (dotOperation), 5.0);
 
     fresnel = clamp(fresnel, 0.0, 1.0);
