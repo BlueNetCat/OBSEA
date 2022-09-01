@@ -29,7 +29,7 @@ class OceanEntity {
   constructor(scene){
 
     // Creates a texture that has parameters for generating waves. It includes wave steepness, height, direction X, and direction Z (RGBA).
-    let imgSize = 5;
+    let imgSize = 4;
     this.imgSize = imgSize;
     this.oceanParams = new OceanParameters({}, imgSize);
     let paramsData = this.oceanParams.getWaveParamsImageData();//createWaveParamsImageData({}, imgSize);
