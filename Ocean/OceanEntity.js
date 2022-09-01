@@ -21,6 +21,9 @@ class OceanEntity {
   // LOD - Ocean resolutions
   oceanLOD = {'HR': undefined,'MR': undefined, 'LR': undefined, 'LLR': undefined};
 
+  customWaveParameters = [];
+  oceanSteepness;
+
   
   // Constructor
   constructor(scene){
@@ -164,6 +167,14 @@ class OceanEntity {
       this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
       //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
     });
+
+
+    // USER GUI
+    this.customWaveParameters[0] = this.getWaveParametersHTML("1");
+    this.customWaveParameters[1] = this.getWaveParametersHTML("2");
+    this.customWaveParameters[2] = this.getWaveParametersHTML("3");
+    this.oceanSteepness = this.getOceanParameters();
+    
   }
 
   
@@ -248,9 +259,9 @@ class OceanEntity {
   getNormalAndPositionAt = function(position, normal){
 
     let calcNormal = this.getGestnerNormal(position, 
-      this.getWaveParametersHTML("1"), 
-      this.getWaveParametersHTML("2"), 
-      this.getWaveParametersHTML("3"));
+      this.customWaveParameters[0], 
+      this.customWaveParameters[0], 
+      this.customWaveParameters[0]);
 
     normal.set(calcNormal.x, calcNormal.y, calcNormal.z);
 
@@ -258,30 +269,60 @@ class OceanEntity {
 
 
 
-// TODO: MAKE EVENT LISTENERS. IF SOMETHING CHANGES UPDATE THE VARIABLE
+// TODO: improve the HTML interface and javascript architecture
 getWaveParametersHTML = function(id) {
   // Get wave height from slider
   let el = document.getElementById("sliderWaveHeight" + id);
+  el.addEventListener("change", (ee) => {
+    let waveHeight = parseFloat(ee.target.value);
+    this.customWaveParameters[parseInt(id) - 1][1] = parseFloat(ee.target.value);
+    // Info
+    let el = document.getElementById("infoWaveHeight" + id);
+    el.innerHTML = waveHeight + " m";
+
+  });
   let waveHeight = parseFloat(el.value);
   el = document.getElementById("infoWaveHeight" + id);
   el.innerHTML = waveHeight + " m";
 
+
   // Get wind direction from slider
   el = document.getElementById("sliderSwellDirection" + id);
+  el.addEventListener("change", (ee) => {
+    let swellDir = parseFloat(ee.target.value);
+    swellDir = -swellDir - 90;
+    let dirZ = Math.cos(swellDir * Math.PI / 180);
+    let dirX = Math.sin(swellDir * Math.PI / 180);
+    this.customWaveParameters[parseInt(id) - 1][2] = dirX;
+    this.customWaveParameters[parseInt(id) - 1][3] = dirZ;
+    // Info
+    let el = document.getElementById("infoSwellDirection" + id);
+    el.innerHTML = parseFloat(ee.target.value) + " degrees";
+  });
   let swellDir = parseFloat(el.value);
   el = document.getElementById("infoSwellDirection" + id);
   el.innerHTML = swellDir + " degrees";
+  
 
   // Direction correction
   swellDir = -swellDir - 90;
   let dirZ = Math.cos(swellDir * Math.PI / 180);
   let dirX = Math.sin(swellDir * Math.PI / 180);
 
+
   // Get steepness from slider
   el = document.getElementById("sliderWaveSteepness" + id);
   let steepness = parseFloat(el.value);
+  el.addEventListener("change", (ee) => {
+    let steepness = parseFloat(ee.target.value);
+    this.customWaveParameters[parseInt(id) - 1][0] = steepness;
+    // Info
+    let el = document.getElementById("infoWaveSteepness" + id);
+    el.innerHTML = steepness + " steep";
+  });
   el = document.getElementById("infoWaveSteepness" + id);
   el.innerHTML = steepness + " steep";
+  
 
 
   return [steepness, waveHeight, dirX, dirZ];
@@ -294,6 +335,12 @@ getOceanParameters = function(){
     // <div id="infoSeaSteepness"></div>
   // Get sea steepness factor slider
   let el = document.getElementById("sliderOceanSteepness");
+  el.addEventListener("change", (ee) =>{
+    let steepFactor = parseFloat(ee.target.value);
+    this.oceanSteepness = steepFactor;
+    let el = document.getElementById("infoSeaSteepness");
+    el.innerHTML = steepFactor;
+  })
   let steepFactor = parseFloat(el.value);
   el = document.getElementById("infoSeaSteepness");
   el.innerHTML = steepFactor;
@@ -318,21 +365,21 @@ getOceanParameters = function(){
       oceanTile.material.uniforms.u_time.value = this.time; // dt
       //this.oceanLRTile.material.uniforms.u_time.value = this.time; // dt
 
-      let oceanSteepness = this.getOceanParameters();
+      let oceanSteepness = this.oceanSteepness;
       oceanTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
       //this.oceanLRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
 
-      let params1 = this.getWaveParametersHTML("1");
+      let params1 = this.customWaveParameters[0];
       //params[0] = 0.5; // custom steepness
       oceanTile.material.uniforms.u_wave1Params.value.set(...params1);
       //this.oceanLRTile.material.uniforms.u_wave1Params.value.set(...params1);
 
-      let params2 = this.getWaveParametersHTML("2");
+      let params2 = this.customWaveParameters[1];
       //params[0] = 0.25; // custom steepness
       oceanTile.material.uniforms.u_wave2Params.value.set(...params2);
       //this.oceanLRTile.material.uniforms.u_wave2Params.value.set(...params2);
 
-      let params3 = this.getWaveParametersHTML("3");
+      let params3 = this.customWaveParameters[2];
       //params[0] = 0.2; // custom steepness
       oceanTile.material.uniforms.u_wave3Params.value.set(...params3);
       //this.oceanLRTile.material.uniforms.u_wave3Params.value.set(...params3);

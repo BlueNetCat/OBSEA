@@ -5,7 +5,7 @@ import { AmbientLight, Vector3, Vector4 } from 'three';
 class FlagBehavior {
 
   fixedTimestamp = 0.016;
-  constraintAccuracy = 3;
+  constraintAccuracy = 6;
 
   stiffness = 1;
   damping = 0.99;

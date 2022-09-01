@@ -115,7 +115,6 @@ function main() {
   // Flag
   let flag = new FlagEntity(scene, ()=>{
     flag.root.position.y = 1.3;
-    //flag.root.scale.addScalar(2);
   });
 
   // Rosa dels vents
