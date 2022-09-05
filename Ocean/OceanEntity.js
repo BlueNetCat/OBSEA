@@ -260,8 +260,8 @@ class OceanEntity {
 
     let calcNormal = this.getGestnerNormal(position, 
       this.customWaveParameters[0], 
-      this.customWaveParameters[0], 
-      this.customWaveParameters[0]);
+      this.customWaveParameters[1], 
+      this.customWaveParameters[2]);
 
     normal.set(calcNormal.x, calcNormal.y, calcNormal.z);
 
