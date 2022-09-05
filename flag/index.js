@@ -66,7 +66,9 @@ function main() {
   // Windsock
   let windsock = new WindsockEntity(scene);
   // Flag
-  let flag = new FlagEntity(scene);
+  let flag = new FlagEntity(scene, () => {
+    flag.root.position.y = -3;
+  });
 
 
 

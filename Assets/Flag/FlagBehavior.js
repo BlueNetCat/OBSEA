@@ -4,8 +4,8 @@ import { AmbientLight, Vector3, Vector4 } from 'three';
 
 class FlagBehavior {
 
-  fixedTimestamp = 0.016;
-  constraintAccuracy = 6;
+  fixedTimestamp = 0.010;
+  constraintAccuracy = 3;
 
   stiffness = 1;
   damping = 0.99;
@@ -94,6 +94,9 @@ class FlagBehavior {
 
     // Time elapsed
     let dt = time * 0.001 - this.prevTime;
+    // Force fixed timestamp when framerate is faster
+    if (dt < this.fixedTimestamp)
+      return;
     this.prevTime = time * 0.001;
 
     // Calculate wind vector
@@ -118,11 +121,10 @@ class FlagBehavior {
     let timeTicks = Math.floor(dt/this.fixedTimestamp) + 1;
     let lastTimeStamp = this.fixedTimestamp * timeTicks - dt;
     //console.log(timeTicks + " time ticks.");
-    if (timeTicks > 20){
-      //console.log(dt);
-      return;
+    if (timeTicks > 10){
+      timeTicks = 10;
     }
-    
+
 
     for (let i = 0; i < timeTicks; i++){
       let timestamp = timeTicks - 1 == i ? lastTimeStamp : this.fixedTimestamp;
@@ -466,7 +468,7 @@ class BoneRotationCorrections {
     let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
     let angle = angleRad * 180 / Math.PI;
 
-    if (angle < 170) // Sometimes it goes to 179.99
+    if (angle < 179) // Sometimes it goes to 179.99
       // Apply rotation matrix
       bb.setWorldRotation(this.tempQuaternion);
     
