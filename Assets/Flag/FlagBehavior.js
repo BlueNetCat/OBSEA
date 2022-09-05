@@ -193,12 +193,12 @@ class FlagBehavior {
 
     let parentNode = node.parent;
     this.scene.attach(node)
-    node.position.set(...position);
+    node.position.set(position.x, position.y, position.z);
     parentNode.attach(node);
 
     node.updateMatrix();
-    node.updateWorldMatrix();
-    node.updateMatrixWorld();
+    //node.updateWorldMatrix();
+    //node.updateMatrixWorld();
   }
 
   setWorldRotation(q_rotation){
@@ -210,8 +210,8 @@ class FlagBehavior {
     parentNode.attach(node);
 
     node.updateMatrix();
-    node.updateWorldMatrix();
-    node.updateMatrixWorld();
+    //node.updateWorldMatrix();
+    //node.updateMatrixWorld();
   }
 
 }
@@ -404,13 +404,13 @@ class BonePhysics {
     this.vel.multiplyScalar(this.damping);
 
     // Calculate the next position using Verlet Integration
-    this.tempVec3.set(...force);
+    this.tempVec3.set(force.x, force.y, force.z);
     this.tempVec3.multiplyScalar(dt * dt * 0.5); // 0.5 * acc * t^2
     this.tempVec3.add(this.vel); // + vel * t
     this.tempVec3.add(this.pos); // + pos0
     
     // Store previous position
-    this.prevPos.set(...this.pos);
+    this.prevPos.set(this.pos.x, this.pos.y, this.pos.z);
     // Set world position
     this.bone.setWorldPosition(this.tempVec3);
     
