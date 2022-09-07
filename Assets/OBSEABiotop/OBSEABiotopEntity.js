@@ -15,41 +15,41 @@ class OBSEABiotopEntity {
 
     gltfLoader.load('/OBSEA/Assets/OBSEABiotop/biotop.glb', (gltf) => {
 
+
+      let biotop = gltf.scene.children[0];
+
+      // Biotop AO texture
+      const loader = new THREE.TextureLoader();
+
       // Define material and shaders
       let biotopMaterial = new THREE.ShaderMaterial({
         blending: THREE.NormalBlending,
         transparent: true,
+        side: THREE.DoubleSide,
         // lights: true, // https://github.com/mrdoob/three.js/issues/16656
         uniforms: {
-          // u_time: { value: this.time },
-          // u_fogUnderwaterColor: { value: new THREE.Vector3(scene.fog.color.r, scene.fog.color.g, scene.fog.color.b) },
-          // u_fogDensity: { value: scene.fog.density },
-          // u_paramsTexture: { value: paramsTexture },
-          // u_imgSize: { value: new THREE.Vector2(imgSize, imgSize) },
-          // u_steepnessFactor: { value: 0.4 },
-          // u_wavelength: { value: 7.0 },
-          // u_direction: { value: new THREE.Vector2(1, 0) },
-          // u_wave1Params: { value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
-          // u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
-          // u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
-          // u_normalTexture: { value: normalTexture }, // TODO: WHAT IF THE TEXTURE TAKES TOO LONG TO LOAD?
+          u_colorTexture: { value: biotop.material.map},
+          u_normalTexture: { value: biotop.material.normalMap },
+          u_ambientOcclusion: { value: loader.load('/OBSEA/Assets/OBSEABiotop/Textures/BiotopAmbientOcclusion.jpeg') },
+
+          fogColor: { value: new Vector3(scene.fog.color.r, scene.fog.color.g, scene.fog.color.b )},
+          fogDensity: { value: scene.fog.density},
         },
         vertexShader: BiotopVertShader,
         fragmentShader: BiotopFragShader,
       });
-      biotopMaterial.side = THREE.DoubleSide;
-      biotopMaterial.depthWrite = false;
-      biotopMaterial.depthTest = false;
+
+      biotop.material = biotopMaterial;
 
 
       // Bottom AO render order fix
-      gltf.scene.children[1].renderOrder = 1
+      gltf.scene.children[1].renderOrder = 1;
 
-
+      //debugger;
 
       
       // Scene positioning
-      gltf.scene.translateY(-19.3);
+      gltf.scene.translateY(-19.35);
       gltf.scene.translateX(-5);
       gltf.scene.rotation.y = 15 * Math.PI / 180;
 
