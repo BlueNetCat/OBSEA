@@ -12,6 +12,7 @@ import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
 import { OceanEntity } from '/OBSEA/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
+import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'
 //import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
 import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
@@ -105,6 +106,8 @@ function main() {
   let obseaBuoy = new OBSEABuoyEntity(scene);
   // OBSEA Base
   let obseaBase = new OBSEAStationEntity(scene);
+  // OBSEA Biotop
+  let obseaBiotop = new OBSEABiotopEntity(scene);
 
   // Windsock
   // let windsock = new WindsockEntity(scene, ()=>{
