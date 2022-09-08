@@ -12,6 +12,7 @@ import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
 import { OceanEntity } from '/OBSEA/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
+import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'
 //import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
 import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
@@ -94,6 +95,19 @@ function main() {
   THREE.ShaderChunk.fog_pars_fragment = FogShader.fogFragParams;
   THREE.ShaderChunk.fog_vertex = FogShader.fogVertex;
   THREE.ShaderChunk.fog_pars_vertex = FogShader.fogVertexParams;
+  // AO shader fix
+  THREE.ShaderChunk.aomap_fragment = `
+    #ifdef USE_AOMAP
+      float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r ) * aoMapIntensity ;
+      reflectedLight.directDiffuse *= ambientOcclusion;
+      reflectedLight.indirectDiffuse *= ambientOcclusion;
+      reflectedLight.directSpecular *= ambientOcclusion;
+      reflectedLight.indirectSpecular *= ambientOcclusion;
+      #if defined( USE_ENVMAP ) && defined( STANDARD )
+        float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+        reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.roughness );
+      #endif
+    #endif`
 
   // Skybox
   let skybox = new SkyboxEntity(scene);
@@ -105,6 +119,8 @@ function main() {
   let obseaBuoy = new OBSEABuoyEntity(scene);
   // OBSEA Base
   let obseaBase = new OBSEAStationEntity(scene);
+  // OBSEA Biotop
+  let obseaBiotop = new OBSEABiotopEntity(scene);
 
   // Windsock
   // let windsock = new WindsockEntity(scene, ()=>{

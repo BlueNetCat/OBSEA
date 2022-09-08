@@ -3,16 +3,24 @@
 // https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html
 // https://www.khronos.org/files/opengles_shading_language.pdf
 // https://registry.khronos.org/OpenGL/specs/es/2.0/GLSL_ES_Specification_1.00.pdf // For WebGL
+
+// Data texture
 // https://codepen.io/prisoner849/pen/WNQNdpv?editors=0010
-// Ben Cloward has some interesting tutorials with Unreal Engine on how to make water effects
+
+// Ben Cloward has some interesting tutorials with Unreal Engine on how to make water effects, but they are not explained
 // UE Ocean using texture https://www.youtube.com/watch?v=r68DnTMeFFQ&list=PL78XDi0TS4lGXKflD2Z5aY2sLuIln6-sD&ab_channel=BenCloward
 // Adding a Gestner wave to that https://www.youtube.com/watch?v=BJSMVvZMQ1w&ab_channel=BenCloward
+
+// Gestner waves tutorial
+// https://catlikecoding.com/unity/tutorials/flow/waves/
 
 // 2D water effect
 // https://brandenstrochinsky.blogspot.com/2016/06/water-effect.html
 // Screen space reflections (SSR)
 // https://www.youtube.com/watch?v=K2rs7K4y_sY&ab_channel=NullPointer
 // https://threejs.org/examples/?q=post#webgl_postprocessing_ssr
+// Mirror reflection
+// http://www.shiplab.hials.org/app/simulator/Elias/
 
 // Blending normals
 // https://blog.selfshadow.com/publications/blending-in-detail/
