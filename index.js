@@ -122,11 +122,6 @@ function main() {
   // OBSEA Biotop
   let obseaBiotop = new OBSEABiotopEntity(scene);
 
-  // Windsock
-  // let windsock = new WindsockEntity(scene, ()=>{
-  //   windsock.root.position.y = 1;
-  //   windsock.root.scale.addScalar(2);
-  // });
 
   // Flag
   let flag = new FlagEntity(scene, ()=>{
@@ -302,7 +297,7 @@ function main() {
     }
 
     // Flag updates
-    if (flag){
+    if (flag && camera.position.y > 0){
       if (flag.isLoaded){
         
 
