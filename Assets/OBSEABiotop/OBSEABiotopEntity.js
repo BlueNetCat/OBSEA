@@ -34,8 +34,9 @@ class OBSEABiotopEntity {
 
       // Scene positioning
       gltf.scene.translateY(-19.35);
-      gltf.scene.translateX(-5);
-      gltf.scene.rotation.y = 15 * Math.PI / 180;
+      gltf.scene.translateX(-6);
+      gltf.scene.translateZ(1);
+      gltf.scene.rotation.y = 66 * Math.PI / 180;
 
 
       scene.add(gltf.scene);

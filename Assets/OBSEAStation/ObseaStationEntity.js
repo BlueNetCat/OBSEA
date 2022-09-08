@@ -13,12 +13,10 @@ class OBSEAStationEntity {
       // Fix specular on the bottom
       let aoBottom = root.getObjectByName('OBSEABottomAO');
       aoBottom.material.roughness = 1;
-      // Scene direction fix
-      const angleFix = 90;
-      
 
-      root.rotation.y = angleFix * Math.PI / 180;
+      // Positioning
       root.translateY(-19.4);
+      root.rotation.y = 5 * Math.PI / 180;
 
       scene.add(root);
     });
