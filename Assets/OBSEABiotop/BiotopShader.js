@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 
 export const BiotopVertShader = /* glsl */ `
-  //#define USE_FOG
+  #define USE_FOG
+  #define FOG_EXP2
   
   ${THREE.ShaderChunk.fog_pars_vertex}
 
@@ -12,13 +13,15 @@ export const BiotopVertShader = /* glsl */ `
 
   void main(){
 
-    ${THREE.ShaderChunk.fog_vertex}
-
     vUv = uv;
     vUvAO = uv2;
 
     vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_Position = projectionMatrix * modelViewPosition; 
+    gl_Position = projectionMatrix * modelViewPosition;
+
+    vec4 mvPosition = modelViewPosition;
+    ${THREE.ShaderChunk.fog_vertex}
+    
   }
 
   `;
@@ -26,7 +29,8 @@ export const BiotopVertShader = /* glsl */ `
 
 
 export const BiotopFragShader = /* glsl */`
-  //#define USE_FOG
+  #define USE_FOG
+  #define FOG_EXP2
 
   uniform sampler2D u_colorTexture;
   uniform sampler2D u_normalTexture;
@@ -47,10 +51,9 @@ export const BiotopFragShader = /* glsl */`
     vec4 ao = texture2D(u_ambientOcclusion, uvAO);
 
     gl_FragColor = vec4(color*ao);
-    //gl_FragColor = vec4(ao);
-    //gl_FragColor = vec4(vUvAO.x, vUvAO.y, 0.0,1.0);
 
     ${THREE.ShaderChunk.fog_fragment}
+
   }
 
 

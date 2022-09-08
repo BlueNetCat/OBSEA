@@ -39,6 +39,9 @@ class OBSEABiotopEntity {
         fragmentShader: BiotopFragShader,
       });
 
+      console.log(BiotopVertShader);
+      console.log(BiotopFragShader);
+
       biotop.material = biotopMaterial;
 
 
