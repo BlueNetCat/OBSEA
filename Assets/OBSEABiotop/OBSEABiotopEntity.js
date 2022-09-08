@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
-import { BiotopVertShader, BiotopFragShader } from '/OBSEA/Assets/OBSEABiotop/BiotopShader.js';
-import { Vector3 } from 'three';
 
 
 class OBSEABiotopEntity {
