@@ -15,7 +15,7 @@ class OBSEAStationEntity {
       aoBottom.material.roughness = 1;
       // Scene direction fix
       const angleFix = 90;
-      debugger;
+      
 
       root.rotation.y = angleFix * Math.PI / 180;
       root.translateY(-19.4);

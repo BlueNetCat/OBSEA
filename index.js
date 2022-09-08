@@ -264,7 +264,7 @@ function main() {
     
 
     // Ocean updates
-    if (ocean){
+    if (ocean && camera.position.y > -4){ // Limiting the updates by camera position does not improve performance in my PC 
       if (ocean.isLoaded){
         ocean.update(dt);
 
@@ -323,7 +323,7 @@ function main() {
     // Current
     if (currents){
       if (currents.isLoaded){
-        currents.update(0.016);
+        currents.update(dt);
       }
     }
   }
