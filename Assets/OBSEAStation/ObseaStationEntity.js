@@ -9,8 +9,13 @@ class OBSEAStationEntity {
       const root = gltf.scene;
       // Fix frustrum culling
       root.children[0].children[1].frustumCulled = false;
+
+      // Fix specular on the bottom
+      let aoBottom = root.getObjectByName('OBSEABottomAO');
+      aoBottom.material.roughness = 1;
       // Scene direction fix
       const angleFix = 90;
+      debugger;
 
       root.rotation.y = angleFix * Math.PI / 180;
       root.translateY(-19.4);
