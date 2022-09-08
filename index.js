@@ -95,6 +95,19 @@ function main() {
   THREE.ShaderChunk.fog_pars_fragment = FogShader.fogFragParams;
   THREE.ShaderChunk.fog_vertex = FogShader.fogVertex;
   THREE.ShaderChunk.fog_pars_vertex = FogShader.fogVertexParams;
+  // AO shader fix
+  THREE.ShaderChunk.aomap_fragment = `
+    #ifdef USE_AOMAP
+      float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r ) * aoMapIntensity ;
+      reflectedLight.directDiffuse *= ambientOcclusion;
+      reflectedLight.indirectDiffuse *= ambientOcclusion;
+      reflectedLight.directSpecular *= ambientOcclusion;
+      reflectedLight.indirectSpecular *= ambientOcclusion;
+      #if defined( USE_ENVMAP ) && defined( STANDARD )
+        float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+        reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.roughness );
+      #endif
+    #endif`
 
   // Skybox
   let skybox = new SkyboxEntity(scene);

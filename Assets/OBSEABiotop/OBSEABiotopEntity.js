@@ -20,44 +20,25 @@ class OBSEABiotopEntity {
 
       // Biotop AO texture
       const loader = new THREE.TextureLoader();
+      biotop.material.aoMap = loader.load('/OBSEA/Assets/OBSEABiotop/Textures/BiotopAmbientOcclusion.jpeg');
+      biotop.material.aoMapIntensity = 1;
+      biotop.material.metalnessMap = null;
+      biotop.material.color.multiplyScalar(0.8);
 
-      // Define material and shaders
-      let biotopMaterial = new THREE.ShaderMaterial({
-        blending: THREE.NormalBlending,
-        transparent: true,
-        side: THREE.DoubleSide,
-        // lights: true, // https://github.com/mrdoob/three.js/issues/16656
-        uniforms: {
-          u_colorTexture: { value: biotop.material.map},
-          u_normalTexture: { value: biotop.material.normalMap },
-          u_ambientOcclusion: { value: loader.load('/OBSEA/Assets/OBSEABiotop/Textures/BiotopAmbientOcclusion.jpeg') },
-
-          fogColor: { value: new Vector3(scene.fog.color.r, scene.fog.color.g, scene.fog.color.b )},
-          fogDensity: { value: scene.fog.density},
-        },
-        vertexShader: BiotopVertShader,
-        fragmentShader: BiotopFragShader,
-      });
-
-      console.log(BiotopVertShader);
-      console.log(BiotopFragShader);
-
-      biotop.material = biotopMaterial;
-
+      // For some reason uv2 (ao) has the y flipped
+      let arr = biotop.geometry.attributes.uv2.array;
+      for (let i = 1; i < arr.length; i+=2){
+        arr[i] = 1.0 - arr[i];
+      }
 
       // Bottom AO render order fix
       gltf.scene.children[1].renderOrder = 1;
 
-      //debugger;
-
-      
       // Scene positioning
       gltf.scene.translateY(-19.35);
       gltf.scene.translateX(-5);
       gltf.scene.rotation.y = 15 * Math.PI / 180;
 
-  
-      
 
       scene.add(gltf.scene);
 
