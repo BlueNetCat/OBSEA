@@ -18,6 +18,8 @@ import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
 import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
+import {OBSEADataRetriever} from '/OBSEA/data/OBSEADataRetriever.js'
+
 
 let stats;
 let prevTime = 0;
@@ -122,7 +124,6 @@ function main() {
   // OBSEA Biotop
   let obseaBiotop = new OBSEABiotopEntity(scene);
 
-
   // Flag
   let flag = new FlagEntity(scene, ()=>{
     flag.root.position.y = 1.3;
@@ -135,7 +136,15 @@ function main() {
 
   let currents = new CurrentEntity(scene);
 
-
+  // OBSEA Data
+  let dataRetriever = new OBSEADataRetriever(() => {
+    // Modify ocean parameters
+    if (ocean) ocean.updateOceanParameters(dataRetriever.currentParams);
+    // Modify wind
+    if (flag) flag.updateWindParameters(dataRetriever.currentParams);
+    // Update currents
+    if (currents) currents.updateCurrentParameters(dataRetriever.currentParams);
+  });
   
 
 

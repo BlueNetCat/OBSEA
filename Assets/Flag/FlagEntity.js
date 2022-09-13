@@ -50,8 +50,14 @@ class FlagEntity {
 
   // Set wind parameters
   setWindParams(windIntensity, windDirection){
-    this.windIntensity = windIntensity;
-    this.windDirection = windDirection;
+    //this.windIntensity = windIntensity;
+    //this.windDirection = windDirection;
+    
+  }
+
+  updateWindParameters(params){
+    this.windIntensity = params.WSPD || this.windIntensity;
+    this.windDirection = params.WDIR || this.windDirection;
   }
 }
 
