@@ -44,6 +44,8 @@ class FlagBehavior {
     }
 
     
+
+    
     // Create links
     for (let i = 0; i<this.bones.length; i++){
       for (let j = 0; j<this.bones[0].length; j++){
@@ -88,7 +90,7 @@ class FlagBehavior {
   updateFlag(flagObj, windInt, windDir, time) {
     if (flagObj == undefined)
       return;
-
+    
     // Limit wind int to 1.5
     windInt = Math.max(windInt, 1);
 
@@ -139,7 +141,7 @@ class FlagBehavior {
       // Update physics
       this.updatePhysics(timestamp, this.acc);
       // Update orientation
-      this.updateBoneRotationCorrections();
+      //this.updateBoneRotationCorrections();
 
     }
 
@@ -468,7 +470,7 @@ class BoneRotationCorrections {
     let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
     let angle = angleRad * 180 / Math.PI;
 
-    if (angle < 179) // Sometimes it goes to 179.99
+    //if (angle < 170) // Sometimes it goes to 179.99
       // Apply rotation matrix
       bb.setWorldRotation(this.tempQuaternion);
     
