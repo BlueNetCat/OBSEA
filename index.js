@@ -15,7 +15,7 @@ import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntit
 import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'
 //import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
-import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
+import { CurrentEntity } from '/OBSEA/Assets/Current/CurrentEntity.js';
 // import { GUI } from 'https://threejs.org/examples/jsm/libs/lil-gui.module.min.js';
 
 import {OBSEADataRetriever} from '/OBSEA/data/OBSEADataRetriever.js'
