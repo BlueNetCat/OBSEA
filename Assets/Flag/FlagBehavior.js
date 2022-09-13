@@ -101,7 +101,7 @@ class FlagBehavior {
 
     // Calculate wind vector
     let windRad = windDir * Math.PI / 180 + Math.PI; // Add 180 and make clockwise
-    windRad = -windRad; // Clockwise
+    //windRad = -windRad; // Clockwise
 
     // Rotate object
     flagObj.rotation.y = windRad;

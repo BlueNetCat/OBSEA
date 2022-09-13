@@ -56,8 +56,12 @@ class FlagEntity {
   }
 
   updateWindParameters(params){
+    // If no data, hide.
+    this.root.visible = params.WSPD == undefined ? false : true;
+
     this.windIntensity = params.WSPD || this.windIntensity;
-    this.windDirection = params.WDIR || this.windDirection;
+    this.windDirection =params.WDIR || this.windDirection;
+    
   }
 }
 
