@@ -60,7 +60,7 @@ class FlagEntity {
     this.root.visible = params.WSPD == undefined ? false : true;
 
     this.windIntensity = params.WSPD || this.windIntensity;
-    this.windDirection =params.WDIR || this.windDirection;
+    this.windDirection = params.WDIR || this.windDirection;
     
   }
 }

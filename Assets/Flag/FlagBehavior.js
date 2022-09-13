@@ -100,8 +100,8 @@ class FlagBehavior {
     this.prevTime = time * 0.001;
 
     // Calculate wind vector
-    let windRad = windDir * Math.PI / 180 + Math.PI; // Add 180 and make clockwise
-    //windRad = -windRad; // Clockwise
+    let windRad = windDir * Math.PI / 180;
+    windRad = -windRad; // Clockwise
 
     // Rotate object
     flagObj.rotation.y = windRad;
