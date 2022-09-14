@@ -141,7 +141,7 @@ class FlagBehavior {
       // Update physics
       this.updatePhysics(timestamp, this.acc);
       // Update orientation
-      //this.updateBoneRotationCorrections();
+      this.updateBoneRotationCorrections();
 
     }
 
@@ -450,12 +450,14 @@ class BoneRotationCorrections {
     // Find resting quaternion (first iteration)
     if (bb.restQuat == undefined){
       bb.restQuat = bb.getWorldQuaternion(new THREE.Quaternion());
+      console.log(bb.restQuat);
     }
     // Get world positions
     let pos = bb.getWorldPosition(this.tempVec3);
     let anchor = bbPrev.getWorldPosition(this.tempVec3B);
     // Direction (from point to anchor)
     let direction = this.tempVec3C.subVectors(anchor, pos);
+    direction.multiplyScalar(-1);
 
     // Calculate rotation matrix
     let rotationMatrix = this.tempM4;
@@ -466,9 +468,18 @@ class BoneRotationCorrections {
     this.tempQuaternion.multiply(bb.restQuat);
 
     // Compare with previous quaternion to avoid drastic changes
-    bb.getWorldQuaternion(this.tempQuatB);
-    let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
-    let angle = angleRad * 180 / Math.PI;
+    if (false){
+      bb.getWorldQuaternion(this.tempQuatB);
+      let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
+      let angle = angleRad * 180 / Math.PI;
+
+      let angleRad2 = this.tempQuatB.angleTo(bb.restQuat);
+      let angle2 = angleRad * 180 / Math.PI;
+
+      if (angle > 170)
+        debugger;
+    }
+    
 
     //if (angle < 170) // Sometimes it goes to 179.99
       // Apply rotation matrix
