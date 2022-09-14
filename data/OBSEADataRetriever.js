@@ -35,6 +35,8 @@ export class OBSEADataRetriever{
 
 
   processCSV(){
+
+    let nearbyIndIndValue = [];
     
     // Iterate per data type
     for (let dtype = 0; dtype < this.csv[0].length; dtype++){
@@ -57,19 +59,26 @@ export class OBSEADataRetriever{
               prev = this.csv[i + 1][dtype];
           
           // Assign nearby
-          let nearby;
+          let nearby = undefined;
           if (prev != '' && next != '') nearby = parseFloat(prev)*0.5 + parseFloat(next)*0.5;
           else if (prev != '') nearby = prev;
           else if (next != '') nearby = next;
 
           if (nearby != undefined) {
-            this.csv[i][dtype] = nearby;
+            nearbyIndIndValue.push([i, dtype, nearby]);
             this.counterNearby++;
           }
         }
       }
     }
 
+    // Fill the points in the csv
+    for (let i = 0; i<nearbyIndIndValue.length; i++){
+      let ind = nearbyIndIndValue[i][0];
+      let dtype = nearbyIndIndValue[i][1];
+      this.csv[ind][dtype] = nearbyIndIndValue[i][2];
+    }
+      
     console.log("nearby data points found: " + this.counterNearby);
   }
 
