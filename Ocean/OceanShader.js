@@ -25,6 +25,10 @@
 // Blending normals
 // https://blog.selfshadow.com/publications/blending-in-detail/
 
+// Foam
+// RenderToTarget the displacement. Use it to create a foam texture and particles
+// https://www.youtube.com/watch?v=UWGwq-_w08c&ab_channel=GhislainGirardot
+
 // Read more about normal mapping
 // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
 // https://www.youtube.com/watch?v=JNj1A1bl7gg&ab_channel=VictorGordan
