@@ -7,6 +7,8 @@ export class OBSEADataRetriever{
   currentParams = {};
   callbackSetParameters;
 
+  counterNearby = 0;
+
   constructor(callbackSetParameters){
 
     this.callbackSetParameters = callbackSetParameters;
@@ -22,6 +24,7 @@ export class OBSEADataRetriever{
       rowsSS.pop();
       this.csv = rowsSS;
 
+      this.processCSV();
       this.createSlider();
     })
     .catch(e => console.error("Error when parsing .csv: " + e));
@@ -29,6 +32,46 @@ export class OBSEADataRetriever{
     
   }
 
+
+
+  processCSV(){
+    
+    // Iterate per data type
+    for (let dtype = 0; dtype < this.csv[0].length; dtype++){
+      // Iterate per timestamp
+      for (let i = 1; i<this.csv.length; i++){
+        
+        // Fill empty data points with nearby data points
+        let dataPoint = this.csv[i][dtype];
+        
+        if (dataPoint == ''){
+          let prev = '';
+          let next = '';
+          // Find nearby
+          if (i > 1){
+            if (this.csv[i-1][dtype] != '')
+              next = this.csv[i - 1][dtype];
+          }
+          if (i < this.csv.length - 1)
+            if (this.csv[i-1][dtype] != '')
+              prev = this.csv[i + 1][dtype];
+          
+          // Assign nearby
+          let nearby;
+          if (prev != '' && next != '') nearby = parseFloat(prev)*0.5 + parseFloat(next)*0.5;
+          else if (prev != '') nearby = prev;
+          else if (next != '') nearby = next;
+
+          if (nearby != undefined) {
+            this.csv[i][dtype] = nearby;
+            this.counterNearby++;
+          }
+        }
+      }
+    }
+
+    console.log("nearby data points found: " + this.counterNearby);
+  }
 
   
   createSlider(){
