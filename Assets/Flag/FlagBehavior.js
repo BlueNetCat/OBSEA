@@ -450,7 +450,6 @@ class BoneRotationCorrections {
     // Find resting quaternion (first iteration)
     if (bb.restQuat == undefined){
       bb.restQuat = bb.getWorldQuaternion(new THREE.Quaternion());
-      console.log(bb.restQuat);
     }
     // Get world positions
     let pos = bb.getWorldPosition(this.tempVec3);
