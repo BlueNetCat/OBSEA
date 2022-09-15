@@ -106,7 +106,9 @@ export class OBSEADataRetriever{
       canvas.height = 20;
       canvas.id = dType;
       let ctx = canvas.getContext("2d");
-      ctx.fillStyle = "red";
+      if (dType == 'Hm0') ctx.fillStyle = "darkblue";
+      else if (dType == 'WSPD') ctx.fillStyle = "lightblue";
+      else if (dType == 'CSPD_1m') ctx.fillStyle = "red";
       // Iterate per timestamp
       for (let i = 1; i < this.csv.length - samplingRateCheck; i += samplingRateCheck) { // Check 48 datapoints
         // Check if a sample exists in a day
@@ -170,17 +172,17 @@ export class OBSEADataRetriever{
 
     let canvasEl = this.dataAvailability.Hm0.canvas;
     canvasEl.style.width = '100%';
-    canvasEl.style.height = '20px';
+    canvasEl.style.height = '10px';
     divEl.appendChild(canvasEl);
 
     canvasEl = this.dataAvailability.WSPD.canvas;
     canvasEl.style.width = '100%';
-    canvasEl.style.height = '20px';
+    canvasEl.style.height = '10px';
     divEl.appendChild(canvasEl);
 
     canvasEl = this.dataAvailability.CSPD_1m.canvas;
     canvasEl.style.width = '100%';
-    canvasEl.style.height = '20px';
+    canvasEl.style.height = '10px';
     divEl.appendChild(canvasEl);
 
     document.body.appendChild(divEl);
