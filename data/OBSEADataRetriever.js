@@ -9,7 +9,7 @@ export class OBSEADataRetriever{
 
   dataAvailability = {};
 
-  samplingRateCheck = 12;
+  samplingRateCheck = 6;
 
   maxWaveHeight = 5;
   maxWindSpeed = 20;
@@ -104,6 +104,7 @@ export class OBSEADataRetriever{
       let canvas = document.createElement("canvas");
       canvas.width = Math.round(this.csv.length - 1) / samplingRateCheck; // Check for data for a day (30 min sampling rate)
       canvas.height = 20;
+      canvas.id = dType;
       let ctx = canvas.getContext("2d");
       ctx.fillStyle = "red";
       // Iterate per timestamp
@@ -126,14 +127,15 @@ export class OBSEADataRetriever{
           } else if (dType == 'WSPD'){ 
             let thickness = Math.max(5, canvas.height * sample / this.maxWindSpeed);
             ctx.fillRect(Math.round(i / samplingRateCheck), canvas.height / 2 - thickness / 2, 10, thickness);
-          } else if (dType == 'CSPD_0m') {
+          } else if (dType == 'CSPD_1m') {
             let thickness = Math.max(5, canvas.height * sample / this.maxCurrent);
             ctx.fillRect(Math.round(i / samplingRateCheck), canvas.height / 2 - thickness / 2, 10, thickness);
           } else
           ctx.fillRect(Math.round(i / samplingRateCheck), canvas.height / 2, 10, 20);
         }
       }
-      if (dType == 'Hm0' || dType == 'WSPD' || dType == 'CSPD_0m')
+      
+      if (dType == 'Hm0' || dType == 'WSPD' || dType == 'CSPD_1m')
         document.body.appendChild(canvas);
 
       this.dataAvailability[dType].canvas = canvas;
@@ -155,7 +157,7 @@ export class OBSEADataRetriever{
     // Create HTML slider on the bottom
     let slider = document.createElement("input");
     slider.type = "range";
-    slider.max = this.csv.length - 1; // First row is header
+    slider.max = this.csv.length - 2; // First row is header
     slider.min = 1;
     slider.step = 1;
     slider.value = 1;
@@ -172,6 +174,11 @@ export class OBSEADataRetriever{
     divEl.appendChild(canvasEl);
 
     canvasEl = this.dataAvailability.WSPD.canvas;
+    canvasEl.style.width = '100%';
+    canvasEl.style.height = '20px';
+    divEl.appendChild(canvasEl);
+
+    canvasEl = this.dataAvailability.CSPD_1m.canvas;
     canvasEl.style.width = '100%';
     canvasEl.style.height = '20px';
     divEl.appendChild(canvasEl);
