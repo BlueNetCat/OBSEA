@@ -169,7 +169,7 @@ export const OceanVertShader = /* glsl */ `
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
-    normal = (modelMatrix * vec4(normal, 1.0)).xyz; 
+    normal = (modelMatrix * vec4(normal, 0.0)).xyz; 
     v_Normal = normalize(normal.xyz); 
 
     // World position
@@ -300,6 +300,7 @@ export const OceanFragShader = /* glsl */`
     
 
     vec3 color = skyFresnel*2.0 + waterFresnel*2.0 + diffuseColor + specularColor;
+    
 
     color = hdr(color, 0.99); // From David Li https://github.com/dli/waves/blob/master/simulation.js
 
