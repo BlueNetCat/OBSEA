@@ -130,7 +130,7 @@ export class OceanParameters{
     canvas.style.position = "absolute";
     canvas.style.bottom = "0px";
     canvas.style.right = "0px";
-    document.body.append(canvas);
+    //document.body.append(canvas);
   }
 
 
@@ -280,9 +280,6 @@ export class OceanParameters{
     let canvas = document.createElement("canvas");
     canvas.width = this.imgSize;
     canvas.height = this.imgSize;
-    // canvas.style.position = "absolute";
-    // canvas.style.top = "0px";
-    // document.body.append(canvas);
 
     let context = canvas.getContext('2d');
     // Get pixels
