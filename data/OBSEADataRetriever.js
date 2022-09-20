@@ -20,7 +20,7 @@ export class OBSEADataRetriever{
     this.callbackSetParameters = callbackSetParameters;
 
     // Get static data
-    fetch('/OBSEA/data/data_2021.csv')
+    fetch('/OBSEA/data/obsea_2021.csv')
     .then(res => res.text())
     .then(rawSS => {
       let rowsSS = rawSS.split("\r\n");
@@ -108,7 +108,7 @@ export class OBSEADataRetriever{
       let ctx = canvas.getContext("2d");
       if (dType == 'Hm0') ctx.fillStyle = "darkblue";
       else if (dType == 'WSPD') ctx.fillStyle = "lightblue";
-      else if (dType == 'CSPD_1m') ctx.fillStyle = "red";
+      else if (dType == 'UCUR_0m') ctx.fillStyle = "red";
       // Iterate per timestamp
       for (let i = 1; i < this.csv.length - samplingRateCheck; i += samplingRateCheck) { // Check 48 datapoints
         // Check if a sample exists in a day
@@ -129,7 +129,7 @@ export class OBSEADataRetriever{
           } else if (dType == 'WSPD'){ 
             let thickness = Math.max(5, canvas.height * sample / this.maxWindSpeed);
             ctx.fillRect(Math.round(i / samplingRateCheck), canvas.height / 2 - thickness / 2, 10, thickness);
-          } else if (dType == 'CSPD_1m') {
+          } else if (dType == 'UCUR_0m') {
             let thickness = Math.max(5, canvas.height * sample / this.maxCurrent);
             ctx.fillRect(Math.round(i / samplingRateCheck), canvas.height / 2 - thickness / 2, 10, thickness);
           } else
@@ -137,7 +137,7 @@ export class OBSEADataRetriever{
         }
       }
       
-      if (dType == 'Hm0' || dType == 'WSPD' || dType == 'CSPD_1m')
+      if (dType == 'Hm0' || dType == 'WSPD' || dType == 'UCUR_0m')
         document.body.appendChild(canvas);
 
       this.dataAvailability[dType].canvas = canvas;
@@ -180,7 +180,7 @@ export class OBSEADataRetriever{
     canvasEl.style.height = '10px';
     divEl.appendChild(canvasEl);
 
-    canvasEl = this.dataAvailability.CSPD_1m.canvas;
+    canvasEl = this.dataAvailability.UCUR_0m.canvas;
     canvasEl.style.width = '100%';
     canvasEl.style.height = '10px';
     divEl.appendChild(canvasEl);
