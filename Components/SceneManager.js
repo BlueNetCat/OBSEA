@@ -160,18 +160,19 @@ class SceneManager{
     new TWEEN.Tween(this.controls.target)
       .to({ x: 0, y: 1, z: 0 }, 4000)
       .easing(TWEEN.Easing.Cubic.InOut)
+      .onUpdate(() => this.controls.update())
       .start();
   }
   focusOnBase = function(){
     // Tween camera position
     new TWEEN.Tween(this.camera.position)
       .to({ x: 6, y: -16, z: 6 }, 4000)
-      .easing(TWEEN.Easing.Cubic.InOut)
       .start();
     // Tween camera target
     new TWEEN.Tween(this.controls.target)
       .to({ x: 0, y: -19, z: 0 }, 4000)
       .easing(TWEEN.Easing.Cubic.InOut)
+      .onUpdate(() => this.controls.update())
       .start();
   }
   faceNorthward = function(){
@@ -182,6 +183,7 @@ class SceneManager{
     new TWEEN.Tween(this.camera.position)
       .to({ x: this.controls.target.x, z: newZ }, 4000)
       .easing(TWEEN.Easing.Cubic.InOut)
+      .onUpdate(()=>this.controls.update())
       .start();
   }
 
@@ -290,6 +292,10 @@ class SceneManager{
   // RENDER
   render = function (time) {
 
+    // Tween update
+    if (TWEEN)
+      TWEEN.update();
+
     if (this.resizeRendererToDisplaySize(this.renderer)) {
       const canvas = this.renderer.domElement;
       this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -301,9 +307,6 @@ class SceneManager{
     this.renderer.render(this.scene, this.camera);
 
     this.controls.update();
-
-    // Tween update
-    TWEEN.update();
 
     requestAnimationFrame(this.render.bind(this));
   }
