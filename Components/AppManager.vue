@@ -11,6 +11,7 @@
     <!-- Bottom Bar -->
 
     <!-- Top right icons -->
+    <top-right-nav></top-right-nav>
 
     <!-- OBSEA Title -->
 
@@ -32,6 +33,7 @@
 // Import components
 import Canvas3D from "/OBSEA/Components/Canvas3D.vue"
 import InstrumentsMenu from "/OBSEA/Components/Instruments/InstrumentsMenu.vue"
+import TopRightNav from "/OBSEA/Components/TopRight/TopRightNav.vue"
 
 export default {
   name: "AppManager",
@@ -51,7 +53,8 @@ export default {
   },
   components: {
     "canvas3D": Canvas3D,
-    "instruments-menu": InstrumentsMenu
+    "instruments-menu": InstrumentsMenu,
+    "top-right-nav": TopRightNav
   }
 }
 </script>

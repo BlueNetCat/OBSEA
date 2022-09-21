@@ -149,6 +149,7 @@ class SceneManager{
 
 
   // USER INTERACTIONS
+  // Reposition camera
   focusOnBuoy = function(){
     // Tween camera position
     new TWEEN.Tween(this.camera.position)
@@ -160,9 +161,6 @@ class SceneManager{
       .to({ x: 0, y: 1, z: 0 }, 4000)
       .easing(TWEEN.Easing.Cubic.InOut)
       .start();
-
-    //this.camera.position.set(15, 10, 15);
-    //this.controls.target.set(0, 1, 0);
   }
   focusOnBase = function(){
     // Tween camera position
@@ -175,9 +173,18 @@ class SceneManager{
       .to({ x: 0, y: -19, z: 0 }, 4000)
       .easing(TWEEN.Easing.Cubic.InOut)
       .start();
-    //this.camera.position.set(5, -16, 5);
-    //this.controls.target.set(0, -19, 0);
   }
+  faceNorthward = function(){
+    // Tween camera position to face northward
+    let dist = this.camera.position.distanceTo(this.controls.target);
+    let newZ = Math.sqrt(dist * dist - Math.pow(this.camera.position.y-this.controls.target.y, 2));
+
+    new TWEEN.Tween(this.camera.position)
+      .to({ x: this.controls.target.x, z: newZ }, 4000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
+  }
+
 
 
 
