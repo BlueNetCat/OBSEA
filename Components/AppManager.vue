@@ -6,6 +6,7 @@
     <canvas3D></canvas3D>
 
     <!-- Left Icons -->
+    <instruments-menu></instruments-menu>
 
     <!-- Bottom Bar -->
 
@@ -30,8 +31,10 @@
 
 // Import components
 import Canvas3D from "/OBSEA/Components/Canvas3D.vue"
+import InstrumentsMenu from "/OBSEA/Components/Instruments/InstrumentsMenu.vue"
 
 export default {
+  name: "AppManager",
   created() {
     
   },
@@ -47,7 +50,8 @@ export default {
     //onclick: function(e){},
   },
   components: {
-    "canvas3D": Canvas3D
+    "canvas3D": Canvas3D,
+    "instruments-menu": InstrumentsMenu
   }
 }
 </script>

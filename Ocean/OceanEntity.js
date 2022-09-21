@@ -79,11 +79,11 @@ class OceanEntity {
           u_fogDensity: {value: scene.fog.density},
           u_paramsTexture: {value: paramsTexture},
           u_imgSize: {value: new THREE.Vector2(imgSize, imgSize)},
-          u_steepnessFactor: { value: 0.4 },
+          u_steepnessFactor: { value: 0.2 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
           u_wave1Params: { value: new THREE.Vector4(0.1, 0.1, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
-          u_wave2Params: { value: new THREE.Vector4(0.15, 0.2, 0.5, 1.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave2Params: { value: new THREE.Vector4(0.05, 0.2, 0.5, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_wave3Params: { value: new THREE.Vector4(0.1, 0.15, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_normalTexture: {value: normalTexture}, // TODO: WHAT IF THE TEXTURE TAKES TOO LONG TO LOAD?
         },

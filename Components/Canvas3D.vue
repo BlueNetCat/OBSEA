@@ -16,6 +16,7 @@
 //import Map from "Map.vue";
 
 export default {
+  name: "Canvas3D",
   created() {
     
   },
@@ -44,5 +45,6 @@ export default {
   height: 100vh;
   position: absolute;
   background-color: red;
+  z-index: 0;
 }
 </style>
