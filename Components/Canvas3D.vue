@@ -21,32 +21,33 @@ export default {
     
   },
   mounted() {
-    let sceneManager = new window.SceneManager(this.$refs.canvas3D);
-    sceneManager.startRender();
+    this.sceneManager = new window.SceneManager(this.$refs.canvas3D);
+    this.sceneManager.startRender();
 
     // Event listeners
     // Center on instruments
     window.eventBus.on('InstrumentsMenu_buoyButtonClicked', () => {
-      sceneManager.focusOnBuoy();
+      this.sceneManager.focusOnBuoy();
     });
     window.eventBus.on('InstrumentsMenu_baseButtonClicked', () => {
-      sceneManager.focusOnBase();
+      this.sceneManager.focusOnBase();
     });
     // Face northward
     window.eventBus.on('TopRightNav_compassButtonClicked', () => {
-      sceneManager.faceNorthward();
+      this.sceneManager.faceNorthward();
     });
 
     // Event emitters
-    sceneManager.controls.addEventListener('change', (e) => {
+    this.sceneManager.controls.addEventListener('change', (e) => {
       // Find orientation
-      let target = sceneManager.controls.target;
-      let camPos = sceneManager.camera.position;
+      let target = this.sceneManager.controls.target;
+      let camPos = this.sceneManager.camera.position;
       let xDir = camPos.x - target.x;
       let zDir = camPos.z - target.z;
-      let angle = Math.atan2(xDir,zDir) * 180 / Math.PI;
+      let angle = Math.atan2(xDir, zDir) * 180 / Math.PI;
       window.eventBus.emit('Canvas3D_cameraChange', angle);
-    })
+    });
+
   },
   data() {
     return {
@@ -54,7 +55,7 @@ export default {
     }
   },
   methods: {
-    //onclick: function(e){},
+    //onclick: function(e){},    
   },
   components: {
     //"ol-map": Map,
