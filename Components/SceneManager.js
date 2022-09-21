@@ -150,12 +150,33 @@ class SceneManager{
 
   // USER INTERACTIONS
   focusOnBuoy = function(){
-    this.camera.position.set(15, 10, 15);
-    this.controls.target.set(0, 1, 0);
+    // Tween camera position
+    new TWEEN.Tween(this.camera.position)
+      .to({ x: 15, y: 10, z: 15 }, 4000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
+    // Tween camera target
+    new TWEEN.Tween(this.controls.target)
+      .to({ x: 0, y: 1, z: 0 }, 4000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
+
+    //this.camera.position.set(15, 10, 15);
+    //this.controls.target.set(0, 1, 0);
   }
   focusOnBase = function(){
-    this.camera.position.set(5, -16, 5);
-    this.controls.target.set(0, -19, 0);
+    // Tween camera position
+    new TWEEN.Tween(this.camera.position)
+      .to({ x: 6, y: -16, z: 6 }, 4000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
+    // Tween camera target
+    new TWEEN.Tween(this.controls.target)
+      .to({ x: 0, y: -19, z: 0 }, 4000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
+    //this.camera.position.set(5, -16, 5);
+    //this.controls.target.set(0, -19, 0);
   }
 
 
@@ -273,6 +294,9 @@ class SceneManager{
     this.renderer.render(this.scene, this.camera);
 
     this.controls.update();
+
+    // Tween update
+    TWEEN.update();
 
     requestAnimationFrame(this.render.bind(this));
   }

@@ -7,8 +7,11 @@ import es from '/OBSEA/lang/es.js';
 import * as importDefault from "/OBSEA/Components/SceneManager.js"
 window.SceneManager = importDefault.default.SceneManager;
 
-
+// Declare translations
 const i18n = VueI18n.createI18n();
+// Declare event emitter
+// https://github.com/developit/mitt
+window.eventBus = window.mitt();
 
 const options = {
   moduleCache: { vue: Vue },

@@ -3,7 +3,7 @@
     <div class="container vertical-center">
 
       <!-- OBSEA Buoy button-->
-      <button>
+      <button @click="buoyButtonClicked">
         <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 512 512">
           <path id="Buoy" class="buoyLine"
             d="M237,160c-4.781-7.974-18.144-13.452-23-33-3.366-13.548-1.7-27.055,15-40a39.736,39.736,0,0,1,50,1c14.183,12.3,17.286,32.33,11,46-5.926,12.889-17.827,18.351-21,25-3.9,8.181,40.372,107.418,41,125,0.493,13.813-35.64,91.562-46.12,137.363C257.718,448.292,255.352,444.976,250,445c-4.892.022-7.635,7.094-12.936-13.772C223,375.878,189.094,301.389,189,285,188.868,261.924,242.694,169.5,237,160Z" />
@@ -12,7 +12,7 @@
         </svg>
       </button>
       <!-- OBSEA Base button-->
-      <button>
+      <button @click="baseButtonClicked">
         <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 512 512">
           <path id="Bottom" class="cls-1"
             d="M126,276c-31.347,2.3-66.907,6.877-68,17-1.185,10.969,38.5,24.815,84,38,24.781,7.18,48.159,12.666,71,17,34.2,6.49,78.043,15.249,101,19,69.82,11.409,109.658,15.441,115,3,4.621-10.762-14.418-29.868-37-48-39.528-6.831-77.4-11.849-114-15-33.912-2.92-83.278-8.127-132-24C139.217,280.79,132.66,278.5,126,276Z" />
@@ -31,7 +31,7 @@
         </svg>
       </button>
       <!-- Measures button-->
-      <button>
+      <button @click="measuresButtonClicked">
         <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
           <path id="Rounded_Rectangle_1" data-name="Rounded Rectangle 1" class="meter-1"
             d="M411,180c48.294,61.225,52.951,127.51,3,208a10,10,0,0,1-10,10H108a10,10,0,0,1-10-10c-49.951-80.49-45.294-146.775,3-208C174.661,86.616,337.339,86.616,411,180Z" />
@@ -46,6 +46,55 @@
     </div>
   </div>
 </template>
+
+
+
+
+
+
+
+<script>
+
+
+export default {
+  name: "InstrumentsMenu",
+  created() {
+    
+  },
+  mounted() {
+    
+  },
+  data (){
+    return {
+
+    }
+  },
+  methods: {
+    // USER ACTIONS
+    buoyButtonClicked: function(e){
+      window.eventBus.emit('InstrumentsMenu_buoyButtonClicked');
+    },
+    baseButtonClicked: function (e) {
+      window.eventBus.emit('InstrumentsMenu_baseButtonClicked');
+    },
+    measuresButtonClicked: function(e){
+      window.eventBus.emit('InstrumentsMenu_measuresButtonClicked');
+      window.open('https://www.obsea.es/dashboard/', '_blank');
+
+    }
+  },
+  components: {
+  }
+}
+</script>
+
+
+
+
+
+
+
+
 
 
 
@@ -91,7 +140,7 @@ button:hover {
   stroke: #1a1a1a;
   stroke-linecap: round;
   stroke-linejoin: bevel;
-  stroke-width: 9.56px;
+  stroke-width: 18px;
   fill-rule: evenodd;
 }
 /* Sea line animation */
@@ -144,22 +193,22 @@ button:hover {
     stroke: #1a1a1a;
   }
   .cls-2, .cls-3 {
-    stroke-width: 12px;
+    stroke-width: 18px;
   }
   .cls-3, .cls-6 {
     fill: #1a1a1a;
   }
   .cls-4 {
-    stroke-width: 6px;
+    stroke-width: 10px;
   }
   .cls-5, .cls-6 {
-    stroke-width: 8px;
+    stroke-width: 16px;
   }
 
 /* Meter style */
   .meter-1 {
     fill: none;
-    stroke-width: 15px;
+    stroke-width: 20px;
   }
   .meter-1, .meterArrow, .meter-3 {
     stroke: #1a1a1a;
@@ -169,7 +218,7 @@ button:hover {
     fill: #1a1a1a;
   }
   .meterArrow {
-    stroke-width: 20px;
+    stroke-width: 30px;
   }
   .meter-3 {
     stroke-width: 8px;

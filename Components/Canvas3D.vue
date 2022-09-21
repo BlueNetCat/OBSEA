@@ -23,6 +23,14 @@ export default {
   mounted() {
     let sceneManager = new window.SceneManager(this.$refs.canvas3D);
     sceneManager.startRender();
+
+    // Events
+    window.eventBus.on('InstrumentsMenu_buoyButtonClicked', () => {
+      sceneManager.focusOnBuoy();
+    });
+    window.eventBus.on('InstrumentsMenu_baseButtonClicked', () => {
+      sceneManager.focusOnBase();
+    });
   },
   data() {
     return {
