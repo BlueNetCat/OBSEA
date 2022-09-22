@@ -13,8 +13,7 @@
     <!-- Top right icons -->
     <top-right-nav></top-right-nav>
 
-    <!-- Underwater camera -->
-    <camera-youtube></camera-youtube>
+    <bottom-section></bottom-section>
 
     <!-- OBSEA Title -->
     <img class="OBSEABanner" src="/OBSEA/Assets/OBSEABanner.png">
@@ -37,7 +36,7 @@
 import Canvas3D from "/OBSEA/Components/Canvas3D.vue"
 import InstrumentsMenu from "/OBSEA/Components/Instruments/InstrumentsMenu.vue"
 import TopRightNav from "/OBSEA/Components/TopRight/TopRightNav.vue"
-import CameraYoutube from "/OBSEA/Components/Bottom/CameraYoutube.vue"
+import BottomSection from "/OBSEA/Components/Bottom/BottomSection.vue"
 
 export default {
   name: "AppManager",
@@ -59,7 +58,7 @@ export default {
     "canvas3D": Canvas3D,
     "instruments-menu": InstrumentsMenu,
     "top-right-nav": TopRightNav,
-    "camera-youtube": CameraYoutube,
+    "bottom-section": BottomSection,
   }
 }
 </script>

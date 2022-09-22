@@ -38,14 +38,9 @@ export default {
     });
 
     // Event emitters
+    // Listeners: TopRightNav, BottomSection
     this.sceneManager.controls.addEventListener('change', (e) => {
-      // Find orientation
-      let target = this.sceneManager.controls.target;
-      let camPos = this.sceneManager.camera.position;
-      let xDir = camPos.x - target.x;
-      let zDir = camPos.z - target.z;
-      let angle = Math.atan2(xDir, zDir) * 180 / Math.PI;
-      window.eventBus.emit('Canvas3D_cameraChange', angle);
+      window.eventBus.emit('Canvas3D_cameraChange', this.sceneManager);
     });
 
   },

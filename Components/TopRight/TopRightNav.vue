@@ -46,7 +46,13 @@ export default {
   mounted() {
     // Declare events
     // Listen to the camera orientation
-    window.eventBus.on('Canvas3D_cameraChange', (angle) => {
+    window.eventBus.on('Canvas3D_cameraChange', (sceneManager) => {
+      // Find orientation
+      let target = sceneManager.controls.target;
+      let camPos = sceneManager.camera.position;
+      let xDir = camPos.x - target.x;
+      let zDir = camPos.z - target.z;
+      let angle = Math.atan2(xDir, zDir) * 180 / Math.PI;
       // Rotate compass in the opposite direction
       this.$refs["compass-icon"].style.transform = "rotate(" + angle + "deg)";
     })
