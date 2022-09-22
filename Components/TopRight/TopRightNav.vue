@@ -7,6 +7,9 @@
       <button class="roundButton">
         <div class="icon-svg infoDiv" @click="infoButtonClicked">info</div>
       </button>
+
+      <!-- Language selector -->
+      <language-selector></language-selector>
     
       <!-- Compass button -->
       <button class="roundButton" @click="compassButtonClicked">
@@ -18,6 +21,9 @@
           <circle id="Center" class="center" cx="260" cy="257" r="10" />
         </svg>
       </button>
+
+
+      
     
   
     </div>
@@ -29,6 +35,9 @@
 
 
 <script>
+import LanguageSelector from '/OBSEA/Components/TopRight/LanguageSelector.vue'
+
+
 export default {
   name: "TopRightNav",
   created() {
@@ -59,6 +68,7 @@ export default {
     }
   },
   components: {
+    "language-selector": LanguageSelector
   }
 }
 </script>
@@ -76,7 +86,7 @@ export default {
 
 
 <style scoped>
-  .top-right {
+.top-right {
     margin: 0;
     position: absolute;
     top: 50px;
@@ -88,6 +98,7 @@ export default {
     flex-direction: column;
     width: fit-content;
     padding: 0;
+    align-items: flex-end;
   }
 
   .roundButton {

@@ -2,7 +2,18 @@
 
   <div class="dropdown">
     <div class="dropbtnBackground">
-      <button @click="dropdownClick" class="dropbtn">&#127760;</button>
+      <button @click="dropdownClick" class="dropbtn">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+          <path class="cls-1" d="M249,42h8V469h-8V42Z" />
+          <path class="cls-1" d="M466,251v10H41V251H466Zm0,0v10H41V251H466Z" />
+          <path class="cls-1" d="M435,144l5,10H66l5-10H435Zm2.01,0v10.011H69V144H437.01Z" />
+          <path class="cls-1" d="M445,347l-3,10H64l-3-10H445Zm-3-.011V357H64V346.989H442Z" />
+          <circle class="cls-2" cx="253.5" cy="255.5" r="216.5" />
+          <ellipse class="cls-2" cx="254" cy="257" rx="145" ry="218" />
+          <ellipse class="cls-2" cx="255" cy="256" rx="72" ry="218" />
+        </svg>
+      
+      </button>
     </div>
     <div id="myDropdown" class="dropdown-content">
       <div class="lgItem cat" value='ca' @click='changeLanguage' href="#">Català</div>
@@ -65,26 +76,59 @@ export default {
 
 
 <style scoped>
-/* Dropdown Button */
-.dropbtn {
-  background-color: #5580b4;
-  border-radius: 4px;
-  color: white;
-  padding: 4px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
+/* SVG */
+/* Limit SVG size */
+.icon-svg {
+  width: 45px;
+  height: 45px;
+  pointer-events: none;
+}
+.cls-1 {
+  fill: #1a1a1a;
+  stroke-width: 8px;
+  fill-rule: evenodd;
+}
+.cls-1,
+.cls-2 {
+  stroke: #1a1a1a;
+}
+.cls-2 {
+  fill: none;
+  stroke-width: 20px;
 }
 
+
+
+/* Dropdown Button */
+.dropbtn {
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  border-width: 0;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+
 .dropbtnBackground{
-  background-color: #ffffff74;
-  border-radius: 4px;
+  /* background-color: #ffffff74; */
+  border-radius: 50%;
   padding: 3px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* Dropdown button on hover & focus */
 .dropbtn:hover, .dropbtn:focus {
-  background-color: #2d5a91;
+  /* background-color: #2d5a91; */
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+  border-radius: 50%;
 }
 
 /* The container <div> - needed to position the dropdown content */
@@ -97,10 +141,11 @@ export default {
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
   display: none;
-  position: absolute;
+  /* position: absolute; */
   background-color: #a0d7f2;;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  margin-bottom: 10px;
 }
 
 /* Links inside the dropdown */
@@ -134,17 +179,15 @@ export default {
 
 .es:before {
   content: '';
-  background-image: url(img/es-200.png);
+  background-image: url(/OBSEA/lang/es-200.png);
 }
 
 .en:before {
   content: '';
-  background-image: url(img/en-200.png);
+  background-image: url(/OBSEA/lang/en-200.png);
 }
 .cat:before {
   content: '';
-  background-image: url(img/ca-200.png);
+  background-image: url(/OBSEA/lang/ca-200.png);
 }
-
-
 </style>
