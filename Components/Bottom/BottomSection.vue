@@ -2,15 +2,20 @@
   <div id="bottom-section">
 
     <!-- Bottom icons -->
-    <div class="bottom-icons">
-      <div>hello</div>
-      <div>hello</div>
-      <div>hello</div>
-      <div>hello</div>
+    <!-- Above water -->
+    <div class="bottom-icons" v-show="!isUnderwater">
+      <button>Wave configuration icon</button>
+      <button>Wind configuration icon</button>
+    </div>
+    <!-- Underwater -->
+    <div class="bottom-icons" v-show="isUnderwater">
+      <button @click="cameraButtonClicked">Camera youtube icon</button>
     </div>
 
     <!-- Underwater camera -->
-    <camera-youtube v-show="isUnderwater"></camera-youtube>
+    <camera-youtube v-show="showCamera"></camera-youtube>
+
+    <!-- Current information available (temp, etc...)-->
 
   </div>
 </template>
@@ -35,7 +40,13 @@ export default {
   },
   data() {
     return {
-      isUnderwater: true
+      isUnderwater: false,
+      showCamera: false
+    }
+  },
+  methods :{
+    cameraButtonClicked: function () {
+      this.showCamera = !this.showCamera;
     }
   },
   components: {
