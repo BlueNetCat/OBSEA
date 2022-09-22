@@ -3,7 +3,7 @@
     <div class="container vertical-center">
 
       <!-- OBSEA Buoy button-->
-      <button @click="buoyButtonClicked">
+      <button @click="buoyButtonClicked" :title="$i18n.t('buoyButtonTitle')">
         <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 512 512">
           <path id="Buoy" class="buoyLine"
             d="M237,160c-4.781-7.974-18.144-13.452-23-33-3.366-13.548-1.7-27.055,15-40a39.736,39.736,0,0,1,50,1c14.183,12.3,17.286,32.33,11,46-5.926,12.889-17.827,18.351-21,25-3.9,8.181,40.372,107.418,41,125,0.493,13.813-35.64,91.562-46.12,137.363C257.718,448.292,255.352,444.976,250,445c-4.892.022-7.635,7.094-12.936-13.772C223,375.878,189.094,301.389,189,285,188.868,261.924,242.694,169.5,237,160Z" />
@@ -12,7 +12,7 @@
         </svg>
       </button>
       <!-- OBSEA Base button-->
-      <button @click="baseButtonClicked">
+      <button @click="baseButtonClicked" :title="$i18n.t('baseButtonTitle')">
         <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 512 512">
           <path id="Bottom" class="cls-1"
             d="M126,276c-31.347,2.3-66.907,6.877-68,17-1.185,10.969,38.5,24.815,84,38,24.781,7.18,48.159,12.666,71,17,34.2,6.49,78.043,15.249,101,19,69.82,11.409,109.658,15.441,115,3,4.621-10.762-14.418-29.868-37-48-39.528-6.831-77.4-11.849-114-15-33.912-2.92-83.278-8.127-132-24C139.217,280.79,132.66,278.5,126,276Z" />
@@ -66,7 +66,7 @@ export default {
   },
   data (){
     return {
-
+      buoyTitle: this.$i18n.t("Wind")
     }
   },
   methods: {

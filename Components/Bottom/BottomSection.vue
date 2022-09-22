@@ -1,6 +1,14 @@
 <template>
   <div id="bottom-section">
 
+    <!-- Bottom icons -->
+    <div class="bottom-icons">
+      <div>hello</div>
+      <div>hello</div>
+      <div>hello</div>
+      <div>hello</div>
+    </div>
+
     <!-- Underwater camera -->
     <camera-youtube v-show="isUnderwater"></camera-youtube>
 
@@ -27,7 +35,7 @@ export default {
   },
   data() {
     return {
-      isUnderwater: false
+      isUnderwater: true
     }
   },
   components: {
@@ -42,5 +50,14 @@ export default {
 
 
 <style scoped>
-
+#bottom-section {
+  position: absolute;
+  bottom: 0px;
+  width: 100vw;
+}
+.bottom-icons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
 </style>

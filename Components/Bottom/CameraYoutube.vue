@@ -7,9 +7,8 @@
 
 
 <style scoped>
-  #camera-youtube{
-    position: absolute;
-    bottom: 0px;
-    right:0px;
+#camera-youtube{
+    display: flex;
+    justify-content: flex-end;
   }
 </style>
