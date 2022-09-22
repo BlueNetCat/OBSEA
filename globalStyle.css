@@ -1,0 +1,5 @@
+/* Limit SVG size */
+.icon-svg {
+  width: 45px;
+  height: 45px;
+}

@@ -126,12 +126,6 @@ button:hover {
 }
 
 
-/* Limit SVG size */
-.icon-svg {
-  width: 45px;
-  height: 45px;
-}
-
 
 /* OBSEA Buoy SVG style */
 .buoyLine, .seaLine {
