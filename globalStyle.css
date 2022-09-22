@@ -3,3 +3,11 @@
   width: 45px;
   height: 45px;
 }
+
+.icon-svg:hover {
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+  border-radius: 50%;
+  background-color: rgb(176, 176, 176);
+}

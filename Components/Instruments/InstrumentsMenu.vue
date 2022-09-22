@@ -125,6 +125,11 @@ button:hover {
   border-color: #5fc9f6;
 }
 
+/* SVG */
+.icon-svg:hover {
+  border-radius: 50%;
+  background-color: #32bffb;
+}
 
 
 /* OBSEA Buoy SVG style */

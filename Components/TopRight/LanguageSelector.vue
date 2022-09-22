@@ -3,7 +3,7 @@
   <div class="dropdown">
     <div class="dropbtnBackground">
       <button @click="dropdownClick" class="dropbtn">
-        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+        <svg class="icon-svg nopointerevents" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
           <path class="cls-1" d="M249,42h8V469h-8V42Z" />
           <path class="cls-1" d="M466,251v10H41V251H466Zm0,0v10H41V251H466Z" />
           <path class="cls-1" d="M435,144l5,10H66l5-10H435Zm2.01,0v10.011H69V144H437.01Z" />
@@ -78,9 +78,7 @@ export default {
 <style scoped>
 /* SVG */
 /* Limit SVG size */
-.icon-svg {
-  width: 45px;
-  height: 45px;
+.nopointerevents {
   pointer-events: none;
 }
 .cls-1 {
@@ -129,6 +127,7 @@ export default {
   border-color: black;
   border-style: solid;
   border-radius: 50%;
+  background-color: rgb(176, 176, 176);
 }
 
 /* The container <div> - needed to position the dropdown content */

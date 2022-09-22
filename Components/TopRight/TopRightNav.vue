@@ -124,10 +124,6 @@ export default {
     justify-content: center;
   }
 
-  .icon-svg {
-    width: 45px;
-    height: 45px;
-  }
   .icon-svg:hover{
     border-width: 2px;
     border-color: black;
