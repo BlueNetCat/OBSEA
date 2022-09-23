@@ -146,7 +146,7 @@ export default {
   },
   data() {
     return {
-      hidePanel: false,
+      hidePanel: true,
     }
   },
   methods: {
