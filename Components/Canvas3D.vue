@@ -36,6 +36,11 @@ export default {
     window.eventBus.on('TopRightNav_compassButtonClicked', () => {
       this.sceneManager.faceNorthward();
     });
+    // Change ocean steepness
+    window.eventBus.on('CentralPanel_steepnessSliderClicked', (steepness) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateSteepness(steepness);
+    })
 
     // Event emitters
     // Listeners: TopRightNav, BottomSection

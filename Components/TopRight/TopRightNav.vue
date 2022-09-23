@@ -12,7 +12,7 @@
       <language-selector></language-selector>
     
       <!-- Compass button -->
-      <button class="roundButton" @click="compassButtonClicked">
+      <button class="roundButton" @click="compassButtonClicked" :title="$i18n.t('compassButtonTitle')">
         <svg ref="compass-icon" class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
           <path id="South" class="south"
             d="M332.782,253.277a25.947,25.947,0,0,1,0,15.446L261.812,461.8c-1.567,4.265-4.109,4.265-5.677,0l-70.97-193.073a25.947,25.947,0,0,1,0-15.446H332.782Z" />

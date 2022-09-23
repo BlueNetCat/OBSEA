@@ -180,7 +180,13 @@ class OceanEntity {
   
 
 
-  // USER INPUT RANGE SLIDER
+  // USER INPUT 
+  // Steepness range slider
+  updateSteepness = function(steepness){
+    this.oceanTile.material.uniforms.u_steepnessFactor.value = steepness;
+  }
+
+  // Update ocean parameters
   updateOceanParameters = function(params){
     this.oceanParams.updateParams(params);
     this.updateParamsTexture();

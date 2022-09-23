@@ -15,6 +15,12 @@
 
     <bottom-section></bottom-section>
 
+
+    <!-- Central Panel -->
+    <central-panel></central-panel>
+
+
+
     <!-- OBSEA Title -->
     <img class="OBSEABanner" src="/OBSEA/Assets/OBSEABanner.png">
   </div>
@@ -37,6 +43,7 @@ import Canvas3D from "/OBSEA/Components/Canvas3D.vue"
 import InstrumentsMenu from "/OBSEA/Components/Instruments/InstrumentsMenu.vue"
 import TopRightNav from "/OBSEA/Components/TopRight/TopRightNav.vue"
 import BottomSection from "/OBSEA/Components/Bottom/BottomSection.vue"
+import CentralPanel from "/OBSEA/Components/CentralPanel.vue"
 
 export default {
   name: "AppManager",
@@ -59,6 +66,7 @@ export default {
     "instruments-menu": InstrumentsMenu,
     "top-right-nav": TopRightNav,
     "bottom-section": BottomSection,
+    "central-panel": CentralPanel,
   }
 }
 </script>
