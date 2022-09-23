@@ -68,6 +68,11 @@ export default {
     }
   },
   methods :{
+    waveIconClicked: function() {
+      // Open central panel
+      // TODO: add information about which panel to open
+      window.eventBus.emit('OpenCentralPanel');
+    },
     cameraButtonClicked: function () {
       this.showCamera = !this.showCamera;
     }

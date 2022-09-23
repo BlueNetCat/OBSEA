@@ -11,11 +11,17 @@ export default es = {
   "Wind": "Viento",
   "Waves": "Oleaje",
 
+  "Wave height": "Altura de oleaje",
+  "Swell direction": "Dirección del oleaje",
+  "Wave steepness": "Periodo",
+
   seaPanel: {
     title: "Parámetros de la simulación del mar",
     p1: "Esta simulación está hecha con olas de Gestner, según el",
     p1_1: "tutorial de Jasper Flick",
     p2: `La simulación genera los parámetros de 16 olas seguns las medidas de oleaje, tales com la altura media de oleaje,
-    la altura máxima de oleaje y la dirección del oleaje.`
+    la altura máxima de oleaje y la dirección del oleaje.`,
+    oceanSteepness: "Modifica como de picado está el mar",
+    swellParams: "Modifica los parámetros del oleaje principal",
   }
 }

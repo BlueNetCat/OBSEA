@@ -180,10 +180,27 @@ class OceanEntity {
   
 
 
+
+
+
+
   // USER INPUT 
   // Steepness range slider
   updateSteepness = function(steepness){
     this.oceanTile.material.uniforms.u_steepnessFactor.value = steepness;
+  }
+  updateSwell1 = function(varName, value){
+    if (varName == 'height'){
+      this.oceanTile.material.uniforms.u_wave1Params.value.y = value;// steepness, waveHeight, directionx, directionz
+    } else if (varName == 'direction'){
+      value += 180;
+      let dirX = Math.cos(value * Math.PI / 180);
+      let dirZ = Math.sin(value * Math.PI / 180);
+      this.oceanTile.material.uniforms.u_wave1Params.value.z = dirX;
+      this.oceanTile.material.uniforms.u_wave1Params.value.w = dirZ;
+    } else if (varName == 'steepness'){
+      this.oceanTile.material.uniforms.u_wave1Params.value.x = value;
+    }
   }
 
   // Update ocean parameters
@@ -200,6 +217,12 @@ class OceanEntity {
     // Update uniforms
     this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
   }
+
+
+
+
+
+
 
 
 

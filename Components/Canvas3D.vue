@@ -40,7 +40,20 @@ export default {
     window.eventBus.on('CentralPanel_steepnessSliderClicked', (steepness) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSteepness(steepness);
-    })
+    });
+    // Change swell 1
+    window.eventBus.on('CentralPanel_swell1HeightSliderClicked', (height) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateSwell1('height',height);
+    });
+    window.eventBus.on('CentralPanel_swell1DirectionSliderClicked', (direction) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateSwell1('direction', direction);
+    });
+    window.eventBus.on('CentralPanel_swell1SteepnessSliderClicked', (steepness) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateSwell1('steepness', steepness);
+    });
 
     // Event emitters
     // Listeners: TopRightNav, BottomSection
