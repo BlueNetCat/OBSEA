@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+        stroke: #1a1a1a;
+        stroke-width: 20px;
+      }
+
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="Rounded_Rectangle_1" data-name="Rounded Rectangle 1" class="cls-1" d="M209.385,243.21H396a10,10,0,0,1,10,10V355.955a10,10,0,0,1-10,10H209.385a10,10,0,0,1-10-10V253.21A10,10,0,0,1,209.385,243.21Z"/>
+  <path class="cls-1" d="M100,225.5l98.968,44.811v63.764L101.62,373.99Z"/>
+  <circle class="cls-2" cx="242.078" cy="190" r="55.047"/>
+  <ellipse class="cls-2" cx="352.953" cy="190" rx="55.047" ry="55"/>
+</svg>
