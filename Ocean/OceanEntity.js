@@ -79,12 +79,12 @@ class OceanEntity {
           u_fogDensity: {value: scene.fog.density},
           u_paramsTexture: {value: paramsTexture},
           u_imgSize: {value: new THREE.Vector2(imgSize, imgSize)},
-          u_steepnessFactor: { value: 0.4 },
+          u_steepnessFactor: { value: 0.2 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
-          u_wave1Params: { value: new THREE.Vector4(0.5, 7.0, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
-          u_wave2Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
-          u_wave3Params: { value: new THREE.Vector4(0.25, 3.0, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave1Params: { value: new THREE.Vector4(0.1, 0.1, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave2Params: { value: new THREE.Vector4(0.05, 0.2, 0.5, 1.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave3Params: { value: new THREE.Vector4(0.1, 0.15, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_normalTexture: {value: normalTexture}, // TODO: WHAT IF THE TEXTURE TAKES TOO LONG TO LOAD?
         },
         vertexShader: OceanVertShader,
@@ -145,28 +145,28 @@ class OceanEntity {
 
 
     // USER ACTIONS
-    let el = document.getElementById("randomWaveHeights");
-    el.addEventListener("click", () => {
-      this.oceanParams.randomizeWaveHeightDistribution();
-      let paramsData = this.oceanParams.getWaveParamsImageData();
-      let paramsTexture = new THREE.DataTexture(paramsData, this.imgSize, this.imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
-      paramsTexture.magFilter = THREE.NearestFilter;
-      paramsTexture.needsUpdate = true;
-      // Update uniforms
-      this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-      //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-    });
-    el = document.getElementById("randomWaveDirs");
-    el.addEventListener("click", () => {
-      this.oceanParams.randomizeWaveDirectionDistribution();
-      let paramsData = this.oceanParams.getWaveParamsImageData();
-      let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
-      paramsTexture.magFilter = THREE.NearestFilter;
-      paramsTexture.needsUpdate = true;
-      // Update uniforms
-      this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-      //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
-    });
+    // let el = document.getElementById("randomWaveHeights");
+    // el.addEventListener("click", () => {
+    //   this.oceanParams.randomizeWaveHeightDistribution();
+    //   let paramsData = this.oceanParams.getWaveParamsImageData();
+    //   let paramsTexture = new THREE.DataTexture(paramsData, this.imgSize, this.imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+    //   paramsTexture.magFilter = THREE.NearestFilter;
+    //   paramsTexture.needsUpdate = true;
+    //   // Update uniforms
+    //   this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    //   //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    // });
+    // el = document.getElementById("randomWaveDirs");
+    // el.addEventListener("click", () => {
+    //   this.oceanParams.randomizeWaveDirectionDistribution();
+    //   let paramsData = this.oceanParams.getWaveParamsImageData();
+    //   let paramsTexture = new THREE.DataTexture(paramsData, imgSize, imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
+    //   paramsTexture.magFilter = THREE.NearestFilter;
+    //   paramsTexture.needsUpdate = true;
+    //   // Update uniforms
+    //   this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    //   //this.oceanLRTile.material.uniforms.u_paramsTexture.value = paramsTexture;
+    // });
 
 
     // USER GUI
@@ -180,7 +180,30 @@ class OceanEntity {
   
 
 
-  // USER INPUT RANGE SLIDER
+
+
+
+
+  // USER INPUT 
+  // Steepness range slider
+  updateSteepness = function(steepness){
+    this.oceanTile.material.uniforms.u_steepnessFactor.value = steepness;
+  }
+  updateSwell1 = function(varName, value){
+    if (varName == 'height'){
+      this.oceanTile.material.uniforms.u_wave1Params.value.y = value;// steepness, waveHeight, directionx, directionz
+    } else if (varName == 'direction'){
+      value += 180;
+      let dirX = Math.cos(value * Math.PI / 180);
+      let dirZ = Math.sin(value * Math.PI / 180);
+      this.oceanTile.material.uniforms.u_wave1Params.value.z = dirX;
+      this.oceanTile.material.uniforms.u_wave1Params.value.w = dirZ;
+    } else if (varName == 'steepness'){
+      this.oceanTile.material.uniforms.u_wave1Params.value.x = value;
+    }
+  }
+
+  // Update ocean parameters
   updateOceanParameters = function(params){
     this.oceanParams.updateParams(params);
     this.updateParamsTexture();
@@ -194,6 +217,12 @@ class OceanEntity {
     // Update uniforms
     this.oceanTile.material.uniforms.u_paramsTexture.value = paramsTexture;
   }
+
+
+
+
+
+
 
 
 
@@ -271,61 +300,61 @@ class OceanEntity {
 
 // TODO: improve the HTML interface and javascript architecture
 getWaveParametersHTML = function(id) {
-  // Get wave height from slider
-  let el = document.getElementById("sliderWaveHeight" + id);
-  el.addEventListener("change", (ee) => {
-    let waveHeight = parseFloat(ee.target.value);
-    this.customWaveParameters[parseInt(id) - 1][1] = parseFloat(ee.target.value);
-    // Info
-    let el = document.getElementById("infoWaveHeight" + id);
-    el.innerHTML = waveHeight + " m";
+  // // Get wave height from slider
+  // let el = document.getElementById("sliderWaveHeight" + id);
+  // el.addEventListener("change", (ee) => {
+  //   let waveHeight = parseFloat(ee.target.value);
+  //   this.customWaveParameters[parseInt(id) - 1][1] = parseFloat(ee.target.value);
+  //   // Info
+  //   let el = document.getElementById("infoWaveHeight" + id);
+  //   el.innerHTML = waveHeight + " m";
 
-  });
-  let waveHeight = parseFloat(el.value);
-  el = document.getElementById("infoWaveHeight" + id);
-  el.innerHTML = waveHeight + " m";
+  // });
+  // let waveHeight = parseFloat(el.value);
+  // el = document.getElementById("infoWaveHeight" + id);
+  // el.innerHTML = waveHeight + " m";
 
 
-  // Get wind direction from slider
-  el = document.getElementById("sliderSwellDirection" + id);
-  el.addEventListener("change", (ee) => {
-    let swellDir = parseFloat(ee.target.value);
-    swellDir = -swellDir - 90;
-    let dirZ = Math.cos(swellDir * Math.PI / 180);
-    let dirX = Math.sin(swellDir * Math.PI / 180);
-    this.customWaveParameters[parseInt(id) - 1][2] = dirX;
-    this.customWaveParameters[parseInt(id) - 1][3] = dirZ;
-    // Info
-    let el = document.getElementById("infoSwellDirection" + id);
-    el.innerHTML = parseFloat(ee.target.value) + " degrees";
-  });
-  let swellDir = parseFloat(el.value);
-  el = document.getElementById("infoSwellDirection" + id);
-  el.innerHTML = swellDir + " degrees";
+  // // Get wind direction from slider
+  // el = document.getElementById("sliderSwellDirection" + id);
+  // el.addEventListener("change", (ee) => {
+  //   let swellDir = parseFloat(ee.target.value);
+  //   swellDir = -swellDir - 90;
+  //   let dirZ = Math.cos(swellDir * Math.PI / 180);
+  //   let dirX = Math.sin(swellDir * Math.PI / 180);
+  //   this.customWaveParameters[parseInt(id) - 1][2] = dirX;
+  //   this.customWaveParameters[parseInt(id) - 1][3] = dirZ;
+  //   // Info
+  //   let el = document.getElementById("infoSwellDirection" + id);
+  //   el.innerHTML = parseFloat(ee.target.value) + " degrees";
+  // });
+  // let swellDir = parseFloat(el.value);
+  // el = document.getElementById("infoSwellDirection" + id);
+  // el.innerHTML = swellDir + " degrees";
   
 
-  // Direction correction
-  swellDir = -swellDir - 90;
-  let dirZ = Math.cos(swellDir * Math.PI / 180);
-  let dirX = Math.sin(swellDir * Math.PI / 180);
+  // // Direction correction
+  // swellDir = -swellDir - 90;
+  // let dirZ = Math.cos(swellDir * Math.PI / 180);
+  // let dirX = Math.sin(swellDir * Math.PI / 180);
 
 
-  // Get steepness from slider
-  el = document.getElementById("sliderWaveSteepness" + id);
-  let steepness = parseFloat(el.value);
-  el.addEventListener("change", (ee) => {
-    let steepness = parseFloat(ee.target.value);
-    this.customWaveParameters[parseInt(id) - 1][0] = steepness;
-    // Info
-    let el = document.getElementById("infoWaveSteepness" + id);
-    el.innerHTML = steepness + " steep";
-  });
-  el = document.getElementById("infoWaveSteepness" + id);
-  el.innerHTML = steepness + " steep";
+  // // Get steepness from slider
+  // el = document.getElementById("sliderWaveSteepness" + id);
+  // let steepness = parseFloat(el.value);
+  // el.addEventListener("change", (ee) => {
+  //   let steepness = parseFloat(ee.target.value);
+  //   this.customWaveParameters[parseInt(id) - 1][0] = steepness;
+  //   // Info
+  //   let el = document.getElementById("infoWaveSteepness" + id);
+  //   el.innerHTML = steepness + " steep";
+  // });
+  // el = document.getElementById("infoWaveSteepness" + id);
+  // el.innerHTML = steepness + " steep";
   
 
 
-  return [steepness, waveHeight, dirX, dirZ];
+  // return [steepness, waveHeight, dirX, dirZ];
 }
 
 
@@ -334,18 +363,18 @@ getOceanParameters = function(){
 {/* <input id="seaSteepness" type="range" max="1" min="0" value="1" step="0.01" /> */}
     // <div id="infoSeaSteepness"></div>
   // Get sea steepness factor slider
-  let el = document.getElementById("sliderOceanSteepness");
-  el.addEventListener("change", (ee) =>{
-    let steepFactor = parseFloat(ee.target.value);
-    this.oceanSteepness = steepFactor;
-    let el = document.getElementById("infoSeaSteepness");
-    el.innerHTML = steepFactor;
-  })
-  let steepFactor = parseFloat(el.value);
-  el = document.getElementById("infoSeaSteepness");
-  el.innerHTML = steepFactor;
+  // let el = document.getElementById("sliderOceanSteepness");
+  // el.addEventListener("change", (ee) =>{
+  //   let steepFactor = parseFloat(ee.target.value);
+  //   this.oceanSteepness = steepFactor;
+  //   let el = document.getElementById("infoSeaSteepness");
+  //   el.innerHTML = steepFactor;
+  // })
+  // let steepFactor = parseFloat(el.value);
+  // el = document.getElementById("infoSeaSteepness");
+  // el.innerHTML = steepFactor;
 
-  return steepFactor;
+  // return steepFactor;
 }
 
 
@@ -363,29 +392,20 @@ getOceanParameters = function(){
     if (this.oceanTile != undefined) {
       let oceanTile = this.oceanTile;
       oceanTile.material.uniforms.u_time.value = this.time; // dt
-      //this.oceanLRTile.material.uniforms.u_time.value = this.time; // dt
 
-      let oceanSteepness = this.oceanSteepness;
-      oceanTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
-      //this.oceanLRTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
+      // let oceanSteepness = this.oceanSteepness;
+      // oceanTile.material.uniforms.u_steepnessFactor.value = oceanSteepness;
 
-      let params1 = this.customWaveParameters[0];
-      //params[0] = 0.5; // custom steepness
-      oceanTile.material.uniforms.u_wave1Params.value.set(...params1);
-      //this.oceanLRTile.material.uniforms.u_wave1Params.value.set(...params1);
+      // let params1 = this.customWaveParameters[0];
+      // oceanTile.material.uniforms.u_wave1Params.value.set(...params1);
 
-      let params2 = this.customWaveParameters[1];
-      //params[0] = 0.25; // custom steepness
-      oceanTile.material.uniforms.u_wave2Params.value.set(...params2);
-      //this.oceanLRTile.material.uniforms.u_wave2Params.value.set(...params2);
+      // let params2 = this.customWaveParameters[1];
+      // oceanTile.material.uniforms.u_wave2Params.value.set(...params2);
 
-      let params3 = this.customWaveParameters[2];
-      //params[0] = 0.2; // custom steepness
-      oceanTile.material.uniforms.u_wave3Params.value.set(...params3);
-      //this.oceanLRTile.material.uniforms.u_wave3Params.value.set(...params3);
+      // let params3 = this.customWaveParameters[2];
+      // oceanTile.material.uniforms.u_wave3Params.value.set(...params3);
 
       oceanTile.material.uniforms.u_time.uniformsNeedUpdate = true;
-      //this.oceanLRTile.material.uniforms.u_time.uniformsNeedUpdate = true;
     }
   }
 

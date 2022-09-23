@@ -1,0 +1,48 @@
+/* Limit SVG size */
+.icon-svg {
+  width: 45px;
+  height: 45px;
+}
+
+.icon-svg:hover {
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+  border-radius: 50%;
+  background-color: rgb(176, 176, 176);
+}
+
+.roundButton {
+  border-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+  border-radius: 50%;
+}
+
+.input-slider {
+  -webkit-appearance: none;
+  outline-width: thick;
+  background: #f5faff;
+  height: 10px;
+  border-radius: 10px;
+}
+
+.input-slider:hover {
+  background: #ddedff;
+}
+
+.input-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #00608d;
+  cursor: pointer;
+}
+.input-slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #00608d;
+  cursor: pointer;
+}
