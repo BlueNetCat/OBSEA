@@ -73,7 +73,7 @@ export default {
 
 
 <style scoped>
-  #app-manager {
+#app-manager {
     width: 100vw;
     height: 100vh;
     position: absolute;
@@ -85,5 +85,9 @@ export default {
     top: 10px;
     left: 10px;
   }
-
+  @media screen and (max-width: 800px) {
+    .OBSEABanner {
+      width: 150px;
+    }
+  }
 </style>
