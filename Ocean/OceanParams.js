@@ -293,10 +293,10 @@ export class OceanParameters{
       // Wave range
       let waveHeight = Math.abs(this.waveHeights[i]);
       imageData.data[i * 4 + 1] = 255 * waveHeight / this.WAVE_MAX;
-      // Direction range -- SOME HACK WITH ORIENTATION HERE
-      let dirX = Math.sin((-this.waveDirections[i] - 90) * Math.PI / 180)
+      // Direction range (negative for clockwise rotation)
+      let dirX = Math.sin((-this.waveDirections[i]) * Math.PI / 180)
       imageData.data[i * 4 + 2] = 255 * (dirX + 1) / 2;
-      let dirZ = Math.cos((-this.waveDirections[i] - 90) * Math.PI / 180);
+      let dirZ = Math.cos((-this.waveDirections[i]) * Math.PI / 180);
       imageData.data[i * 4 + 3] = 255 * (dirZ + 1) / 2;
 
     }

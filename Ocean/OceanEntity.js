@@ -100,9 +100,7 @@ class OceanEntity {
       this.oceanTile.material = oceanMaterial;
 
 
-      // Scene direction fix
-      const angleFix = 90;
-      gltf.scene.rotation.y = angleFix * Math.PI / 180;
+      // Scene fix
       gltf.scene.translateY(-0.001);
 
       scene.add(gltf.scene);
@@ -115,9 +113,7 @@ class OceanEntity {
         this.oceanLOD.MR = gltf.scene.children[0];
         this.oceanTile = gltf.scene.children[0];
         this.oceanTile.material = oceanMaterial;
-        // Scene direction fix
-        const angleFix = 90;
-        gltf.scene.rotation.y = angleFix * Math.PI / 180;
+        // Scene fix
         gltf.scene.translateY(-0.001);
         // Remove previous version and add new
         scene.remove(this.oceanLOD.LR.parent);
@@ -128,9 +124,7 @@ class OceanEntity {
           this.oceanLOD.HR = gltf.scene.children[0];
           this.oceanTile = gltf.scene.children[0];
           this.oceanTile.material = oceanMaterial;
-          // Scene direction fix
-          const angleFix = 90;
-          gltf.scene.rotation.y = angleFix * Math.PI / 180;
+          // Scene fix
           gltf.scene.translateY(-0.001);
           // Remove previous version and add new
           scene.remove(this.oceanLOD.MR.parent);
@@ -193,7 +187,7 @@ class OceanEntity {
     if (varName == 'height'){
       this.oceanTile.material.uniforms.u_wave1Params.value.y = value;// steepness, waveHeight, directionx, directionz
     } else if (varName == 'direction'){
-      value += 180;
+      value += 90;
       let dirX = Math.cos(value * Math.PI / 180);
       let dirZ = Math.sin(value * Math.PI / 180);
       this.oceanTile.material.uniforms.u_wave1Params.value.z = dirX;

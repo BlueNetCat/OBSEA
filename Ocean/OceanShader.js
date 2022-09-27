@@ -25,6 +25,10 @@
 // Blending normals
 // https://blog.selfshadow.com/publications/blending-in-detail/
 
+// Foam
+// RenderToTarget the displacement. Use it to create a foam texture and particles
+// https://www.youtube.com/watch?v=UWGwq-_w08c&ab_channel=GhislainGirardot
+
 // Read more about normal mapping
 // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
 // https://www.youtube.com/watch?v=JNj1A1bl7gg&ab_channel=VictorGordan
@@ -165,7 +169,7 @@ export const OceanVertShader = /* glsl */ `
 
     // Normal
     vec3 normal = normalize(cross(binormal, tangent));
-    normal = (modelMatrix * vec4(normal, 1.0)).xyz; 
+    normal = (modelMatrix * vec4(normal, 0.0)).xyz; 
     v_Normal = normalize(normal.xyz); 
 
     // World position
@@ -296,6 +300,7 @@ export const OceanFragShader = /* glsl */`
     
 
     vec3 color = skyFresnel*2.0 + waterFresnel*2.0 + diffuseColor + specularColor;
+    
 
     color = hdr(color, 0.99); // From David Li https://github.com/dli/waves/blob/master/simulation.js
 

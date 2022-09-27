@@ -44,6 +44,8 @@ class FlagBehavior {
     }
 
     
+
+    
     // Create links
     for (let i = 0; i<this.bones.length; i++){
       for (let j = 0; j<this.bones[0].length; j++){
@@ -88,7 +90,7 @@ class FlagBehavior {
   updateFlag(flagObj, windInt, windDir, time) {
     if (flagObj == undefined)
       return;
-
+    
     // Limit wind int to 1.5
     windInt = Math.max(windInt, 1);
 
@@ -100,7 +102,7 @@ class FlagBehavior {
     this.prevTime = time * 0.001;
 
     // Calculate wind vector
-    let windRad = windDir * Math.PI / 180 + Math.PI; // Add 180 and make clockwise
+    let windRad = windDir * Math.PI / 180;
     windRad = -windRad; // Clockwise
 
     // Rotate object
@@ -454,6 +456,7 @@ class BoneRotationCorrections {
     let anchor = bbPrev.getWorldPosition(this.tempVec3B);
     // Direction (from point to anchor)
     let direction = this.tempVec3C.subVectors(anchor, pos);
+    direction.multiplyScalar(-1);
 
     // Calculate rotation matrix
     let rotationMatrix = this.tempM4;
@@ -464,11 +467,20 @@ class BoneRotationCorrections {
     this.tempQuaternion.multiply(bb.restQuat);
 
     // Compare with previous quaternion to avoid drastic changes
-    bb.getWorldQuaternion(this.tempQuatB);
-    let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
-    let angle = angleRad * 180 / Math.PI;
+    if (false){
+      bb.getWorldQuaternion(this.tempQuatB);
+      let angleRad = this.tempQuatB.angleTo(this.tempQuaternion);
+      let angle = angleRad * 180 / Math.PI;
 
-    if (angle < 179) // Sometimes it goes to 179.99
+      let angleRad2 = this.tempQuatB.angleTo(bb.restQuat);
+      let angle2 = angleRad * 180 / Math.PI;
+
+      if (angle > 170)
+        debugger;
+    }
+    
+
+    //if (angle < 170) // Sometimes it goes to 179.99
       // Apply rotation matrix
       bb.setWorldRotation(this.tempQuaternion);
     
