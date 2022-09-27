@@ -9,7 +9,7 @@ import { SandEntity } from '/OBSEA/Assets/Terrain/SandEntity.js';
 import { SkyboxEntity } from '/OBSEA/Assets/Skybox/SkyboxEntity.js';
 
 import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
-import { OceanEntity } from '/OBSEA/Ocean/OceanEntity.js';
+import { OceanEntity } from '/OBSEA/Assets/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
 import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'

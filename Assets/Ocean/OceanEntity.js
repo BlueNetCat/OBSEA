@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
-import {OceanVertShader, OceanFragShader} from '/OBSEA/Ocean/OceanShader.js';
-import { OceanParameters } from '/OBSEA/Ocean/OceanParams.js';
+import {OceanVertShader, OceanFragShader} from '/OBSEA/Assets/Ocean/OceanShader.js';
+import { OceanParameters } from '/OBSEA/Assets/Ocean/OceanParams.js';
 
 class OceanEntity {
 
