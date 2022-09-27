@@ -1,5 +1,7 @@
 let es;
 export default es = {
+  "Date": "Fecha",
+
   "buoyButtonTitle": "Centra la cámara en la boya de superfície",
   "baseButtonTitle": "Centra la cámara en el observatorio submarino",
 
@@ -15,6 +17,15 @@ export default es = {
   "Swell direction": "Dirección del oleaje",
   "Wave steepness": "Periodo",
 
+  "Wind speed": "Velocidad del viento",
+  "Wind direction": "Dirección del viento",
+  "Wave significant height": "Altura significante de oleaje",
+  "Air temperature": "Temperatura del aire",
+  "Atmospheric pressure": "Pressión atmosférica",
+  "Sea surface temperature": "Temperatura superficial del mar",
+  "Sea bottom temperature": "Temperatura del fondo del mar",
+  "Salinity": "Salinidad",
+
   seaPanel: {
     title: "Parámetros de la simulación del mar",
     p1: "Esta simulación está hecha con olas de Gestner, según el",
@@ -23,5 +34,7 @@ export default es = {
     la altura máxima de oleaje y la dirección del oleaje.`,
     oceanSteepness: "Modifica como de picado está el mar",
     swellParams: "Modifica los parámetros del oleaje principal",
-  }
+  },
+
+  "Data": "Datos",
 }

@@ -1,5 +1,7 @@
 let ca;
 export default ca = {
+  "Date": "Data",
+
   "buoyButtonTitle": "Centra la càmara a la boia de superficie",
   "baseButtonTitle": "Centra la càmara a l'observatori submarí",
 
@@ -15,6 +17,15 @@ export default ca = {
   "Swell direction": "Direcció de l'onatge",
   "Wave steepness": "Període",
 
+  "Wind speed": "Velocitat del vent",
+  "Wind direction": "Direcció del vent",
+  "Wave significant height": "Altura significant d'onatge",
+  "Air temperature": "Temperatura de l'aire",
+  "Atmospheric pressure": "Pressió atmosfèrica",
+  "Sea surface temperature": "Temperatura superficial del mar",
+  "Sea bottom temperature": "Temperatura del fons del mar",
+  "Salinity": "Salinitat",
+
 
   seaPanel: {
     title: "Paràmetres de la simulació del mar",
@@ -24,6 +35,7 @@ export default ca = {
     l'altura màxima d'onatge i la direcció de l'onatge.`,
     oceanSteepness: "Modifica com de picat está el mar",
     swellParams: "Modifica els paràmetres de l'onatge principal",
+  },
 
-  }
+  "Data": "Dades",
 }
