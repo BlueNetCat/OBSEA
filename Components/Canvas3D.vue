@@ -37,20 +37,20 @@ export default {
       this.sceneManager.faceNorthward();
     });
     // Change ocean steepness
-    window.eventBus.on('CentralPanel_steepnessSliderClicked', (steepness) => {
+    window.eventBus.on('SeaPanel_steepnessSliderClicked', (steepness) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSteepness(steepness);
     });
     // Change swell 1
-    window.eventBus.on('CentralPanel_swell1HeightSliderClicked', (height) => {
+    window.eventBus.on('SeaPanel_swell1HeightSliderClicked', (height) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('height',height);
     });
-    window.eventBus.on('CentralPanel_swell1DirectionSliderClicked', (direction) => {
+    window.eventBus.on('SeaPanel_swell1DirectionSliderClicked', (direction) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('direction', direction);
     });
-    window.eventBus.on('CentralPanel_swell1SteepnessSliderClicked', (steepness) => {
+    window.eventBus.on('SeaPanel_swell1SteepnessSliderClicked', (steepness) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('steepness', steepness);
     });

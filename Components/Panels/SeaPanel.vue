@@ -132,20 +132,20 @@ export default {
     // USER ACTIONS
     steepnessSliderClicked: function (e) {
       // Emit event for Canvas 3D
-      window.eventBus.emit('CentralPanel_steepnessSliderClicked', parseFloat(e.target.value));
+      window.eventBus.emit('SeaPanel_steepnessSliderClicked', parseFloat(e.target.value));
     },
     // Swell 1
     swell1HeightSliderClicked: function (e) {
       // Emit event for Canvas 3D
-      window.eventBus.emit('CentralPanel_swell1HeightSliderClicked', parseFloat(e.target.value));
+      window.eventBus.emit('SeaPanel_swell1HeightSliderClicked', parseFloat(e.target.value));
     },
     swell1DirectionSliderClicked: function (e) {
       // Emit event for Canvas 3D
-      window.eventBus.emit('CentralPanel_swell1DirectionSliderClicked', parseFloat(e.target.value))
+      window.eventBus.emit('SeaPanel_swell1DirectionSliderClicked', parseFloat(e.target.value))
     },
     swell1SteepnessSliderClicked: function (e) {
       // Emit event for Canvas 3D
-      window.eventBus.emit('CentralPanel_swell1SteepnessSliderClicked', parseFloat(e.target.value))
+      window.eventBus.emit('SeaPanel_swell1SteepnessSliderClicked', parseFloat(e.target.value))
     }
 
 
