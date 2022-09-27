@@ -107,6 +107,11 @@ export default {
       // Add information about which panel to open
       window.eventBus.emit('OpenCentralPanel', "seaPanel");
     },
+    windIconClicked: function () {
+      // Open central panel
+      // Add information about which panel to open
+      window.eventBus.emit('OpenCentralPanel', "windPanel");
+    },
     cameraButtonClicked: function () {
       this.showCamera = !this.showCamera;
     }

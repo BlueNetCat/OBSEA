@@ -37,6 +37,15 @@ export default en = {
     swellParams: "Set swell parameters",
   },
 
+  windPanel: {
+    title: "Wind simulation parameters",
+    p1: "The cloth simulation is using verlet integration (Hitman's ragdoll), following the",
+    p1_1: "tutorial by Jared Counts",
+    p2: `The simulation is based on the wind speed and direction measurements, which modify
+        the forces affecting the cloth.`,
+    windParams: 'Set wind parameters',
+  },
+
   "Data": "Data",
 
 

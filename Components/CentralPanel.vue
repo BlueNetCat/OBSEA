@@ -9,7 +9,7 @@
       <sea-panel v-show="panelName == 'seaPanel'"></sea-panel>
 
       <!-- Wind panel -->
-      
+      <wind-panel v-show="panelName == 'windPanel'"></wind-panel>
 
     </div>
   </div>
@@ -23,6 +23,7 @@
 <script>
 
 import SeaPanel from "/OBSEA/Components/Panels/SeaPanel.vue"
+import WindPanel from "/OBSEA/Components/Panels/WindPanel.vue"
 
 export default {
   name: "CentralPanel",
@@ -36,25 +37,20 @@ export default {
       this.hidePanel = true;
     });
     window.eventBus.on('OpenCentralPanel', (panelName) => {
-      this.hidePanel = !this.hidePanel;
+      if (this.panelName == panelName){
+        this.hidePanel = !this.hidePanel;
+      } else{
+        this.hidePanel = false;
+      }
       this.panelName = panelName;
+      this.$forceUpdate();
     });
-    // Listen to the camera orientation
-    // window.eventBus.on('Canvas3D_cameraChange', (sceneManager) => {
-    //   // Find orientation
-    //   let target = sceneManager.controls.target;
-    //   let camPos = sceneManager.camera.position;
-    //   let xDir = camPos.x - target.x;
-    //   let zDir = camPos.z - target.z;
-    //   let angle = Math.atan2(xDir, zDir) * 180 / Math.PI;
-    //   // Rotate compass in the opposite direction
-    //   this.$refs["compass-icon"].style.transform = "rotate(" + angle + "deg)";
-    // })
 
   },
   data() {
     return {
       hidePanel: true,
+      panelName: '',
     }
   },
   methods: {
@@ -62,7 +58,7 @@ export default {
     closePanelClicked: function(e){
       // Send event
       // Maybe do it as "emit", as only the parent reacts to it.
-      // TODO: arrange events better
+      // TODO: arrange events better?
       window.eventBus.emit('CloseCentralPanel');
     },
 
@@ -76,7 +72,8 @@ export default {
     // }
   },
   components: {
-    "sea-panel": SeaPanel
+    "sea-panel": SeaPanel,
+    "wind-panel": WindPanel
   }
 }
 </script>

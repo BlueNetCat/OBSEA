@@ -36,5 +36,15 @@ export default es = {
     swellParams: "Modifica los parámetros del oleaje principal",
   },
 
+
+  windPanel: {
+    title: "Parámetros de la simulación de viento",
+    p1: "La simulación de tejido está hecha con verlet integration (Hitman's ragdoll), siguiendo el",
+    p1_1: "tutorial de Jared Counts",
+    p2: `La simulación está basada en las medidas de la velocidad del viento y su dirección, que modifican
+        las fuerzas que afectan la tela.`,
+    windParams: 'Modifica el viento',
+  },
+
   "Data": "Datos",
 }

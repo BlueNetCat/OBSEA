@@ -37,5 +37,16 @@ export default ca = {
     swellParams: "Modifica els paràmetres de l'onatge principal",
   },
 
+
+  windPanel: {
+    title: "Paràmetres de la simulació de vent",
+    p1: "La simulació de tela està feta amb verlet integration (Hitman's ragdoll), seguint el",
+    p1_1: "tutorial de Jared Counts",
+    p2: `La simulació està basada en les mesures de la velocitat del vent i la seva direcció, que modifiquen
+        les forces que afecten la tela.`,
+    windParams: 'Modifica el vent',
+  },
+
+
   "Data": "Dades",
 }
