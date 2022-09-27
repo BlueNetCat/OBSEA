@@ -105,4 +105,9 @@ export default {
   }
 }
 
+.closing-cross {
+  position: absolute;
+  right: 10px;
+  margin-top: 10px;
+}
 </style>

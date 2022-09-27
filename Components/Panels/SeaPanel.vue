@@ -170,12 +170,6 @@ export default {
   overflow: auto;
 }
 
-.closing-cross {
-  position: absolute;
-  right: 10px;
-}
-
-
 .container-slider {
   display: flex;
   justify-content: space-evenly;
