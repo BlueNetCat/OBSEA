@@ -55,6 +55,18 @@ export default {
         this.sceneManager.ocean.updateSwell1('steepness', steepness);
     });
 
+    // Change wind
+    window.eventBus.on('WindPanel_windSpeedSliderClicked', (windSpeed) => {
+      if (this.sceneManager.flag)
+        this.sceneManager.flag.setWindParameters('windSpeed', windSpeed);
+    });
+    window.eventBus.on('WindPanel_windDirectionSliderClicked', (direction) => {
+      if (this.sceneManager.flag)
+        this.sceneManager.flag.setWindParameters('windDirection', direction);
+    });
+
+
+
     // Event emitters
     // Listeners: TopRightNav, BottomSection
     this.sceneManager.controls.addEventListener('change', (e) => {
