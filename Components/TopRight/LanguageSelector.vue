@@ -134,7 +134,7 @@ export default {
 .dropdown {
   position: relative;
   display: inline-block;
-  z-index: 3;
+  z-index: 0;
 }
 
 /* Dropdown Content (Hidden by Default) */
