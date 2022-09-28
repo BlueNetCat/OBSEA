@@ -60,7 +60,7 @@ export default {
       if (this.sceneManager.flag)
         this.sceneManager.flag.setWindParameters('windSpeed', windSpeed);
     });
-    window.eventBus.on('WindPanel_windDirectionSliderClicked', (direction) => {
+    window.eventBus.on('WindPanel_windDirectionKnobClicked', (direction) => {
       if (this.sceneManager.flag)
         this.sceneManager.flag.setWindParameters('windDirection', direction);
     });

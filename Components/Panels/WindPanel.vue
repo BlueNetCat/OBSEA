@@ -9,22 +9,26 @@
       <p> {{$t('windPanel.p2')}}</p>
     
     
-      <!--Ocean steepness -->
+      <!-- Wind parameters -->
       <p>{{$t('windPanel.windParams')}}:</p>
       <div class="container-columns">
         <!-- Wind speed -->
         <div class="container-rows">
           <p>{{$t('Wind speed')}}</p>
           <div class="container-slider">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 512 512">
-              <path id="Wave" class="svg-wavePath"
-                d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
+               <path id="WindMiddle" class="svg-windPath"
+                d="M64.388,323.7c66.094,22.349,138.154,32.108,178.1,0,13.8-11.092,18.094-21.2,17.81-28.148-0.733-17.966-25.226-36.257-43.155-30.894-6.291,1.882-16.286,8.04-15.756,17.163,0.413,7.1,7.129,14.085,17.126,15.791" />
             </svg>
             <input class="input-slider" style="width:80%" type="range" min="0.01" max="36" value="0.2" step="0.001"
               @input="windSpeedSliderClicked" />
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
-              <path id="Wave" class="svg-wavePath"
-                d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
+              <path id="WindTop" class="svg-windPath"
+                d="M117,178c96.486,32.553,201.682,46.769,260,0,20.145-16.156,26.414-30.873,26-41-1.07-26.169-36.825-52.812-63-45-9.183,2.741-23.774,11.71-23,25,0.6,10.338,10.406,20.516,25,23" />
+              <path id="WindMiddle" class="svg-windPath"
+                d="M64.388,323.7c66.094,22.349,138.154,32.108,178.1,0,13.8-11.092,18.094-21.2,17.81-28.148-0.733-17.966-25.226-36.257-43.155-30.894-6.291,1.882-16.286,8.04-15.756,17.163,0.413,7.1,7.129,14.085,17.126,15.791" />
+              <path id="WindBottom" class="svg-windPath"
+                d="M149,391c96.486,32.553,201.682,46.769,260,0,20.145-16.156,26.414-30.873,26-41-1.07-26.169-36.825-52.812-63-45-9.183,2.741-23.774,11.71-23,25,0.6,10.338,10.406,20.516,25,23" />
             </svg>
           </div>
         </div>
@@ -32,11 +36,10 @@
         <!-- Wind direction -->
         <div class="container-rows">
           <p>{{$t('Wind direction')}}</p>
-          <div class="container-slider">
-            <input class="input-slider" style="width:80%" type="range" min="0" max="360" value="0.2" step="0.001"
-              @input="windDirectionSliderClicked" />
-          </div>
+          <knob @change="windDirectionKnobClicked"></knob>
         </div>
+
+        
       
       </div>
     
@@ -53,6 +56,7 @@
 
 
 <script>
+import Knob from "/OBSEA/Components/Knob.vue";
 
 
 
@@ -73,27 +77,20 @@ export default {
   },
   methods: {
     // USER ACTIONS
+    // Wind speed
     windSpeedSliderClicked: function (e) {
       // Emit event for Canvas 3D
       window.eventBus.emit('WindPanel_windSpeedSliderClicked', parseFloat(e.target.value));
     },
-    // Swell 1
-    windDirectionSliderClicked: function (e) {
+    // Wind direction
+    windDirectionKnobClicked: function(angle){
       // Emit event for Canvas 3D
-      window.eventBus.emit('WindPanel_windDirectionSliderClicked', parseFloat(e.target.value));
+      window.eventBus.emit('WindPanel_windDirectionKnobClicked', parseFloat(angle));
     },
-
-
-    // compassButtonClicked: function (e) {
-    //   window.eventBus.emit('TopRightNav_compassButtonClicked');
-    // },
-    // infoButtonClicked: function (e) {
-    //   window.eventBus.emit('TopRightNav_infoButtonClicked');
-    //   window.open('https://github.com/BlueNetCat/OBSEA', '_blank');
-    // }
   },
   components: {
-  }
+    knob: Knob
+}
 }
 </script>
 
@@ -129,7 +126,7 @@ export default {
 
 
 /* SVG line */
-.cls-1 {
+.svg-windPath {
   fill: none;
   stroke: #1a1a1a;
   stroke-width: 20px;
