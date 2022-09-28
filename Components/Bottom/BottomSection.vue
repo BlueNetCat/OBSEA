@@ -44,19 +44,20 @@
         {{$t("Data ")}}
       </div>
       <div class="data-text">
-        {{$t("Date")}}: {{date.toLocaleString()}},
+        <div> <!-- TODO: Duplicate this section to have continuous text https://www.fridaandfolks.com/ -->
+          {{$t("Date")}}: {{date.toLocaleString()}},
 
-        {{$t("Wind speed")}}: {{WSPD}} m/s, 
-        {{$t("Wind direction")}}: {{WDIR}}º,
-        {{$t("Wave significant height")}}: {{HM0}} m,
+          {{$t("Wind speed")}}: {{WSPD}} m/s, 
+          {{$t("Wind direction")}}: {{WDIR}}º,
+          {{$t("Wave significant height")}}: {{HM0}} m,
 
-        {{$t("Air temperature")}}: {{AIRT}}ºC,
-        {{$t("Atmospheric pressure")}}: {{APRES}} bars,
+          {{$t("Air temperature")}}: {{AIRT}}ºC,
+          {{$t("Atmospheric pressure")}}: {{APRES}} bars,
 
-        {{$t("Sea surface temperature")}}: {{TEMP}}ºC,
-        {{$t("Sea bottom temperature")}}(~20m): {{TEMPBOTTOM}}ºC,
-        {{$t("Salinity")}}: {{PSAL}} ‰,
-        
+          {{$t("Sea surface temperature")}}: {{TEMP}}ºC,
+          {{$t("Sea bottom temperature")}}(~20m): {{TEMPBOTTOM}}ºC,
+          {{$t("Salinity")}}: {{PSAL}} ‰,
+        </div>
         
 
 
@@ -169,7 +170,9 @@ button {
 .data-text{
   z-index: 0;
   white-space: nowrap;
-  animation: tickerh linear 20s infinite;
+  animation: tickerh linear 15s infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 .data-text:hover {
   animation-play-state: paused;
@@ -177,10 +180,11 @@ button {
 /* Data text ticker animation */
 @keyframes tickerh {
   0% {
-    transform: translate3d(60%, 0, 0);
+    transform: translate3d(100%, 0px, 0px);
+    
   }
   100% {
-    transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 0px, 0px);
   }
 }
 
