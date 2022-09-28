@@ -39,7 +39,7 @@
     <camera-youtube v-show="showCamera"></camera-youtube>
 
     <!-- Current information available (temp, etc...)-->
-    <div class="bottom-bar">
+    <div class="bottom-bar" v-show="false">
       <div class="data-title">
         {{$t("Data ")}}
       </div>
