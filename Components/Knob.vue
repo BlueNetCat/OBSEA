@@ -2,7 +2,7 @@
   <div id="knob">
     <!-- https://www.youtube.com/watch?v=ELUSz0L8vTA&ab_channel=QuickCodingTuts -->
     <div class="slider">
-      <div class="knob" ref="knob" @mousedown="knobMouseDown">
+      <div class="knob" ref="knob" @mousedown="knobMouseDown" @touchstart="knobMouseDown">
       </div>
     </div>
   </div>
@@ -31,22 +31,32 @@ export default {
     removeEventListeners: function(){
       // Knob event
       document.removeEventListener("mousemove", this.mouseMoveRotateKnob);
+      document.removeEventListener("touchmove", this.mouseMoveRotateKnob);
       // Document event
       document.removeEventListener("mouseup", this.removeEventListeners);
+      document.removeEventListener("touchend", this.removeEventListeners);
     },
     mouseMoveRotateKnob: function (e) {
-      e.preventDefault();
-      e.stopPropagation();
+      // If it is a mouse event
+      if (e.clientX){
+        e.preventDefault();
+        e.stopPropagation();
+      }
       // Get the center of the knob
       let bbox = this.$refs.knob.getBoundingClientRect();
       let centerX = bbox.x + bbox.width/2;
       let centerY = bbox.y + bbox.height/2;
+      // Get the pointer location (mouse or touch)
+      let pointerX = e.clientX ? e.clientX : e.touches[0].clientX;
+      let pointerY = e.clientY ? e.clientY : e.touches[0].clientY;
+
       // Get the vector from the mouse to the center of the knob
-      let vecX = centerX - e.clientX;
-      let vecY = centerY - e.clientY;
+      let vecX = centerX - pointerX;
+      let vecY = centerY - pointerY;
       // Calculate angle
       let angleRad = Math.atan2(vecY, vecX);
       let angle = angleRad * 180 / Math.PI - 90;
+      console.log(angle);
       // Emit event
       this.$emit("change", angle);
       // Rotate knob
@@ -55,12 +65,14 @@ export default {
     // USER ACTIONS
     knobMouseDown: function (e) {
       // Create event listeners 
-      e.preventDefault();
-      e.stopPropagation();
+      //e.preventDefault();
+      //e.stopPropagation();
       // Mouse move changes angle
       document.addEventListener("mousemove", this.mouseMoveRotateKnob);
+      document.addEventListener("touchmove", this.mouseMoveRotateKnob);
       // Mouse up removes event listeners
       document.addEventListener("mouseup", this.removeEventListeners);
+      document.addEventListener("touchend", this.removeEventListeners);
     },
   },
   components: {
