@@ -1,0 +1,57 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#c {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#sliderPanel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+#direction,
+#steepness,
+#intensity {
+  display: inline-flex;
+}
+
+#randomWaveHeights,
+#randomWaveDirs {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  z-index: 1;
+}
+
+#randomWaveHeights:hover,
+#randomWaveDirs:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  cursor: pointer
+}
+
+#focusOnBuoy,
+#focusOnBase {
+  margin: 10px;
+  border-radius: 10px;
+  background-color: #9ddced;
+  cursor: pointer;
+}
+
+#focusOnBuoy:hover,
+#focusOnBase:hover {
+  background-color: #78b6c6;
+  cursor: pointer;
+}

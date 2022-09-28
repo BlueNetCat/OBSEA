@@ -39,6 +39,30 @@
     <camera-youtube v-show="showCamera"></camera-youtube>
 
     <!-- Current information available (temp, etc...)-->
+    <div class="bottom-bar" v-show="false">
+      <div class="data-title">
+        {{$t("Data ")}}
+      </div>
+      <div class="data-text">
+        <div> <!-- TODO: Duplicate this section to have continuous text https://www.fridaandfolks.com/ -->
+          {{$t("Date")}}: {{date.toLocaleString()}},
+
+          {{$t("Wind speed")}}: {{WSPD}} m/s, 
+          {{$t("Wind direction")}}: {{WDIR}}º,
+          {{$t("Wave significant height")}}: {{HM0}} m,
+
+          {{$t("Air temperature")}}: {{AIRT}}ºC,
+          {{$t("Atmospheric pressure")}}: {{APRES}} bars,
+
+          {{$t("Sea surface temperature")}}: {{TEMP}}ºC,
+          {{$t("Sea bottom temperature")}}(~20m): {{TEMPBOTTOM}}ºC,
+          {{$t("Salinity")}}: {{PSAL}} ‰,
+        </div>
+        
+
+
+      </div>
+    </div>
 
   </div>
 </template>
@@ -64,14 +88,30 @@ export default {
   data() {
     return {
       isUnderwater: false,
-      showCamera: false
+      showCamera: false,
+
+      date: new Date(),
+
+      WSPD: 15,
+      WDIR: 30,
+      HM0: 1,
+      TEMP: 22,
+      TEMPBOTTOM: 13,
+      PSAL: 35,
+
+      
     }
   },
   methods :{
     waveIconClicked: function() {
       // Open central panel
-      // TODO: add information about which panel to open
-      window.eventBus.emit('OpenCentralPanel');
+      // Add information about which panel to open
+      window.eventBus.emit('OpenCentralPanel', "seaPanel");
+    },
+    windIconClicked: function () {
+      // Open central panel
+      // Add information about which panel to open
+      window.eventBus.emit('OpenCentralPanel', "windPanel");
     },
     cameraButtonClicked: function () {
       this.showCamera = !this.showCamera;
@@ -106,6 +146,46 @@ button {
   padding: 0;
   margin-bottom: 10px;
   border-radius: 50%;
+}
+
+
+/* Bottom bar with data */
+.bottom-bar {
+  background-color: #acd1ffc7;
+  font-size: small;
+
+  display:flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+.bottom-bar > div {
+  padding: 5px;
+}
+.data-title {
+  white-space: nowrap;
+  background-color: #8dc0fe;
+  padding-right: 2px;
+  z-index: 1;
+}
+.data-text{
+  z-index: 0;
+  white-space: nowrap;
+  animation: tickerh linear 15s infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.data-text:hover {
+  animation-play-state: paused;
+}
+/* Data text ticker animation */
+@keyframes tickerh {
+  0% {
+    transform: translate3d(100%, 0px, 0px);
+    
+  }
+  100% {
+    transform: translate3d(-100%, 0px, 0px);
+  }
 }
 
 

@@ -9,13 +9,17 @@ import { SandEntity } from '/OBSEA/Assets/Terrain/SandEntity.js';
 import { SkyboxEntity } from '/OBSEA/Assets/Skybox/SkyboxEntity.js';
 
 import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
-import { OceanEntity } from '/OBSEA/Ocean/OceanEntity.js';
+import { OceanEntity } from '/OBSEA/Assets/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
 import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'
 //import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
-import { CurrentEntity } from '/OBSEA/3Dcurrent/CurrentEntity.js';
+import { CurrentEntity } from '/OBSEA/Assets/Current/CurrentEntity.js';
+
+import { OBSEADataRetriever } from '/OBSEA/data/OBSEADataRetriever.js'
+
+
 
 class SceneManager{
 
@@ -120,6 +124,20 @@ class SceneManager{
 
 
     this.currents = new CurrentEntity(scene);
+
+
+
+
+
+    // OBSEA Data
+    // let dataRetriever = new OBSEADataRetriever(() => {
+    //   // Modify ocean parameters
+    //   if (ocean) ocean.updateOceanParameters(dataRetriever.currentParams);
+    //   // Modify wind
+    //   if (flag) flag.updateWindParameters(dataRetriever.currentParams);
+    //   // Update currents
+    //   if (currents) currents.updateCurrentParameters(dataRetriever.currentParams);
+    // });
 
 
 
