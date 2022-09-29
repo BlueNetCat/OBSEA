@@ -24,9 +24,15 @@ class OBSEABiotopEntity {
       biotop.material.color.multiplyScalar(0.8);
 
       // For some reason uv2 (ao) has the y flipped
-      let arr = biotop.geometry.attributes.uv2.array;
-      for (let i = 1; i < arr.length; i+=2){
-        arr[i] = 1.0 - arr[i];
+      const fixUV2 = function (uv2){
+        for (let i = 1; i < uv2.length; i += 2) {
+          uv2[i] = 1.0 - uv2[i];
+        }
+      }
+      if (biotop.geometry.attributes.uv2){
+        fixUV2(biotop.geometry.attributes.uv2.array);
+      } else {
+        console.warn("Could not find uv2 in BiotopEntity.")
       }
 
       // Bottom AO render order fix
