@@ -46,3 +46,30 @@
   background: #00608d;
   cursor: pointer;
 }
+
+/* Scrollbar */
+/* Works on Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #d7effa #90b1c1;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: #d7effa;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #90b1c1;
+  border-radius: 5px;
+  border: 1px solid #5f8698;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #719baf;
+  border-radius: 5px;
+  border: 1px solid #5f8698;
+}
