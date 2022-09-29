@@ -79,7 +79,7 @@
             <input class="input-slider" style="width:80%" type="range" min="0" max="360" value="0.2" step="0.001"
               @input="swell1DirectionSliderClicked" />
           </div> -->
-          <knob @change="swell1DirectionKnobClicked"></knob>
+          <knob @change="swell1DirectionKnobClicked" size="40px"></knob>
         </div>
     
         <!-- Wave steepness -->
@@ -110,7 +110,7 @@
       </div>
     
     
-      <br />
+      <br /><br /><br /><br /><br /><br /><br /><br /><br />
     
       <!-- TODO: wave parameters generation, wave graphs (direction and distribution)-->
     
