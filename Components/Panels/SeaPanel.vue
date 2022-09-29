@@ -52,7 +52,10 @@
         </svg>
       </div>
     
-      <br />
+      
+      <p class="p-center" style="color: #00608d">________________________________</p>
+
+
       <p class="p-center">{{$t('seaPanel.swellParams')}}:</p>
       <div class="container-columns">
         <!-- Wave height -->
@@ -110,7 +113,7 @@
       </div>
     
     
-      <br /><br /><br /><br /><br /><br /><br /><br /><br />
+      <br />
     
       <!-- TODO: wave parameters generation, wave graphs (direction and distribution)-->
     
