@@ -46,7 +46,7 @@ export default {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('height',height);
     });
-    window.eventBus.on('SeaPanel_swell1DirectionSliderClicked', (direction) => {
+    window.eventBus.on('SeaPanel_swell1DirectionKnobClicked', (direction) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('direction', direction);
     });

@@ -10,7 +10,7 @@
     
     
       <!--Ocean steepness -->
-      <p>{{$t('seaPanel.oceanSteepness')}}:</p>
+      <p class="p-center">{{$t('seaPanel.oceanSteepness')}}:</p>
       <div class="container-slider">
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
           <path class="cls-1"
@@ -33,11 +33,11 @@
       </div>
     
       <br />
-      <p>{{$t('seaPanel.swellParams')}}</p>
+      <p class="p-center">{{$t('seaPanel.swellParams')}}:</p>
       <div class="container-columns">
         <!-- Wave height -->
         <div class="container-rows">
-          <p>{{$t('Wave height')}}</p>
+          <p class="p-center">{{$t('Wave height')}}</p>
           <div class="container-slider">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 512 512">
               <path id="Wave" class="svg-wavePath"
@@ -54,16 +54,17 @@
     
         <!-- Wave orientation -->
         <div class="container-rows">
-          <p>{{$t('Swell direction')}}</p>
-          <div class="container-slider">
+          <p class="p-center">{{$t('Swell direction')}}</p>
+          <!-- <div class="container-slider">
             <input class="input-slider" style="width:80%" type="range" min="0" max="360" value="0.2" step="0.001"
               @input="swell1DirectionSliderClicked" />
-          </div>
+          </div> -->
+          <knob @change="swell1DirectionKnobClicked"></knob>
         </div>
     
         <!-- Wave steepness -->
         <div class="container-rows">
-          <p>{{$t('Wave steepness')}}</p>
+          <p class="p-center">{{$t('Wave steepness')}}</p>
           <div class="container-slider">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
               <path class="cls-1"
@@ -110,6 +111,7 @@
 
 
 <script>
+import Knob from '/OBSEA/Components/Knob.vue';
 
 
 
@@ -139,9 +141,9 @@ export default {
       // Emit event for Canvas 3D
       window.eventBus.emit('SeaPanel_swell1HeightSliderClicked', parseFloat(e.target.value));
     },
-    swell1DirectionSliderClicked: function (e) {
+    swell1DirectionKnobClicked: function (angle) {
       // Emit event for Canvas 3D
-      window.eventBus.emit('SeaPanel_swell1DirectionSliderClicked', parseFloat(e.target.value))
+      window.eventBus.emit('SeaPanel_swell1DirectionKnobClicked', angle);
     },
     swell1SteepnessSliderClicked: function (e) {
       // Emit event for Canvas 3D
@@ -158,6 +160,7 @@ export default {
     // }
   },
   components: {
+    knob: Knob
   }
 }
 </script>
@@ -189,6 +192,10 @@ export default {
   justify-content: space-evenly;
   align-items: center;
   flex-wrap: nowrap;
+}
+
+.p-center {
+  text-align: center;
 }
 
 
