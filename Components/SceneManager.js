@@ -65,7 +65,7 @@ class SceneManager{
     document.body.appendChild(stats.dom);
     stats.dom.style.right = '0px';
     stats.dom.style.left = null;
-    
+    stats.isVisible = true;
     
     
     
@@ -203,6 +203,20 @@ class SceneManager{
       .easing(TWEEN.Easing.Cubic.InOut)
       .onUpdate(()=>this.controls.update())
       .start();
+  }
+
+
+
+  // Show/Hide FPS
+  showHideFPS = function(){
+    let stats = this.stats;
+    if (stats.isVisible){
+      stats.showPanel(false);
+      stats.isVisible = false;
+    } else{
+      stats.showPanel(0);
+      stats.isVisible = true;
+    }
   }
 
 

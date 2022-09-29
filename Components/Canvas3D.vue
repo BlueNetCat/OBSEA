@@ -25,6 +25,7 @@ export default {
     this.sceneManager.startRender();
 
     // Event listeners
+    // ***** INSTRUMENTS PANEL *****
     // Center on instruments
     window.eventBus.on('InstrumentsMenu_buoyButtonClicked', () => {
       this.sceneManager.focusOnBuoy();
@@ -32,10 +33,18 @@ export default {
     window.eventBus.on('InstrumentsMenu_baseButtonClicked', () => {
       this.sceneManager.focusOnBase();
     });
+    window.eventBus.on('InstrumentsMenu_fpsButtonClicked', () => {
+      this.sceneManager.showHideFPS();
+    });
+
+    // ***** TOP-RIGHT ICONS *****
     // Face northward
     window.eventBus.on('TopRightNav_compassButtonClicked', () => {
       this.sceneManager.faceNorthward();
     });
+
+
+    // ***** SEA PANEL *****
     // Change ocean steepness
     window.eventBus.on('SeaPanel_steepnessSliderClicked', (steepness) => {
       if (this.sceneManager.ocean)
@@ -64,7 +73,7 @@ export default {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('steepness', steepness);
     });
-
+    // ***** WIND PANEL *****
     // Change wind
     window.eventBus.on('WindPanel_windSpeedSliderClicked', (windSpeed) => {
       if (this.sceneManager.flag)
@@ -74,6 +83,9 @@ export default {
       if (this.sceneManager.flag)
         this.sceneManager.flag.setWindParameters('windDirection', direction);
     });
+
+
+    
 
 
 
