@@ -7,9 +7,8 @@
         <a href="https://www.bluenetcat.eu" target="_blank">{{$t('infoPanel.BlueNetCat')}}</a>
         {{$t('infoPanel.p1_1')}}
         <a href="https://www.obsea.es" target="_blank">{{$t('infoPanel.OBSEA_UPC')}}</a>
-        . {{$t('infoPanel.p1_2')}}
+        {{$t('infoPanel.p1_2')}}
         <a href="https://www.github.com/BlueNetCat/OBSEA" target="_blank">{{$t('infoPanel.github')}}</a>
-        .
       </p>
       <!-- About obsea -->
       <h4>{{$t('infoPanel.aboutObsea')}}</h4>

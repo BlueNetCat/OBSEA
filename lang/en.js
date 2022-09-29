@@ -36,9 +36,11 @@ export default en = {
         `,
     p1_1: `in collaboration with`,
     BlueNetCat: 'Catalan Maritime Network (BlueNetCat)',
-    OBSEA_UPC: 'OBSEA from Universitat Politècnica de Catalunya(UPC) ',
-    p1_2: `The code for the application can be found in the `,
-    github: `github repository`,
+    OBSEA_UPC: 'OBSEA from Universitat Politècnica de Catalunya(UPC)',
+    p1_2: `. Special thanks to the Technologies Interactive Group (GTI) at Universitat Pompeu Fabra
+    for the technical support and to Emilio García for the theorical support. The code for the 
+    application can be found in the `,
+    github: `github repository.`,
 
     aboutObsea: `About OBSEA`,
     p2: `Taken from OBSEA website: "Everyday experimental marine research needs a greater volume 
@@ -62,7 +64,7 @@ export default en = {
      For inquiries about the data, please contact Enoc Martínez (enoc.martinez at upc.edu ).`,
 
     funding: "Funding",
-    p4: `The Catalan Maritime Network (BlueNetCat) (BlueNetCat) is financed by 
+    p4: `The Catalan Maritime Network (BlueNetCat) is financed by 
     the Generalitat de Catalunya and by the European Regional Development Fund (ERDF).`,
 
   },
