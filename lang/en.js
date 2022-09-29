@@ -27,6 +27,47 @@ export default en = {
   "Salinity": "Salinity",
 
 
+  infoPanel: {
+    title: "About",
+    p1: `This application is a 3D simulation of the meteorological and oceanographic conditions 
+        of the seafloor observatory OBSEA. The simulation is based on the data collected by the 
+        observatory when available. The objective of this application is to transfer the knowledge
+        and information acquiered by the observatory. This application is being developed by the
+        `,
+    p1_1: `in collaboration with`,
+    BlueNetCat: 'Catalan Maritime Network (BlueNetCat)',
+    OBSEA_UPC: 'OBSEA from Universitat Politècnica de Catalunya(UPC) ',
+    p1_2: `The code for the application can be found in the `,
+    github: `github repository`,
+
+    aboutObsea: `About OBSEA`,
+    p2: `Taken from OBSEA website: "Everyday experimental marine research needs a greater volume 
+    of environmental data with better resolution than what can be collected using oceanographic vessels, 
+    buoys, or sensors deployed on the seabed. The seafloor observatories can acquire data with great resolution 
+    uninterruptedly during long time periods. With this information, scientific community is able to analyze as 
+    well annual tendencies as singular events.`,
+    p2_1: `The OBSEA underwater observatory (www.obsea.es) is connected with 4 km of cable to the coast of 
+    Vilanova i la Geltrú (Barcelona, Spain) and placed at a depth of 20 meters in a fishing protected area.
+    The main advantage of the cabled observatory is the capacity to feed the station from land with up to 3.6kW 
+    and the high bandwidth communication link of 1 Gbps. This link gives the information in real time and avoids 
+    the drawbacks of battery powered systems. The implemented solution is an optical ethernet network that continuously
+     transmits data from the connected oceanographic instruments. With OBSEA we can observe in real-time multiple 
+     parameters of the marine environment. The Ground Station provides power to feed all the devices and the fiber 
+     optic link to establish communications. At the same time from land we manage alarms and data storage. With a 
+     length of 1000 meters the terrestrial cable connects the Ground Station to the Beach Manhole where the submarine
+      cable begins its route to the node location at 4 km from the coast and 20 meters deep."`,
+
+    contact: "Contact",
+    p3: `For inquiries about the application, please contact Gerard Llorach (gllorach at bluenetcat.eu).
+     For inquiries about the data, please contact Enoc Martínez (enoc.martinez at upc.edu ).`,
+
+    funding: "Funding",
+    p4: `The Catalan Maritime Network (BlueNetCat) (BlueNetCat) is financed by 
+    the Generalitat de Catalunya and by the European Regional Development Fund (ERDF).`,
+
+  },
+
+
   seaPanel: {
     title: "Sea simulation parameters",
     p1: "This simulation is made with Gestner waves, following the",

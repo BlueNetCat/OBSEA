@@ -5,6 +5,9 @@
       <!-- Closing cross -->
       <button class="closing-cross roundButton icon-svg" @click="closePanelClicked">X</button>
 
+      <!-- Info panel -->
+      <info-panel v-show="panelName == 'infoPanel'"></info-panel>
+
       <!-- Sea panel -->
       <sea-panel v-show="panelName == 'seaPanel'"></sea-panel>
 
@@ -21,7 +24,7 @@
 
 
 <script>
-
+import InfoPanel from '/OBSEA/Components//Panels/InfoPanel.vue';
 import SeaPanel from "/OBSEA/Components/Panels/SeaPanel.vue"
 import WindPanel from "/OBSEA/Components/Panels/WindPanel.vue"
 
@@ -61,19 +64,11 @@ export default {
       // TODO: arrange events better?
       window.eventBus.emit('CloseCentralPanel');
     },
-
-
-    // compassButtonClicked: function (e) {
-    //   window.eventBus.emit('TopRightNav_compassButtonClicked');
-    // },
-    // infoButtonClicked: function (e) {
-    //   window.eventBus.emit('TopRightNav_infoButtonClicked');
-    //   window.open('https://github.com/BlueNetCat/OBSEA', '_blank');
-    // }
   },
   components: {
     "sea-panel": SeaPanel,
-    "wind-panel": WindPanel
+    "wind-panel": WindPanel,
+    "info-panel": InfoPanel,
   }
 }
 </script>

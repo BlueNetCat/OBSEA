@@ -69,8 +69,9 @@ export default {
       window.eventBus.emit('TopRightNav_compassButtonClicked');
     },
     infoButtonClicked: function(e){
-      window.eventBus.emit('TopRightNav_infoButtonClicked');
-      window.open('https://github.com/BlueNetCat/OBSEA', '_blank');
+      //window.eventBus.emit('TopRightNav_infoButtonClicked');
+      window.eventBus.emit('OpenCentralPanel', 'infoPanel');
+      //window.open('https://github.com/BlueNetCat/OBSEA', '_blank');
     }
   },
   components: {

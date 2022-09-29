@@ -19,6 +19,9 @@
   border-radius: 50%;
 }
 
+
+
+/* SLIDERS */ 
 .input-slider {
   -webkit-appearance: none;
   outline-width: thick;
@@ -47,7 +50,7 @@
   cursor: pointer;
 }
 
-/* Scrollbar */
+/* SCROLLBAR */
 /* Works on Firefox */
 * {
   scrollbar-width: auto;
@@ -72,4 +75,28 @@
   background-color: #719baf;
   border-radius: 5px;
   border: 1px solid #5f8698;
+}
+
+
+
+/* INFO PANELS */
+.content {
+  padding: 20px;
+  overflow: auto;
+  font-size: 14px;
+}
+
+.container-columns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.container-rows {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: nowrap;
 }
