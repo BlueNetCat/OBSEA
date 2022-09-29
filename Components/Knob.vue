@@ -60,7 +60,6 @@ export default {
       // Calculate angle
       let angleRad = Math.atan2(vecY, vecX);
       let angle = angleRad * 180 / Math.PI - 90;
-      console.log(angle);
       // Emit event
       this.$emit("change", angle);
       // Rotate knob
