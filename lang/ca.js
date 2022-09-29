@@ -34,6 +34,8 @@ export default ca = {
     p2: `La simulació genera els paràmetres de 16 onades segons les mesures d'onatge, tals com l'altura mitjana d'onatge,
     l'altura màxima d'onatge i la direcció de l'onatge.`,
     oceanSteepness: "Modifica com de picat está el mar",
+    waveSignificantHeight: "Modifica l'altura significant d'onatge",
+    meanWaveDirection: "Modifica la direcció promig de les onades",
     swellParams: "Modifica els paràmetres de l'onatge principal",
   },
 

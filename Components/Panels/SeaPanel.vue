@@ -7,7 +7,27 @@
         <a href="https://catlikecoding.com/unity/tutorials/flow/waves/" target="_blank">{{$t('seaPanel.p1_1')}}</a>.
       </p>
       <p> {{$t('seaPanel.p2')}}</p>
-    
+
+      <!--Ocean wave significant height -->
+      <p class="p-center">{{$t('seaPanel.waveSignificantHeight')}}:</p>
+      <div class="container-slider">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 512 512">
+          <path id="Wave" class="svg-wavePath"
+            d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
+        </svg>
+        <input class="input-slider" style="width:80%" type="range" min="0.01" max="8" value="0.2" step="0.001"
+          @input="waveSignificantHeightSliderClicked" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
+          <path id="Wave" class="svg-wavePath"
+            d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
+        </svg>
+      </div>
+
+      <!--Ocean mean wave direction -->
+      <p class="p-center">{{$t('seaPanel.meanWaveDirection')}}:</p>
+      <div class="container-slider">
+        <knob @change="meanWaveDirectionKnobClicked"></knob>
+      </div>
     
       <!--Ocean steepness -->
       <p class="p-center">{{$t('seaPanel.oceanSteepness')}}:</p>
@@ -135,6 +155,16 @@ export default {
     steepnessSliderClicked: function (e) {
       // Emit event for Canvas 3D
       window.eventBus.emit('SeaPanel_steepnessSliderClicked', parseFloat(e.target.value));
+    },
+    // Wave significant height
+    waveSignificantHeightSliderClicked: function(e){
+      // Emit event for Canvas 3D
+      window.eventBus.emit('SeaPanel_waveSignificantHeightSliderClicked', parseFloat(e.target.value));
+    },
+    // Mean wave direction
+    meanWaveDirectionKnobClicked: function(angle){
+      // Emit event for Canvas 3D
+      window.eventBus.emit('SeaPanel_meanWaveDirectionKnobClicked', angle);
     },
     // Swell 1
     swell1HeightSliderClicked: function (e) {

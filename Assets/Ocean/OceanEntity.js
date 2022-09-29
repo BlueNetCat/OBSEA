@@ -196,6 +196,16 @@ class OceanEntity {
       this.oceanTile.material.uniforms.u_wave1Params.value.x = value;
     }
   }
+  // Update wave significant height
+  updateWaveSignificantHeight = function(waveSignificantHeight){
+    this.oceanParams.updateWaveSignificantHeight(waveSignificantHeight);
+    this.updateParamsTexture();
+  }
+  // Update mean wave direction
+  updateMeanWaveDirection = function(mdir){
+    this.oceanParams.updateMeanWaveDirection(mdir);
+    this.updateParamsTexture();
+  }
 
   // Update ocean parameters
   updateOceanParameters = function(params){

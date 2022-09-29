@@ -117,6 +117,18 @@ export class OceanParameters{
     this.updateHTMLGidget();
   }
 
+  // Update wave significant height
+  updateWaveSignificantHeight = function(Hm0){
+    this.oceanParameters.Hm0 = Hm0;
+    this.generateDistributions();
+    //this.updateHTMLGidget();
+  }
+  updateMeanWaveDirection = function(mdir){
+    this.oceanParameters.Mdir = mdir;
+    this.generateDistributions();
+    //this.updateHTMLGidget();
+  }
+
 
 
 

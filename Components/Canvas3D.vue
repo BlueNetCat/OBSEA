@@ -41,6 +41,16 @@ export default {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSteepness(steepness);
     });
+    // Change wave significant height
+    window.eventBus.on('SeaPanel_waveSignificantHeightSliderClicked', (hm0) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateWaveSignificantHeight(hm0);
+    });
+    // Change mean wave direction
+    window.eventBus.on('SeaPanel_meanWaveDirectionKnobClicked', (mdir) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateMeanWaveDirection(mdir);
+    });
     // Change swell 1
     window.eventBus.on('SeaPanel_swell1HeightSliderClicked', (height) => {
       if (this.sceneManager.ocean)
