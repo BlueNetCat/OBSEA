@@ -24,7 +24,11 @@ export default {
   data() {
     return {
       // hidePanel: true,
+      sizeKnob: this.size || "70px"
     }
+  },
+  props: {
+    size: String
   },
   methods: {
     // Remove event listeners
@@ -87,15 +91,15 @@ export default {
 
 <style scoped>
 .slider::before {
-    width: 70px;
-    height: 70px;
+    width: v-bind('sizeKnob');
+    height: v-bind('sizeKnob');
     border-radius: 50%;
     background: #00608d;
   }
 
   .slider::before, .knob {
-    width: 70px;
-    height: 70px;
+    width: v-bind('sizeKnob');
+    height: v-bind('sizeKnob'); 
     position: relative;
     cursor: pointer;
   }
@@ -107,11 +111,11 @@ export default {
   }
 
   .knob::before {
-    top: 10px;
+    top: calc(v-bind('sizeKnob')/7);
     left: 50%;
     transform:translateX(-50%);
-    width: 10px;
-    height: 10px;
+    width: calc(v-bind('sizeKnob')/7);;
+    height: calc(v-bind('sizeKnob')/7);;
     background: white;
   }
 

@@ -33,7 +33,9 @@ export default en = {
     p1_1: "tutorial by Jasper Flick",
     p2: `The simulation generates the parameters of 16 waves according to wave measurements, such as the mean
           wave height, the maximum wave height and the direction of the swell.`,
-    oceanSteepness: "Set the ocean chopiness",
+    oceanSteepness: "Set ocean chopiness",
+    waveSignificantHeight: "Set wave significant height",
+    meanWaveDirection: "Set the average direction of the waves",
     swellParams: "Set swell parameters",
   },
 

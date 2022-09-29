@@ -36,7 +36,7 @@
         <!-- Wind direction -->
         <div class="container-rows">
           <p>{{$t('Wind direction')}}</p>
-          <knob @change="windDirectionKnobClicked"></knob>
+          <knob @change="windDirectionKnobClicked" size="50px"></knob>
         </div>
 
         

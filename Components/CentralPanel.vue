@@ -91,7 +91,12 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  overflow:none;
+  
+  overflow-y: auto;
+}
+#central-panel > div {
+  max-height: 90vh !important;
+  
 }
 @media screen and (max-width: 800px) {
   #central-panel {
@@ -99,6 +104,11 @@ export default {
     margin: 0;
     right: 0;
     max-height: 100vh!important;
+    overflow-y: auto;
+  }
+  #central-panel>div {
+    max-height: 100vh !important;
+    
   }
 }
 

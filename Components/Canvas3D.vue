@@ -25,6 +25,7 @@ export default {
     this.sceneManager.startRender();
 
     // Event listeners
+    // ***** INSTRUMENTS PANEL *****
     // Center on instruments
     window.eventBus.on('InstrumentsMenu_buoyButtonClicked', () => {
       this.sceneManager.focusOnBuoy();
@@ -32,21 +33,39 @@ export default {
     window.eventBus.on('InstrumentsMenu_baseButtonClicked', () => {
       this.sceneManager.focusOnBase();
     });
+    window.eventBus.on('InstrumentsMenu_fpsButtonClicked', () => {
+      this.sceneManager.showHideFPS();
+    });
+
+    // ***** TOP-RIGHT ICONS *****
     // Face northward
     window.eventBus.on('TopRightNav_compassButtonClicked', () => {
       this.sceneManager.faceNorthward();
     });
+
+
+    // ***** SEA PANEL *****
     // Change ocean steepness
     window.eventBus.on('SeaPanel_steepnessSliderClicked', (steepness) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSteepness(steepness);
+    });
+    // Change wave significant height
+    window.eventBus.on('SeaPanel_waveSignificantHeightSliderClicked', (hm0) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateWaveSignificantHeight(hm0);
+    });
+    // Change mean wave direction
+    window.eventBus.on('SeaPanel_meanWaveDirectionKnobClicked', (mdir) => {
+      if (this.sceneManager.ocean)
+        this.sceneManager.ocean.updateMeanWaveDirection(mdir);
     });
     // Change swell 1
     window.eventBus.on('SeaPanel_swell1HeightSliderClicked', (height) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('height',height);
     });
-    window.eventBus.on('SeaPanel_swell1DirectionSliderClicked', (direction) => {
+    window.eventBus.on('SeaPanel_swell1DirectionKnobClicked', (direction) => {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('direction', direction);
     });
@@ -54,7 +73,7 @@ export default {
       if (this.sceneManager.ocean)
         this.sceneManager.ocean.updateSwell1('steepness', steepness);
     });
-
+    // ***** WIND PANEL *****
     // Change wind
     window.eventBus.on('WindPanel_windSpeedSliderClicked', (windSpeed) => {
       if (this.sceneManager.flag)
@@ -64,6 +83,9 @@ export default {
       if (this.sceneManager.flag)
         this.sceneManager.flag.setWindParameters('windDirection', direction);
     });
+
+
+    
 
 
 

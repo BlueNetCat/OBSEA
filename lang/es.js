@@ -33,6 +33,8 @@ export default es = {
     p2: `La simulación genera los parámetros de 16 olas seguns las medidas de oleaje, tales com la altura media de oleaje,
     la altura máxima de oleaje y la dirección del oleaje.`,
     oceanSteepness: "Modifica como de picado está el mar",
+    waveSignificantHeight: "Modifica la altura significante de oleaje",
+    meanWaveDirection: "Modifica la dirección promedio de las olas",
     swellParams: "Modifica los parámetros del oleaje principal",
   },
 
