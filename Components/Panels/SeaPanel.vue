@@ -16,7 +16,8 @@
             d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
         </svg>
         <input class="input-slider" style="width:80%" type="range" min="0.01" max="8" value="0.2" step="0.001"
-          @input="waveSignificantHeightSliderClicked" />
+          @input="waveSignificantHeightSliderClicked"/>
+        <div class="tip" ref="waveSignificantHeightSliderTip"></div>
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
           <path id="Wave" class="svg-wavePath"
             d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
@@ -55,7 +56,7 @@
       
       <p class="p-center" style="color: #00608d">________________________________</p>
 
-
+      <!-- SWELL 1 -->
       <p class="p-center">{{$t('seaPanel.swellParams')}}:</p>
       <div class="container-columns">
         <!-- Wave height -->
@@ -68,6 +69,7 @@
             </svg>
             <input class="input-slider" style="width:80%" type="range" min="0.01" max="8" value="0.2" step="0.001"
               @input="swell1HeightSliderClicked" />
+            <div class="tip" ref="swell1HeightSliderTip"></div>
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
               <path id="Wave" class="svg-wavePath"
                 d="M91,345a148.964,148.964,0,0,0,39-34c18.237-22.738,21.847-41.833,31.9-66.57C180.68,198.242,210.248,167.907,225,159c24.989-15.088,68.213-28.479,112-10,45.368,19.146,74.013,67.228,65,79-10.978,14.338-66.772-22.893-88-2-16.914,16.647-8.635,64.768,21,90,17.036,14.5,39.538,20.066,62,18" />
@@ -136,7 +138,7 @@
 <script>
 import Knob from '/OBSEA/Components/Knob.vue';
 
-
+// TODO: Wave height tip: http://jsfiddle.net/Zu59F/
 
 export default {
   name: "SeaPanel",
@@ -163,6 +165,14 @@ export default {
     waveSignificantHeightSliderClicked: function(e){
       // Emit event for Canvas 3D
       window.eventBus.emit('SeaPanel_waveSignificantHeightSliderClicked', parseFloat(e.target.value));
+      // Show tip
+      let sliderEl = e.target;
+      let percent = (parseFloat(sliderEl.value) - parseFloat(sliderEl.min)) / (parseFloat(sliderEl.max) - parseFloat(sliderEl.min));
+      let tipEl = this.$refs.waveSignificantHeightSliderTip;
+      // Displacement
+      let displacement = -tipEl.clientWidth / 2 - sliderEl.clientWidth + sliderEl.clientWidth * percent;
+      tipEl.style = "transform: translateX(" + displacement + "px) translateY(" + -20 + "px)";
+      tipEl.innerText = parseFloat(e.target.value).toFixed(1) + "m";
     },
     // Mean wave direction
     meanWaveDirectionKnobClicked: function(angle){
@@ -173,6 +183,14 @@ export default {
     swell1HeightSliderClicked: function (e) {
       // Emit event for Canvas 3D
       window.eventBus.emit('SeaPanel_swell1HeightSliderClicked', parseFloat(e.target.value));
+      // Show tip
+      let sliderEl = e.target;
+      let percent = (parseFloat(sliderEl.value) - parseFloat(sliderEl.min)) / (parseFloat(sliderEl.max) - parseFloat(sliderEl.min));
+      let tipEl = this.$refs.swell1HeightSliderTip;
+      // Displacement
+      let displacement = -tipEl.clientWidth / 2 - sliderEl.clientWidth + sliderEl.clientWidth * percent;
+      tipEl.style = "transform: translateX(" + displacement + "px) translateY(" + -20 + "px)";
+      tipEl.innerText = parseFloat(e.target.value).toFixed(1) + "m";
     },
     swell1DirectionKnobClicked: function (angle) {
       // Emit event for Canvas 3D
@@ -229,6 +247,17 @@ export default {
 
 .p-center {
   text-align: center;
+}
+
+.tip {
+  font-size: small;
+  pointer-events: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 
