@@ -75,6 +75,10 @@ import CameraYoutube from "/OBSEA/Components/Bottom/CameraYoutube.vue"
 export default {
   name:"BottomSection",
   mounted() {
+    // Create data manager
+    const dManager = new DataManager();
+    dManager.getDataOnTimeInstant();
+
     // Subscribe to camera change to hide OBSEA underwater camera
     window.eventBus.on('Canvas3D_cameraChange', (sceneManager) => {
       let camPos = sceneManager.camera.position;

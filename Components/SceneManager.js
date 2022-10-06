@@ -360,4 +360,4 @@ class SceneManager{
 
 }
 
-export default { SceneManager }
+export default SceneManager;

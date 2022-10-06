@@ -4,7 +4,9 @@
 
 // https://data.obsea.es/FROST-Server/v1.1/ObservedProperties?$select=description,Datastreams
 
-const dataTypes = {
+// https://data.obsea.es/api/Datastreams(27)/Observations?$select=resultTime,result
+
+const OBSEADataTypes = {
   // 3D simulation parameters
   // Wind
   'Wind direction': {
@@ -88,7 +90,7 @@ const dataTypes = {
   },
 
 
-  
+
 
   // Temperature
   'Sea bottom temperature': {
@@ -115,4 +117,4 @@ const dataTypes = {
 
 }
 
-export default dataTypes;
+export default OBSEADataTypes;
