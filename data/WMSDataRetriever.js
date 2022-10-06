@@ -1,5 +1,7 @@
+import preLoadedDataTypes from "/OBSEA/data/WMSDataTypes.js";
+
 // Scripts that obtain data from the CMEMS WMS API
-class WMSDataRetriever{
+export default class WMSDataRetriever{
 
 // Variables:
 // Requests - keep track of what is requested

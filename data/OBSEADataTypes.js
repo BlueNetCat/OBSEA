@@ -46,7 +46,7 @@ const OBSEADataTypes = {
 
   'Directional spreading of waves':{
     name: 'Direction spreading of waves',
-    altNames: ['WSPR'],
+    altNames: ['WSPR', "Wave direction spreading"],
     description: 'Directional spreading of waves on the water body by acoustic doppler wave array',
     url: 'https://data.obsea.es/api/Datastreams(205)',
     units: 'º'

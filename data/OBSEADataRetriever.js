@@ -32,8 +32,6 @@ export class OBSEADataRetriever{
         if (result !== undefined)
           i = urls.length; // Exit loop
       }
-      console.log(result);
-      console.log("************")
     }
   }
 
