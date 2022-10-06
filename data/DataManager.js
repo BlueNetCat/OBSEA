@@ -11,7 +11,7 @@ class DataManager{
   // Request data on a specific time and date
   async getDataOnTimeInstant(timestamp){ // Timestamp in ISO standards
     // Wave significant height
-    let Hm0 = await this.OBSEADataRetriever.getDataOnTimeInstant('Wave significant height', timestamp);
+    let Hm0 = await this.OBSEADataRetriever.getDataOnTimeInstant('Wind direction', timestamp);
   }
 
 

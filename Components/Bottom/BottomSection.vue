@@ -77,7 +77,7 @@ export default {
   mounted() {
     // Create data manager
     const dManager = new DataManager();
-    dManager.getDataOnTimeInstant();
+    dManager.getDataOnTimeInstant('2019-01-01T01:30:00.000Z');
 
     // Subscribe to camera change to hide OBSEA underwater camera
     window.eventBus.on('Canvas3D_cameraChange', (sceneManager) => {

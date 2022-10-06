@@ -6,14 +6,16 @@
 
 // https://data.obsea.es/api/Datastreams(27)/Observations?$select=resultTime,result
 
+// https://data.obsea.es/api/Datastreams(27)/Observations?$select=resultTime,result&$top=1000000&$filter=resultQuality/qc_flag eq 1 and resultTime ge 2021-01-01T00:00:00z and resultTime lt 2022-01-01T00:00:00z&$orderBy=resultTime asc
+
 const OBSEADataTypes = {
   // 3D simulation parameters
   // Wind
   'Wind direction': {
     name: 'Wind direction',
-    atlNames: ['WDIR', 'Wind orientation'],
+    altNames: ['WDIR', 'Wind orientation'],
     description: 'Wind from direction data from sensor Airmar_150WX deployed at OBSEA_Buoy',
-    url: 'https://data.obsea.es/api/Datastreams(27)/Observations?$select=resultTime,result',
+    url: 'https://data.obsea.es/api/Datastreams(27)',
     units: 'º',
 
   },
@@ -95,7 +97,7 @@ const OBSEADataTypes = {
   // Temperature
   'Sea bottom temperature': {
     name: 'Sea bottom temperature',
-    atlNames: ['TEMP', 'Sea underwater temperature'],
+    altNames: ['TEMP', 'Sea underwater temperature'],
     description: 'Sea water temperature data from sensor deployed at OBSEA',
     url: ['https://data.obsea.es/api/Datastreams(1)', 'https://data.obsea.es/api/Datastreams(6)',
       'https://data.obsea.es/api/Datastreams(11)', 'https://data.obsea.es/api/Datastreams(216)',
@@ -105,7 +107,7 @@ const OBSEADataTypes = {
   // Salinity
   'Salinity': {
     name: 'Salinity',
-    atlNames: ['SAL', 'PSAL', 'Sea underwater salinity', 'Sea bottom salinity', 'Sea water salinity'],
+    altNames: ['SAL', 'PSAL', 'Sea underwater salinity', 'Sea bottom salinity', 'Sea water salinity'],
     description: 'Sea water salinity data from sensor deployed at OBSEA',
     url: ['https://data.obsea.es/api/Datastreams(4)', 'https://data.obsea.es/api/Datastreams(9)',
       'https://data.obsea.es/api/Datastreams(14)', 'https://data.obsea.es/api/Datastreams(19)'],
