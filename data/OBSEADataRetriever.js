@@ -6,6 +6,8 @@ import OBSEADataTypes from "/OBSEA/data/OBSEADataTypes.js";
 export class OBSEADataRetriever{
 
   dataKeys;
+  baseURLStaticFiles = '/OBSEA/data/';
+  staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
 
   constructor(){
 
@@ -34,6 +36,43 @@ export class OBSEADataRetriever{
       }
     }
   }
+
+
+
+  // Get data type from data type name
+  getDataType(dataTypeName) {
+    let dataType;
+    for (let i = 0; i < this.dataKeys.length; i++) {
+      let key = this.dataKeys[i];
+      // Data key is the same as data type name
+      if (key == dataTypeName) {
+        dataType = OBSEADataTypes[key];
+        i = this.dataKeys.length; // Exit loop
+      }
+      // Look into the altNames
+      else {
+        let altNames = OBSEADataTypes[key].altNames;
+        for (let j = 0; j < altNames.length; j++) {
+          if (altNames[j] == dataTypeName) {
+            dataType = OBSEADataTypes[key];
+            j = altNames.length; // Exit loop
+            i = this.dataKeys.length; // Exit loop
+          }
+        }
+      }
+    }
+    // Datatype not found
+    if (dataType == undefined) {
+      console.error('Data type ' + dataTypeName + ' not found in OBSEADataTypes.js');
+      console.error(OBSEADataTypes);
+      debugger;
+      return undefined;
+    }
+
+    return dataType;
+  }
+
+
 
 
 
@@ -88,38 +127,81 @@ export class OBSEADataRetriever{
 
 
 
-  getDataType(dataTypeName){
-    let dataType;
-    for (let i = 0; i < this.dataKeys.length; i++) {
-      let key = this.dataKeys[i];
-      // Data key is the same as data type name
-      if (key == dataTypeName) {
-        dataType = OBSEADataTypes[key];
-        i = this.dataKeys.length; // Exit loop
-      }
-      // Look into the altNames
-      else {
-        let altNames = OBSEADataTypes[key].altNames;
-        for (let j = 0; j < altNames.length; j++) {
-          if (altNames[j] == dataTypeName) {
-            dataType = OBSEADataTypes[key];
-            j = altNames.length; // Exit loop
-            i = this.dataKeys.length; // Exit loop
-          }
-        }
-      }
-    }
+  fetchFromStaticFiles = function(callback){
 
-    // Datatype not found
-    if (dataType == undefined) {
-      console.error('Data type ' + dataTypeName + ' not found in OBSEADataTypes.js');
-      console.error(OBSEADataTypes);
-      debugger;
-      return undefined;
-    }
+    for (let i = 0; i<this.staticFiles.length; i++){
+      let url = this.baseURLStaticFiles;
+      url += this.staticFiles[i];
 
-    return dataType;
+      fetch(url)
+        .then(res => res.text())
+        .then(rawSS => {
+          let csvData = this.processCSV(rawSS);
+          callback(csvData);
+        })
+        .catch(e => console.error("Error when parsing .csv: " + e));
+    }
+    
   }
+
+
+
+  processCSV(rawSS) {
+    // Split by end of line
+    let rowsSS = rawSS.split("\r\n");
+    for (let i = 0; i < rowsSS.length; i++) {
+      rowsSS[i] = rowsSS[i].split(","); // Split by comma
+    }
+    rowsSS.pop();
+    let csvData = rowsSS;
+
+    let nearbyIndIndValue = [];
+
+    // Iterate per data type
+    for (let dInd = 0; dInd < csvData[0].length; dInd++) {
+      // Iterate per timestamp
+      for (let i = 1; i < csvData.length; i++) {
+
+        // Fill empty data points with nearby data points
+        let dataPoint = csvData[i][dInd];
+
+        if (dataPoint == '') {
+          let prev = '';
+          let next = '';
+          // Find nearby
+          if (i > 1) {
+            if (csvData[i - 1][dInd] != '')
+              next = csvData[i - 1][dInd];
+          }
+          if (i < csvData.length - 1)
+            if (csvData[i - 1][dInd] != '')
+              prev = csvData[i + 1][dInd];
+
+          // Assign nearby
+          let nearby = undefined;
+          if (prev != '' && next != '') nearby = parseFloat(prev) * 0.5 + parseFloat(next) * 0.5;
+          else if (prev != '') nearby = prev;
+          else if (next != '') nearby = next;
+
+          if (nearby != undefined) {
+            nearbyIndIndValue.push([i, dInd, nearby]);
+            // data is available
+          }
+        } // else // data is available
+      }
+    }
+
+    // Fill the points in the csv
+    for (let i = 0; i < nearbyIndIndValue.length; i++) {
+      let ind = nearbyIndIndValue[i][0];
+      let dInd = nearbyIndIndValue[i][1];
+      csvData[ind][dInd] = nearbyIndIndValue[i][2];
+    }
+
+    return csvData;
+  }
+
+
 
 }
 
