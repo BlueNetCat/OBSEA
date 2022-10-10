@@ -728,6 +728,17 @@ dataTypes = {
     return Math.atan2(north, east) * (180 / Math.PI);
   }
 
+  // Get data type from data type name
+  getDataType = function(dataTypeName){
+    let dataType = undefined;
+    Object.keys(this.dataTypes).forEach(dKey => { if (dKey == dataTypeName) dataType = this.dataTypes[dKey] });
+    if (dataType == undefined) {
+      console.error("Data type does not exists: " + dataName);
+      return;
+    }
+    return dataType;
+  }
+
 
   // Cancels active requests
   cancelActiveRequests = function(){
