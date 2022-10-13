@@ -169,11 +169,11 @@ export class OBSEADataRetriever{
           let prev = '';
           let next = '';
           // Find nearby
-          if (i > 1) {
+          if (i > 1) { // If at start
             if (csvData[i - 1][dInd] != '')
               next = csvData[i - 1][dInd];
           }
-          if (i < csvData.length - 1)
+          if (i < csvData.length - 1) // If at end
             if (csvData[i - 1][dInd] != '')
               prev = csvData[i + 1][dInd];
 
