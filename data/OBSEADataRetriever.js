@@ -224,23 +224,31 @@ export class OBSEADataRetriever{
     // TODO: could setup this as a class variable and store per year
     let areAvailable = []; // measures available - Hm0, WSPD, UCUR_0m
     let maxDailyValue = [];
+    let dayTimestamp = [];
 
-    const year = parseInt(csv[1][0].substring(0, 4));
-    let date = new Date(year + '-01-01T00:00:00.000Z');
+    const yearStart = parseInt(csv[1][0].substring(0, 4));
+    const monthStart = parseInt(csv[1][0].substring(5, 7));
+    const dayStart = parseInt(csv[1][0].substring(8, 10));
+
+    let date = new Date(yearStart + '-' +
+                        monthStart.toString().padStart(2, '0') + '-'+
+                        dayStart.toString().padStart(2, '0') + 'T00:00:00.000Z');
+
+    const lastRow = csv[csv.length - 1][0];
+    const endDate = new Date(lastRow.substring(0, 10) + 'T00:00:00.000Z');
+
     let csvIndex = 1;
-    let dayCount = 0;
+    let dayCount = dayStart - 1; // set starting index at 0 for day 1 of areAvailable and maxDailyValue
     // Iterate through all days of the year
-    while (date.getUTCFullYear() == year) {
-      let month = parseInt(csv[csvIndex][0].substring(5, 7));
-      let day = parseInt(csv[csvIndex][0].substring(8, 10));
+    while (date <= endDate) {
 
-      areAvailable[dayCount] = [];
-      maxDailyValue[dayCount] = [];
+      // Store date
+      dayTimestamp[dayCount] = date.toISOString().substring(0,10);
 
       // Check every timestamp of a day
       for (let i = 0; i < 24 * 3; i++) { // Samples every half an hour (24*2) + an hour for the hour change in spring/autumn
-        month = parseInt(csv[csvIndex][0].substring(5, 7));
-        day = parseInt(csv[csvIndex][0].substring(8, 10));
+        let month = parseInt(csv[csvIndex][0].substring(5, 7));
+        let day = parseInt(csv[csvIndex][0].substring(8, 10));
 
         // Check if data exists for measures
         // TODO: optimization: could put this loop outside and exit when a data point is found for a day
@@ -255,7 +263,7 @@ export class OBSEADataRetriever{
         }
         //console.log("Day; " + day + ", " + date.getUTCDate() + ", Day count: " + dayCount + ", Month: " + (date.getUTCMonth() + 1) + ", " + month);
         // Continue examining csv
-        if (day == date.getUTCDate() && (date.getUTCMonth() + 1) == month)
+        if (day == date.getUTCDate() && (date.getUTCMonth() + 1) == month && csvIndex != csv.length-1)
           csvIndex++;
         else // Escape
           i = 24 * 3;
@@ -266,13 +274,30 @@ export class OBSEADataRetriever{
       dayCount += 1;
     }
 
-    
+
     // Generate json data for that year
     this.dataAvailability.measures = measures;
-    this.dataAvailability[year] = {
-      areAvailable,
-      maxDailyValue
+    // Iterate through all values
+    for (let i = 0; i < areAvailable.length; i++){
+      let yy = dayTimestamp[i].substring(0,4);
+      if (this.dataAvailability[yy] == undefined)
+        this.dataAvailability[yy] = {areAvailable: [], maxDailyValue: [], timestamp: []};
+      
+      // Check if value was already stored
+      let ind = this.dataAvailability[yy].timestamp.findIndex(el => el == dayTimestamp[i]);
+      if (ind != -1){
+        this.dataAvailability[yy].timestamp[ind] = dayTimestamp[i];
+        this.dataAvailability[yy].areAvailable[ind]  = areAvailable[i];
+        this.dataAvailability[yy].maxDailyValue[ind] = maxDailyValue[i];
+      } else {
+        // Store values for that year
+        this.dataAvailability[yy].areAvailable.push(areAvailable[i]);
+        this.dataAvailability[yy].maxDailyValue.push(maxDailyValue[i]);
+        this.dataAvailability[yy].timestamp.push(dayTimestamp[i]);
+      }
     }
+    
+    
     console.log(this.dataAvailability);
   }
 
