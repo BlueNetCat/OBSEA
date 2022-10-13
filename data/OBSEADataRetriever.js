@@ -7,7 +7,8 @@ export class OBSEADataRetriever{
 
   dataKeys;
   baseURLStaticFiles = '/OBSEA/data/';
-  staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
+  //staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
+  staticFiles = ['obsea_2019_2.csv', 'obsea_2019_1.csv', 'obsea_2020_2.csv', 'obsea_2020_1.csv', 'obsea_2021_1.csv', 'obsea_2021_2.csv'];
 
   dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxDailiy[]
 
@@ -224,6 +225,7 @@ export class OBSEADataRetriever{
     // TODO: could setup this as a class variable and store per year
     let areAvailable = []; // measures available - Hm0, WSPD, UCUR_0m
     let maxDailyValue = [];
+    let floatTimestamp = [];
     let dayTimestamp = [];
 
     const yearStart = parseInt(csv[1][0].substring(0, 4));
@@ -242,8 +244,12 @@ export class OBSEADataRetriever{
     // Iterate through all days of the year
     while (date <= endDate) {
 
+      areAvailable[dayCount] = [];
+      maxDailyValue[dayCount] = [];
+
       // Store date
       dayTimestamp[dayCount] = date.toISOString().substring(0,10);
+      floatTimestamp[dayCount] = date.getTime();
 
       // Check every timestamp of a day
       for (let i = 0; i < 24 * 3; i++) { // Samples every half an hour (24*2) + an hour for the hour change in spring/autumn
@@ -277,24 +283,42 @@ export class OBSEADataRetriever{
 
     // Generate json data for daily availability
     // It assumes that the csv rows are ordered in time
+    // TODO: files can load randomly, so we have to take time into account. DO NOT USE PUSH!
     this.dataAvailability.measures = measures;
     // Iterate through all values
     for (let i = 0; i < areAvailable.length; i++){
       let yy = dayTimestamp[i].substring(0,4);
       if (this.dataAvailability[yy] == undefined)
-        this.dataAvailability[yy] = {areAvailable: [], maxDailyValue: [], timestamp: []};
+        this.dataAvailability[yy] = {areAvailable: [], maxDailyValue: [], timestamp: [], dateStr: []};
       
       // Check if value was already stored
-      let ind = this.dataAvailability[yy].timestamp.findIndex(el => el == dayTimestamp[i]);
+      let ind = this.dataAvailability[yy].dateStr.findIndex(el => el == dayTimestamp[i]);
       if (ind != -1){
-        this.dataAvailability[yy].timestamp[ind] = dayTimestamp[i];
+        this.dataAvailability[yy].dateStr[ind] = dayTimestamp[i];
+        this.dataAvailability[yy].timestamp[ind] = floatTimestamp[i];
         this.dataAvailability[yy].areAvailable[ind]  = areAvailable[i];
         this.dataAvailability[yy].maxDailyValue[ind] = maxDailyValue[i];
       } else {
+        // Find where to store the value
+        let indSmaller = this.dataAvailability[yy].timestamp.findIndex(el => el < floatTimestamp[i]); 
+        let indBigger = this.dataAvailability[yy].timestamp.findIndex(el => el > floatTimestamp[i]); 
         // Store values for that year
-        this.dataAvailability[yy].areAvailable.push(areAvailable[i]); // Assumes data is ordered in time
-        this.dataAvailability[yy].maxDailyValue.push(maxDailyValue[i]); // Assumes data is ordered in time
-        this.dataAvailability[yy].timestamp.push(dayTimestamp[i]); // Assumes data is ordered in time
+        if (indBigger == -1){ // floatTimestamp is bigger than all times
+          this.dataAvailability[yy].areAvailable.push(areAvailable[i]);
+          this.dataAvailability[yy].maxDailyValue.push(maxDailyValue[i]);  
+          this.dataAvailability[yy].timestamp.push(floatTimestamp[i]); 
+          this.dataAvailability[yy].dateStr.push(dayTimestamp[i]);
+        } else if (indSmaller == -1){ // All present values are bigger, put at the beginning
+          this.dataAvailability[yy].areAvailable.unshift(areAvailable[i]);
+          this.dataAvailability[yy].maxDailyValue.unshift(maxDailyValue[i]);
+          this.dataAvailability[yy].timestamp.unshift(floatTimestamp[i]);
+          this.dataAvailability[yy].dateStr.unshift(dayTimestamp[i]);
+        } else { // First bigger value gives the position
+          this.dataAvailability[yy].areAvailable.splice(indBigger, 0, areAvailable[i]);
+          this.dataAvailability[yy].maxDailyValue.splice(indBigger, 0, maxDailyValue[i]);
+          this.dataAvailability[yy].timestamp.splice(indBigger , 0, floatTimestamp[i]);
+          this.dataAvailability[yy].dateStr.splice(indBigger, 0, dayTimestamp[i]);
+        }
       }
     }
     
