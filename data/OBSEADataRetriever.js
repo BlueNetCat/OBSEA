@@ -275,7 +275,8 @@ export class OBSEADataRetriever{
     }
 
 
-    // Generate json data for that year
+    // Generate json data for daily availability
+    // It assumes that the csv rows are ordered in time
     this.dataAvailability.measures = measures;
     // Iterate through all values
     for (let i = 0; i < areAvailable.length; i++){
@@ -291,9 +292,9 @@ export class OBSEADataRetriever{
         this.dataAvailability[yy].maxDailyValue[ind] = maxDailyValue[i];
       } else {
         // Store values for that year
-        this.dataAvailability[yy].areAvailable.push(areAvailable[i]);
-        this.dataAvailability[yy].maxDailyValue.push(maxDailyValue[i]);
-        this.dataAvailability[yy].timestamp.push(dayTimestamp[i]);
+        this.dataAvailability[yy].areAvailable.push(areAvailable[i]); // Assumes data is ordered in time
+        this.dataAvailability[yy].maxDailyValue.push(maxDailyValue[i]); // Assumes data is ordered in time
+        this.dataAvailability[yy].timestamp.push(dayTimestamp[i]); // Assumes data is ordered in time
       }
     }
     
