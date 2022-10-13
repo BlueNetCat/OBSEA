@@ -9,6 +9,8 @@ export class OBSEADataRetriever{
   baseURLStaticFiles = '/OBSEA/data/';
   staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
 
+  dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxDailiy[]
+
   constructor(){
 
     this.dataKeys = Object.keys(OBSEADataTypes);
@@ -138,6 +140,8 @@ export class OBSEADataRetriever{
         .then(rawSS => {
           let csvData = this.processCSV(rawSS);
           callback(csvData);
+          // Generate static JSON
+          this.generateDailyDataAvailabilityJSON(csvData);
         })
         .catch(e => console.error("Error when parsing .csv: " + e));
     }
@@ -199,6 +203,77 @@ export class OBSEADataRetriever{
     }
 
     return csvData;
+  }
+
+
+
+
+
+
+
+  // Generate daily data availability image
+  // In principle this script is exectued for the generation of a static JSON file that will be loaded here or in DataManager
+  generateDailyDataAvailabilityJSON(csv) {
+    const header = csv[0];
+    const measures = header.slice(1, header.length); // All measures //['Hm0', 'WSPD', 'UCUR_0m'];
+    let measureIndices = [];
+    for (let i = 0; i < measures.length; i++)
+      measureIndices[i] = header.findIndex((e) => e == measures[i]);
+
+    // Data availability array
+    // TODO: could setup this as a class variable and store per year
+    let areAvailable = []; // measures available - Hm0, WSPD, UCUR_0m
+    let maxDailyValue = [];
+
+    const year = parseInt(csv[1][0].substring(0, 4));
+    let date = new Date(year + '-01-01T00:00:00.000Z');
+    let csvIndex = 1;
+    let dayCount = 0;
+    // Iterate through all days of the year
+    while (date.getUTCFullYear() == year) {
+      let month = parseInt(csv[csvIndex][0].substring(5, 7));
+      let day = parseInt(csv[csvIndex][0].substring(8, 10));
+
+      areAvailable[dayCount] = [];
+      maxDailyValue[dayCount] = [];
+
+      // Check every timestamp of a day
+      for (let i = 0; i < 24 * 3; i++) { // Samples every half an hour (24*2) + an hour for the hour change in spring/autumn
+        month = parseInt(csv[csvIndex][0].substring(5, 7));
+        day = parseInt(csv[csvIndex][0].substring(8, 10));
+
+        // Check if data exists for measures
+        // TODO: optimization: could put this loop outside and exit when a data point is found for a day
+        for (let j = 0; j < measureIndices.length; j++) {
+          let content = csv[csvIndex][measureIndices[j]];
+          if (content.length != 0) {
+            areAvailable[dayCount][j] = true;
+            // Find maximum daily value for a measure
+            maxDailyValue[dayCount][j] = maxDailyValue[dayCount][j] == undefined ? parseFloat(content) : Math.max(maxDailyValue[dayCount][j], parseFloat(content));
+          }
+          // If it does not exists, areAvailable is undefined
+        }
+        //console.log("Day; " + day + ", " + date.getUTCDate() + ", Day count: " + dayCount + ", Month: " + (date.getUTCMonth() + 1) + ", " + month);
+        // Continue examining csv
+        if (day == date.getUTCDate() && (date.getUTCMonth() + 1) == month)
+          csvIndex++;
+        else // Escape
+          i = 24 * 3;
+      }
+
+      // Add one day
+      date.setUTCDate(date.getUTCDate() + 1);
+      dayCount += 1;
+    }
+
+    
+    // Generate json data for that year
+    this.dataAvailability.measures = measures;
+    this.dataAvailability[year] = {
+      areAvailable,
+      maxDailyValue
+    }
+    console.log(this.dataAvailability);
   }
 
 
