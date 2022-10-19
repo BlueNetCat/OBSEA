@@ -97,11 +97,11 @@ export default {
     width: 100vw;
     margin: 0;
     right: 0;
-    max-height: 100vh!important;
+    max-height: 100%!important;
     overflow-y: auto;
   }
   #central-panel>div {
-    max-height: 100vh !important;
+    max-height: 100% !important;
     
   }
 }
