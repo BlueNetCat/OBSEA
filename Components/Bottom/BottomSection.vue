@@ -64,6 +64,9 @@
       </div>
     </div>
 
+    <!-- Time Range Bar -->
+    <time-range-bar></time-range-bar>
+
   </div>
 </template>
 
@@ -71,6 +74,7 @@
 
 <script>
 import CameraYoutube from "/OBSEA/Components/Bottom/CameraYoutube.vue"
+import TimeRangeBar from "/OBSEA/Components/Bottom/TimeRangeBar.vue"
 
 export default {
   name:"BottomSection",
@@ -120,6 +124,7 @@ export default {
   },
   components: {
     "camera-youtube": CameraYoutube,
+    "time-range-bar": TimeRangeBar,
   }
 }
 </script>
