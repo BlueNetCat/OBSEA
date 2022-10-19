@@ -24,14 +24,20 @@
 
             <!-- Year calendar -->
             <div class="timeline">
-              <button v-for="yy in years" class="m-0 p-0" :class="[yy.ww == 0 ? 'hiddenClass' : yy.num % 2 == 0 ? 'yearButton' : 'yearButton even']" @click="onYearClicked($event)" :key="yy.num" :id="yy.num" :title="yy.num" :style="{width: yy.ww + '%'}">{{yy.num}}</button>
+              <button v-for="yy in years" class="m-0 p-0" :class="[yy.wght == 0 ? 'hiddenClass' : yy.num % 2 == 0 ? 'yearButton' : 'yearButton even']" @click="onYearClicked($event)" :key="yy.num" :id="yy.num" :title="yy.num" :style="{width: yy.wght + '%'}">{{yy.num}}</button>
             </div>
 
             <!-- Month calendar -->
             <div class="timeline" ref="monthTimeline">
-              <button v-for="mm in months" class="m-0 p-0" :class="[mm.ww == 0 ? 'hiddenClass' : 'monthButton']" @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="mm.title" :style="{width: mm.ww + '%'}">{{mm.name}}</button>
+              <button v-for="mm in months" class="m-0 p-0" :class="[mm.wght == 0 ? 'hiddenClass' : 'monthButton']" @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="mm.title" :style="{width: mm.wght + '%'}">{{mm.name}}</button>
             </div>
 
+            <!-- Days calendar -->
+            <div class="timeline" ref="dayTimeline">
+              <button v-for="dd in days" class="m-0 p-0" :class="[dd.wght == 0 ? 'hiddenClass' : 'dayButton']"
+                @click="onDayClicked($event)" :key="dd.key" :id="dd.key" :title="dd.title"
+                :style="{width: dd.wght + '%'}">{{dd.name}}</button>
+            </div>
         
           </div>
         </div>
@@ -100,7 +106,6 @@ export default {
       return {
         months: [],
         years: [],
-        weeks: [],
         days: [],
         selStartDate: new Date(),
         selEndDate: new Date(),
@@ -203,13 +208,14 @@ export default {
         this.updateHTMLTimeline();
       },
 
-      // Display +2 -2 months on the timeline
+      // Display X months on the timeline
       onMonthClicked: function(event){
+        let monthsSides = 1; // TODO: VIEWPORT RELATIVE
         let month = parseInt(event.target.id.split('-')[0]);
         let year = parseInt(event.target.id.split('-')[1]);
         let selDate = new Date(year, month);
-        let sDate = new Date(Math.max(this.limStartDate, selDate.setMonth(selDate.getMonth() - 2)));
-        let eDate = new Date(Math.min(this.limEndDate, selDate.setMonth(selDate.getMonth() + 5)));
+        let sDate = new Date(Math.max(this.limStartDate, selDate.setMonth(selDate.getMonth() - monthsSides)));
+        let eDate = new Date(Math.min(this.limEndDate, selDate.setMonth(selDate.getMonth() + monthsSides*2 + 1)));
         // If month is clicked twice, open year
         // TODO: USER TEST - MAYBE CONFUSING?
         if (sDate.toISOString() == this.startDate.toISOString() && eDate.toISOString() == this.endDate.toISOString()){
@@ -226,6 +232,39 @@ export default {
         this.selEndDate = new Date(this.endDate.getTime());
         this.selEndDate.setDate(this.selEndDate.getDate() - 15); // Remove half a month
         
+        // Set handles in range slider
+        this.setRangeSlider();
+        this.updateHTMLTimeline();
+      },
+
+      // Display X days on the timeline
+      onDayClicked: function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        let daysSides = 2; // TODO: VIEWPORT RELATIVE
+        let day = parseInt(event.target.id.split('-')[0]);
+        let month = parseInt(event.target.id.split('-')[1]);
+        let year = parseInt(event.target.id.split('-')[2]);
+        let selDate = new Date(year, month, day);
+        let sDate = new Date(Math.max(this.limStartDate, selDate.setDate(selDate.getDate() - daysSides)));
+        let eDate = new Date(Math.min(this.limEndDate, selDate.setDate(selDate.getDate() + daysSides * 2 + 1)));
+        // If day is clicked twice, open month
+        // TODO: USER TEST - MAYBE CONFUSING?
+        if (sDate.toISOString() == this.startDate.toISOString() && eDate.toISOString() == this.endDate.toISOString()) {
+          this.onMonthClicked({ target: { id: month + "-" + year } });
+          return;
+        }
+
+
+        this.startDate = sDate;
+        this.endDate = eDate;
+        // Change selected dates to cover the months
+        // this.selStartDate = new Date(this.startDate.getTime());
+        // this.selStartDate.setDate(this.selStartDate.getDate() + 15); // Add half a month
+        // this.selEndDate = new Date(this.endDate.getTime());
+        // this.selEndDate.setDate(this.selEndDate.getDate() - 15); // Remove half a month
+
         // Set handles in range slider
         this.setRangeSlider();
         this.updateHTMLTimeline();
@@ -292,36 +331,37 @@ export default {
         // Start and end year are different
         if (totalYears != 0){
           
-          this.years = [{ num: startYear, ww: (11 - startMonth + (daysInFirstMonth - startDay) / daysInFirstMonth)/12}];
-          this.months = [{ num: startMonth, ww: (daysInFirstMonth - startDay) / daysInFirstMonth, key: startMonth + "-" + startYear, year: startYear, name: this.monthNum2Str(startMonth)}];
+          this.years = [{ num: startYear, wght: (11 - startMonth + (daysInFirstMonth - startDay) / daysInFirstMonth)/12}];
+          this.months = [{ num: startMonth, wght: (daysInFirstMonth - startDay) / daysInFirstMonth, key: startMonth + "-" + startYear, year: startYear, name: this.monthNum2Str(startMonth)}];
+
           // Fill months from first year
           for (let i = startMonth + 1; i < 12; i++){
-            this.months.push({num: i, ww: 1, key: i + "-" + startYear, year: startYear, name: this.monthNum2Str(i)});
+            this.months.push({num: i, wght: 1, key: i + "-" + startYear, year: startYear, name: this.monthNum2Str(i)});
           }
 
           // Fill years
           for (let i = 1; i<=totalYears; i++){
             if (startYear + i != endYear){
-              this.years.push({num: startYear + i, ww: 1});
+              this.years.push({num: startYear + i, wght: 1});
               // Fill months
               for (let j = 0; j<12; j++){
-                this.months.push({num: j, ww: 1, key: j + "-" + (startYear+i), year: (startYear + i), name: this.monthNum2Str(j)});
+                this.months.push({num: j, wght: 1, key: j + "-" + (startYear+i), year: (startYear + i), name: this.monthNum2Str(j)});
               }
             } else { // Last year is not necessarily complete
-              this.years.push({ num: endYear, ww: (endMonth + endDay / daysInLastMonth)/12});// Todo: number of days is relative to the month
+              this.years.push({ num: endYear, wght: (endMonth + endDay / daysInLastMonth)/12});// Todo: number of days is relative to the month
               // Fill months last year
               for (let j = 0; j<=endMonth; j++){
                 if (j != endMonth)
-                  this.months.push({num: j, ww: 1, key: j + "-" + (endYear), year: endYear,  name: this.monthNum2Str(j)});
+                  this.months.push({num: j, wght: 1, key: j + "-" + (endYear), year: endYear,  name: this.monthNum2Str(j)});
                 else
-                  this.months.push({ num: j, ww: endDay / daysInLastMonth, key: j + "-" + (endYear), year: endYear, name: this.monthNum2Str(j)});
+                  this.months.push({ num: j, wght: endDay / daysInLastMonth, key: j + "-" + (endYear), year: endYear, name: this.monthNum2Str(j)});
               } 
             }
           }
         } 
         // Start and end year are the same
         else {
-          this.years = [{ num: startYear, ww: ((endMonth + endDay / daysInLastMonth) - (11 - startMonth + (daysInFirstMonth - startDay) / daysInFirstMonth)) / 12}];
+          this.years = [{ num: startYear, wght: ((endMonth + endDay / daysInLastMonth) - (11 - startMonth + (daysInFirstMonth - startDay) / daysInFirstMonth)) / 12}];
         }
 
 
@@ -331,13 +371,14 @@ export default {
         this.setRangeSlider();
         
         
-        // Calculate ww according to number of years/months
+        // Calculate wght according to number of years/months
         this.calcWidthPercentage();
         // Change month name according to width in pixels
         this.setMonthNames();
         // TODO ERROR: NONE OF THIS WORKS. THE SIDE PANEL CHANGES WIDTH AND SHRINKS monthTimeline, CHANING ITS WIDTH. IT SHOULD DISPATCH AN EVENT BUT IT DOES NOT
         // It is fixed by doing a concatenation of events
         this.$refs.monthTimeline.addEventListener('resize', this.setMonthNames);
+        this.$refs.dayTimeline.addEventListener('resize', this.setDayNames);
         //this.$refs.monthTimeline.addEventListener("webkitTransitionEnd", this.setMonthNames); // Code for Chrome, Safari and Opera
         //this.$refs.monthTimeline.addEventListener("transitionend", this.setMonthNames); // Standard syntax
 
@@ -346,6 +387,10 @@ export default {
 
         //console.log(...this.months);
       },
+
+
+
+
 
 
       // Updates the width and visibility of the months and years according to the start and end dates
@@ -371,9 +416,11 @@ export default {
             sIdxYears = index;
         })
         // Set everything to zero, then assign
-        this.years.forEach(yy => yy.ww = 0);
-        this.months.forEach(mm => mm.ww = 0);
-        
+        this.years.forEach(yy => yy.wght = 0);
+        this.months.forEach(mm => mm.wght = 0);
+        this.days = []; // Reset days and create again here
+        let numVisibleMonths = 0;
+
         // Set weights
         // Iterate over years
         for (let idxY = startYear; idxY <= endYear; idxY++){
@@ -399,7 +446,10 @@ export default {
             else
               monthlyWeight = daysInMonth / 31;
             // Store weight
-            this.months[sIdxMonths].ww = monthlyWeight;
+            this.months[sIdxMonths].wght = monthlyWeight;
+            // Save as visible month
+            numVisibleMonths++;
+
             // Increase monthly index
             sIdxMonths++;
             // Store sum for yearly weight
@@ -407,16 +457,53 @@ export default {
 
           }
           // Calculate year weights based on the months
-          this.years[sIdxYears].ww = sumM/12;
+          this.years[sIdxYears].wght = sumM/12;
           // Increase yearly index
           sIdxYears++;          
         }
+
+
+
+
+        // Create days if zoom is enough
+        if (numVisibleMonths < 5){ // TODO: SEEN DAYS SHOULD BE RELATIVE TO VIEWPORT?
+          // Iterate dates
+          for (let idxY = startYear; idxY <= endYear; idxY++) { // Year
+            let sM = 0;
+            let eM = 11;
+            if (idxY == startYear) // We are in the first year
+              sM = startMonth;
+            if (idxY == endYear) // We are in the first year
+              eM = endMonth;
+            for (let idxM = sM; idxM <= eM; idxM++) { // Month
+              let sD = 1;
+              let eD = this.getDaysInMonth(idxY, idxM + 1);
+              if(idxM == startMonth) // First month (WARN: because timespan is less than 5 months apart, months from different years are not confused now)
+                sD = startDay;
+              if (idxM == endMonth) // Last month (WARN: same as above)
+                eD = endDay;
+              for (let idxD = sD; idxD <= eD; idxD++){
+                //console.log(idxY + ", " + (idxM+1) + ", " + idxD);
+                this.days.push({
+                  num: idxD,
+                  wght: 1,
+                  key: idxD + "-" + idxM + "-" + idxY,
+                  year: idxY,
+                  month: idxM+1,
+                  name: idxD
+                })
+              }
+            }
+          }
+          //this.days = [{ num: startDay, wght: 1, key: startMonth + "-" + startYear, year: startYear, name: this.monthNum2Str(startMonth) }];
+        }
         
-        
-        // Calculate ww according to number of years/months
+
+        // Calculate wght according to number of years/months
         this.calcWidthPercentage();
-        // Change month name according to width in pixels
+        // Change month and day names according to width in pixels
         this.setMonthNames();
+        this.setDayNames();
         // Update selected start-end dates
         this.updateStartEndInfo();
 
@@ -427,14 +514,20 @@ export default {
 
       // Calculate width percentage according to weight
       calcWidthPercentage: function(){
+        // For days
+        if (this.days.length != 0){ // If visible / exist
+          let totalDayWght = 0;
+          this.days.forEach(dd => totalDayWght += dd.wght); // Calculate total day proportion or width
+          this.days.forEach(dd => dd.wght = 100 * dd.wght / totalDayWght); // Apply width according to element width
+        }
         // For months
-        let totalMonthWW = 0;
-        this.months.forEach(mm => totalMonthWW += mm.ww); // Calculate total month proportion or width
-        this.months.forEach(mm => mm.ww = 100 * mm.ww/totalMonthWW); // Apply width according to element width
+        let totalMonthwght = 0;
+        this.months.forEach(mm => totalMonthwght += mm.wght); // Calculate total month proportion or width
+        this.months.forEach(mm => mm.wght = 100 * mm.wght/totalMonthwght); // Apply width according to element width
         // For years
-        let totalYearWW = 0;
-        this.years.forEach(yy => totalYearWW += yy.ww); // Calculate total month proportion or width
-        this.years.forEach(yy => yy.ww = 100 * yy.ww/totalYearWW); // Apply width according to element width
+        let totalYearwght = 0;
+        this.years.forEach(yy => totalYearwght += yy.wght); // Calculate total month proportion or width
+        this.years.forEach(yy => yy.wght = 100 * yy.wght/totalYearwght); // Apply width according to element width
       },
 
       // Change the month name according to the width in pixels
@@ -442,7 +535,7 @@ export default {
         
         let totalWidth = this.$refs.monthTimeline.offsetWidth;
         this.months.forEach(mm => {
-          let pixelWidth = mm.ww/100 * totalWidth;
+          let pixelWidth = mm.wght/100 * totalWidth;
           if (pixelWidth < 20)
             mm.name = '';
           else if (pixelWidth < 40)
@@ -456,6 +549,21 @@ export default {
           mm.title = this.monthAbbr[mm.num][2] + ", " + mm.year;
         });
         
+      },
+
+
+      // Change day names according to the width in pixels
+      setDayNames: function(){
+        let totalWidth = this.$refs.monthTimeline.offsetWidth;
+        if (this.days.length != 0){
+          let pixelsPerDay = totalWidth / this.days.length;
+          this.days.forEach(dd => {
+            if (pixelsPerDay <10)
+              dd.name = '';
+            else
+              dd.name = dd.num;
+          })
+        }
       },
 
       // Month num to Month string
@@ -597,7 +705,7 @@ export default {
   padding: 0;
 }
 
-.monthButton, .yearButton{
+.dayButton, .monthButton, .yearButton{
   height: 100%;
   border: 1px solid #02488e33;
   background: none;
@@ -617,7 +725,7 @@ export default {
   background: rgba(0, 81, 255, 0.05);
 }
 
-.monthButton:hover,
+.dayButton:hover, .monthButton:hover,
 .yearButton:hover {
   background: #e3f8ff7d;
 }

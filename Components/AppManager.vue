@@ -76,7 +76,7 @@ export default {
 #app-manager {
     width: 100vw;
     height: 100vh;
-    position: absolute;
+    position: fixed;
   }
 
   .OBSEABanner {
