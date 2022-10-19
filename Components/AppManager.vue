@@ -74,9 +74,13 @@ export default {
 
 <style scoped>
 #app-manager {
-    width: 100vw;
+    /* width: 100vw;
     height: 100vh;
-    position: absolute;
+    position: absolute; */
+
+    height: 100%;
+    min-height: 100%;
+    position: fixed;
   }
 
   .OBSEABanner {
