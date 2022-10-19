@@ -156,22 +156,27 @@ export default {
           }
         } 
         // Right-Left handles
-        else {
-          if (this.rangeArray[0] < 10){     
-            this.dayIncrement = 10 - this.rangeArray[0]; 
-            this.decreaseStartingDate();
-            //this.updateHTMLTimeline();
-          }
-          else if (this.rangeArray[1] > 90){
-            this.dayIncrement = this.rangeArray[1] - 90;
-            this.increaseEndingDate();
-            //this.updateHTMLTimeline();
-          }
-        }
+        // else {
+        //   if (this.rangeArray[0] < 10){     
+        //     this.dayIncrement = 10 - this.rangeArray[0]; 
+        //     this.decreaseStartingDate();
+        //     //this.updateHTMLTimeline();
+        //   }
+        //   else if (this.rangeArray[1] > 90){
+        //     this.dayIncrement = this.rangeArray[1] - 90;
+        //     this.increaseEndingDate();
+        //     //this.updateHTMLTimeline();
+        //   }
+        // }
         // Update selected start and end dates
         let totalTime = this.endDate.getTime() - this.startDate.getTime();
         this.selStartDate.setTime(this.startDate.getTime() + totalTime*this.rangeArray[0]/100);
         this.selEndDate.setTime(this.startDate.getTime() + totalTime * this.rangeArray[1]/100);
+
+        let centeredValue = this.rangeArray[0] * 0.5 + this.rangeArray[1]*0.5;
+        // TODO: CENTERED DATE DOES NOT AGREE WITH TIME RANGE BAR
+        let centeredDate = new Date(this.startDate.getTime() + totalTime * centeredValue /100);
+        this.$refs.rangeSlider.setMessage(centeredDate.toISOString());
 
         // Update HTML timeline
         this.updateHTMLTimeline();
