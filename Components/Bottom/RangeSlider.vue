@@ -2,18 +2,10 @@
     <div id="app-rangeslider">
       <!-- https://javascript.info/mouse-drag-and-drop -->
       <div class="rangeslider">
-
-        <!-- Left handle https://unicode-table.com/en/2039/ -->
-        <!-- <button @mousedown="onMouseDownLeftHandle" class="rangeHandle rangeHandleLeft" ref="leftHandle" style="left: 25%">  	
-          &#8249;
-        </button> -->
-        <!-- Right handle -->
-        <!-- <button @mousedown="onMouseDownRightHandle" class="rangeHandle rangeHandleRight" ref="rightHandle" style="left: 75%">
-          &#8250;
-        </button> -->
         
         <!-- Middle handle -->
-        <button @mousedown="onMouseDownMiddleHandle" class="rangeHandle rangeHandleMiddle" ref="middleHandle" style="left: 28%, width: 40%">
+        <button @mousedown="onMouseDownMiddleHandle" @touchstart="onMouseDownMiddleHandle" class="rangeHandle rangeHandleMiddle" ref="middleHandle" style="left: 50%">
+        {{message}}
         </button>
 
       </div>
@@ -46,13 +38,16 @@ export default {
     data (){
       return {
         // HTML Elements
-        // leftHandleEl: undefined,
-        // rightHandleEl: undefined,
         middleHandleEl: undefined,
 
         // Spacing between side handles and middle handle
-        paddingRatio: 0.1,
+        paddingRatio: 0.5,
         maxPadding: 2,
+
+        // Percentage value
+        value: 50,
+        // Slider message
+        message: 'Hello',
       }
     },
     methods: {
@@ -62,29 +57,40 @@ export default {
         
         // Disable drag and drop support (is enabled sometimes without a reason) https://javascript.info/mouse-drag-and-drop
         event.target.ondragstart = function(){return false};
-        // Create event listener for mouse move in document
-        document.addEventListener('mousemove', this.onMouseMoveMiddleHandle);
-        // Create and remove event listener for mouse up (removes previous event listener)
-        // Emit event with values
-        document.onmouseup = ()=>{
-          this.$emit('mouseup', this.getRange());
-          document.removeEventListener('mousemove', this.onMouseMoveMiddleHandle);
-          document.onmouoseup = null;
-        };
+        
+
+        // Mouse move
+        document.addEventListener("mousemove", this.onMouseMoveMiddleHandle);
+        document.addEventListener("touchmove", this.onMouseMoveMiddleHandle);
+        // TODO: RELOCATE TO CENTER
+        // ACTIVATE CSS LEFT TRANSITION
+        // CENTERONDATE WHILE IT CHANGES?
+        // Mouse up removes event listeners
+        document.addEventListener("mouseup", this.removeEventListeners);
+        document.addEventListener("touchend", this.removeEventListeners);
         // Emit onmousedown
         this.$emit('mousedown', this.getRange());
         // Relocate on mouse down
         // TODO?
         //this.onMouseMoveMiddleHandle(event);
       },
+      removeEventListeners: function(){
+        // Slider event
+        document.removeEventListener("mousemove", this.onMouseMoveMiddleHandle);
+        document.removeEventListener("touchmove", this.onMouseMoveMiddleHandle);
+        // Document event
+        document.removeEventListener("mouseup", this.removeEventListeners);
+        document.removeEventListener("touchend", this.removeEventListeners);
+      },
 
 
       // Move middle handle
       onMouseMoveMiddleHandle: function(event){
-        //let el = this.$refs.middleHandle;
+
         let el = this.middleHandleEl;
         let totalWidth = el.parentElement.offsetWidth; // Get total width of container in pixels
-        let relMouseX = event.pageX - el.parentElement.offsetLeft;
+        let pageX = event.pageX ? event.pageX : event.touches[0].pageX;
+        let relMouseX = pageX - el.parentElement.offsetLeft;
         let percMargin = (100*(relMouseX - el.offsetWidth/2)/totalWidth); // Get margin from mouse position in percentage
 
         let widthHandleMiddle = 100*(el.offsetWidth)/totalWidth;
@@ -129,8 +135,17 @@ export default {
 
         let pLeft = parseFloat(this.middleHandleEl.style.left.replace('%', ''));
         let pRight = pLeft + widthHandleMiddle;
+
+        this.value = ((pLeft + pRight)/2).toFixed(1);
+        // TODO: RETURN VALUE
         return [pLeft, pRight];
       },
+
+
+
+      // USER INPUT
+      // TODO: KEYBOARD LEFT-RIGHT
+
 
 
       // PUBLIC METHODS
@@ -144,6 +159,10 @@ export default {
         this.rightHandleEl.style.left = (inRange[1]-widthRigthHandle) + '%';
         // Set middle bar
         this.calcMiddleHandlePosition();
+      },
+      // Set message
+      setMessage: function(inMessage){
+        this.message = inMessage;
       }
 
     },
@@ -179,7 +198,7 @@ export default {
   top: 0.5rem; 
   bottom: 0.5rem; 
   border:none;
-  width: 1rem; 
+  /* width: 1rem;  */
   cursor: ew-resize;
   border-radius: 0.2rem;
   background-color: rgba(107, 193, 228, 0.8);
@@ -196,9 +215,11 @@ export default {
 }
 
 .rangeHandleMiddle {
-  opacity: 0.5;
-  padding: 0;
+  opacity: 0.8;
+  padding-left: 6px;
+  padding-right: 6px;
   cursor: grab;
+  font-size: 13px;
+  color: black;
 }
-
 </style>
