@@ -51,7 +51,7 @@ export default {
     
   },
   mounted() {
-    
+
   },
   data (){
     return {
@@ -75,7 +75,7 @@ export default {
 <style scoped>
 #app-manager {
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     position: absolute;
   }
 
