@@ -1,10 +1,11 @@
 /* Body and html */
 html body {
-  height: 100vh;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
   /* mobile viewport bug fix */
   min-height: -webkit-fill-available;
   height: -webkit-fill-available;
+  position: fixed;
 }
 
 /* Limit SVG size */
