@@ -1,6 +1,6 @@
 <template>
   <!-- Container -->
-  <div id="app-manager">
+  <div id="app-manager" ref="appManager">
 
     <!-- Canvas 3D -->
     <canvas3D></canvas3D>
@@ -51,7 +51,7 @@ export default {
     
   },
   mounted() {
-
+    
   },
   data (){
     return {
@@ -74,13 +74,9 @@ export default {
 
 <style scoped>
 #app-manager {
-    /* width: 100vw;
+    width: 100vw;
     height: 100vh;
-    position: absolute; */
-
-    height: 100%;
-    min-height: 100%;
-    position: fixed;
+    position: absolute;
   }
 
   .OBSEABanner {

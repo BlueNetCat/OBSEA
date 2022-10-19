@@ -1,3 +1,10 @@
+/* HTML and body */
+html body {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
 /* Limit SVG size */
 .icon-svg {
   width: 45px;
