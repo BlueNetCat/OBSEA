@@ -51,7 +51,11 @@ export default {
     
   },
   mounted() {
-
+    // Mobile bottom bar full height fix
+    this.$refs.appManager.style.height = window.innerHeight + 'px';
+    window.onresize =  () => {
+      this.$refs.appManager.style.height = window.innerHeight + 'px';
+    }; 
   },
   data (){
     return {
