@@ -4,13 +4,13 @@
       <div class="rangeslider">
 
         <!-- Left handle https://unicode-table.com/en/2039/ -->
-        <button @mousedown="onMouseDownLeftHandle" class="rangeHandle rangeHandleLeft" ref="leftHandle" style="left: 25%">  	
+        <!-- <button @mousedown="onMouseDownLeftHandle" class="rangeHandle rangeHandleLeft" ref="leftHandle" style="left: 25%">  	
           &#8249;
-        </button>
+        </button> -->
         <!-- Right handle -->
-        <button @mousedown="onMouseDownRightHandle" class="rangeHandle rangeHandleRight" ref="rightHandle" style="left: 75%">
+        <!-- <button @mousedown="onMouseDownRightHandle" class="rangeHandle rangeHandleRight" ref="rightHandle" style="left: 75%">
           &#8250;
-        </button>
+        </button> -->
         
         <!-- Middle handle -->
         <button @mousedown="onMouseDownMiddleHandle" class="rangeHandle rangeHandleMiddle" ref="middleHandle" style="left: 28%, width: 40%">
@@ -35,8 +35,8 @@ export default {
     },
     mounted (){
       // Find HTML elements
-      this.leftHandleEl = this.$el.getElementsByClassName("rangeHandleLeft")[0];
-      this.rightHandleEl = this.$el.getElementsByClassName("rangeHandleRight")[0];
+      // this.leftHandleEl = this.$el.getElementsByClassName("rangeHandleLeft")[0];
+      // this.rightHandleEl = this.$el.getElementsByClassName("rangeHandleRight")[0];
       this.middleHandleEl = this.$el.getElementsByClassName("rangeHandleMiddle")[0];
       this.calcMiddleHandlePosition();
     },
@@ -46,8 +46,8 @@ export default {
     data (){
       return {
         // HTML Elements
-        leftHandleEl: undefined,
-        rightHandleEl: undefined,
+        // leftHandleEl: undefined,
+        // rightHandleEl: undefined,
         middleHandleEl: undefined,
 
         // Spacing between side handles and middle handle
@@ -57,44 +57,9 @@ export default {
     },
     methods: {
       // USER HTML ACTIONS
-      // Declare events for left handle
-      onMouseDownLeftHandle: function(event){
-        // Disable drag and drop support (is enabled sometimes without a reason) https://javascript.info/mouse-drag-and-drop
-        event.target.ondragstart = function(){return false};
-        // Create event listener for mouse move in document
-        document.addEventListener('mousemove', this.onMouseMoveLeftHandle);
-        // Create event listener for mouse up and remove mouse move event listener
-        document.onmouseup = ()=>{
-          this.$emit('mouseup',  this.getRange());
-          document.removeEventListener('mousemove', this.onMouseMoveLeftHandle);
-          document.onmouoseup = null;
-        };
-        // Emit onmousedown
-        this.$emit('mousedown', this.getRange());
-        // Relocate on mouse down
-        this.onMouseMoveLeftHandle(event);
-      },
-
-      // Declare events for right handle
-      onMouseDownRightHandle: function(event){
-        // Disable drag and drop support (is enabled sometimes without a reason) https://javascript.info/mouse-drag-and-drop
-        event.target.ondragstart = function(){return false};
-        // Create event listener for mouse move in document
-        document.addEventListener('mousemove', this.onMouseMoveRightHandle);
-        // Create and remove event listener for mouse up (removes previous event listener)
-        document.onmouseup = ()=>{
-          this.$emit('mouseup',  this.getRange());
-          document.removeEventListener('mousemove', this.onMouseMoveRightHandle);
-          document.onmouoseup = null;
-        };
-        // Emit onmousedown
-        this.$emit('mousedown', this.getRange());
-        // Relocate on mouse down
-        this.onMouseMoveRightHandle(event);
-      },
-
       // Declare events for middle handle
       onMouseDownMiddleHandle: function(event) {
+        
         // Disable drag and drop support (is enabled sometimes without a reason) https://javascript.info/mouse-drag-and-drop
         event.target.ondragstart = function(){return false};
         // Create event listener for mouse move in document
@@ -109,47 +74,8 @@ export default {
         // Emit onmousedown
         this.$emit('mousedown', this.getRange());
         // Relocate on mouse down
-        this.onMouseMoveMiddleHandle(event);
-      },
-
-      // Move left handle
-      onMouseMoveLeftHandle: function(event){
-        //let el = this.$refs.leftHandle; // Get element
-        let el = this.leftHandleEl;
-        let totalWidth = el.parentElement.offsetWidth; // Get total width of container in pixels
-        let relMouseX = event.pageX - el.parentElement.offsetLeft; // Correct when container has side elements
-        let percMargin = (100*(relMouseX - el.offsetWidth/2)/totalWidth); // Get margin from mouse position
-        let posRightHandle = this.rightHandleEl.style.left;
-        let percMarginRightHandle = parseFloat(posRightHandle.replace('%', '')); // Transform percent css format to float
-        percMargin = Math.min(percMargin, percMarginRightHandle - 100*el.offsetWidth/totalWidth); // Limit on the right side
-        percMargin = Math.max(percMargin, 0); // Limit on the left side
-        
-        this.leftHandleEl.style.left = percMargin + "%";
-        // Update middle bar
-        this.calcMiddleHandlePosition();
-        // Emit values
-        this.$emit('change', this.getRange());
-      },
-
-      
-      // Move right handle
-      onMouseMoveRightHandle: function(event){
-        //let el = this.$refs.rightHandle; // Get element
-        let el = this.rightHandleEl;
-        let totalWidth = el.parentElement.offsetWidth; // Get total width of container in pixels
-        let relMouseX = event.pageX - el.parentElement.offsetLeft;
-        let percMargin = (100*(relMouseX - el.offsetWidth/2)/totalWidth); // Get margin from mouse position in percentage
-
-        let posLeftHandle = this.leftHandleEl.style.left;
-        let percMarginLeftHandle = parseFloat(posLeftHandle.replace('%', '')); // Get position of other handle. Transform percent css format to float
-        percMargin = Math.min(percMargin, 100 - 100*el.offsetWidth/totalWidth); // Limit on the right side
-        percMargin = Math.max(percMargin, percMarginLeftHandle + 100*el.offsetWidth/totalWidth); // Limit on the left side
-
-        this.rightHandleEl.style.left = percMargin + "%";
-        // Update middle bar
-        this.calcMiddleHandlePosition();
-        // Emit values
-        this.$emit('change', this.getRange());
+        // TODO?
+        //this.onMouseMoveMiddleHandle(event);
       },
 
 
@@ -160,24 +86,12 @@ export default {
         let totalWidth = el.parentElement.offsetWidth; // Get total width of container in pixels
         let relMouseX = event.pageX - el.parentElement.offsetLeft;
         let percMargin = (100*(relMouseX - el.offsetWidth/2)/totalWidth); // Get margin from mouse position in percentage
-        // Get positions of side handles in percentage
-        let posLeftHandle = this.leftHandleEl.style.left;
-        let posRightHandle = this.rightHandleEl.style.left;
-        let percMarginLeftHandle = parseFloat(posLeftHandle.replace('%', '')); // Transform percent css format to float
-        let percMarginRightHandle = parseFloat(posRightHandle.replace('%', '')); // Transform percent css format to float
-        // Get width of side handles
-        //let handleSideEl = this.$refs.leftHandle;
-        let handleSideEl = this.leftHandleEl;
-        let widthHandleLeft = 100*handleSideEl.offsetWidth/totalWidth;
+
         let widthHandleMiddle = 100*(el.offsetWidth)/totalWidth;
         // Limit movement
         let sidePadding = Math.min(this.paddingRatio * widthHandleMiddle * 0.5, this.maxPadding/2);
-        percMargin = Math.min(percMargin, 100 - widthHandleMiddle - widthHandleLeft - sidePadding); // Right side
-        percMargin = Math.max(percMargin, widthHandleLeft + sidePadding); // Left side
-
-        // Calculate left and right handle positions (as in calcMiddleHandlePosition)
-        this.leftHandleEl.style.left = percMargin - widthHandleLeft - sidePadding + "%";
-        this.rightHandleEl.style.left = percMargin + widthHandleMiddle + sidePadding + "%";
+        percMargin = Math.min(percMargin, 100 - widthHandleMiddle - sidePadding); // Right side
+        percMargin = Math.max(percMargin, sidePadding); // Left side
         this.middleHandleEl.style.left = percMargin + '%';
 
         // Emit values
@@ -187,6 +101,7 @@ export default {
 
       // Calculate width and position of middle handle
       calcMiddleHandlePosition: function(){
+        return;
         //let el = this.$refs.leftHandle;
         let el = this.leftHandleEl;
         let totalWidth = el.parentElement.offsetWidth;
@@ -208,18 +123,21 @@ export default {
 
       // Get range in floats
       getRange: function(){
-        let posLeftHandle = this.leftHandleEl.style.left;
-        let posRightHandle = this.rightHandleEl.style.left;
-        let widthRigthHandle = 100*this.rightHandleEl.offsetWidth/this.rightHandleEl.parentElement.offsetWidth;
-        let pLeft = parseFloat(posLeftHandle.replace('%', ''));
-        let pRight = parseFloat(posRightHandle.replace('%', '')) + widthRigthHandle;
+        
+        let totalWidth = this.middleHandleEl.parentElement.offsetWidth; // Get total width of container in pixels
+        let widthHandleMiddle = 100 * (this.middleHandleEl.offsetWidth) / totalWidth;
+
+        let pLeft = parseFloat(this.middleHandleEl.style.left.replace('%', ''));
+        let pRight = pLeft + widthHandleMiddle;
         return [pLeft, pRight];
       },
 
 
       // PUBLIC METHODS
       // Set the range
+      // TODO: SHOULD BE A SINGLE VALUE
       setRange: function(inRange){
+        return;
         // Set handles
         this.leftHandleEl.style.left = inRange[0] + '%';
         let widthRigthHandle = 100*this.rightHandleEl.offsetWidth/this.rightHandleEl.parentElement.offsetWidth;

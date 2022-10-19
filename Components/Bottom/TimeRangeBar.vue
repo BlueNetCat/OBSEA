@@ -532,7 +532,6 @@ export default {
 
       // Change the month name according to the width in pixels
       setMonthNames: function(){
-        
         let totalWidth = this.$refs.monthTimeline.offsetWidth;
         this.months.forEach(mm => {
           let pixelWidth = mm.wght/100 * totalWidth;
@@ -558,7 +557,7 @@ export default {
         if (this.days.length != 0){
           let pixelsPerDay = totalWidth / this.days.length;
           this.days.forEach(dd => {
-            if (pixelsPerDay <10)
+            if (pixelsPerDay <20)
               dd.name = '';
             else
               dd.name = dd.num;
