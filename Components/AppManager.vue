@@ -52,6 +52,7 @@ export default {
   },
   mounted() {
     // Mobile bottom bar full height fix
+    // https://dev.to/admitkard/mobile-issue-with-100vh-height-100-100vh-3-solutions-3nae
     this.$refs.appManager.style.height = window.innerHeight + 'px';
     window.onresize =  () => {
       this.$refs.appManager.style.height = window.innerHeight + 'px';
