@@ -14,13 +14,13 @@
           </div>
           <div class="col p-0">
             <!-- Range slider -->
-            <!-- <range-slider 
+            <range-slider 
                 ref="rangeSlider"
                 @change="onRangeSliderChange($event)" 
                 @mousedown="onRangeSliderMouseDown($event)" 
                 @mouseup="onRangeSliderMouseUp($event)"
                 @drag="onRangeSliderDrag($event)" 
-              style="height: 50px"></range-slider> -->
+              style="height: 50px"></range-slider>
 
             <!-- Year calendar -->
             <div class="timeline">
@@ -52,7 +52,7 @@
 
 <script>
 // Import components
-// import RangeSlider from 'RangeSlider.vue'
+import RangeSlider from '/OBSEA/Components/Bottom/RangeSlider.vue'
 
 export default {
     name: "time-range-bar",
@@ -228,9 +228,9 @@ export default {
         this.endDate = eDate;
         // Change selected dates to cover the months
         this.selStartDate = new Date(this.startDate.getTime());
-        this.selStartDate.setDate(this.selStartDate.getDate() + 15); // Add half a month
+        this.selStartDate.setDate(this.selStartDate.getDate() + monthsSides/2); // Add half a month
         this.selEndDate = new Date(this.endDate.getTime());
-        this.selEndDate.setDate(this.selEndDate.getDate() - 15); // Remove half a month
+        this.selEndDate.setDate(this.selEndDate.getDate() - monthsSides/2); // Remove half a month
         
         // Set handles in range slider
         this.setRangeSlider();
@@ -260,10 +260,10 @@ export default {
         this.startDate = sDate;
         this.endDate = eDate;
         // Change selected dates to cover the months
-        // this.selStartDate = new Date(this.startDate.getTime());
-        // this.selStartDate.setDate(this.selStartDate.getDate() + 15); // Add half a month
-        // this.selEndDate = new Date(this.endDate.getTime());
-        // this.selEndDate.setDate(this.selEndDate.getDate() - 15); // Remove half a month
+        this.selStartDate = new Date(this.startDate.getTime());
+        this.selStartDate.setDate(this.selStartDate.getDate() + daysSides/2); // Add half a month
+        this.selEndDate = new Date(this.endDate.getTime());
+        this.selEndDate.setDate(this.selEndDate.getDate() - daysSides/2); // Remove half a month
 
         // Set handles in range slider
         this.setRangeSlider();
@@ -664,7 +664,7 @@ export default {
 
     },
     components: {
-      // 'range-slider': RangeSlider
+      'range-slider': RangeSlider
     },
     computed: {
 
