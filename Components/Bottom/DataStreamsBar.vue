@@ -84,13 +84,18 @@ export default {
             ctx.fillStyle = 'red';
             ctx.fill();
 
+          } else {
+           //console.log(movingDate.toISOString().substring(10));
           }
 
           // Increase one day
-          movingDate.setDate(movingDate.getDate() + 1);
+          movingDate.setUTCDate(movingDate.getUTCDate() + 1);
+          movingDate.setUTCHours(0);
         }
 
-        
+        //console.log(this.dailyData);
+
+
         // Start index
         // let sIdx = DataManager.getHourlyDataIndex(this.startDate);
         // End index
@@ -187,7 +192,7 @@ export default {
       this.timeSpanInHours = (this.endDate.getTime() - this.startDate.getTime()) / 36e5;
 
       this.updateCanvas();
-      console.log("Updating canvas and start and end dates from data streams");
+      //console.log("Updating canvas and start and end dates from data streams");
     },
 
 
