@@ -44,6 +44,19 @@ export default {
     });
 
 
+    // ***** TIME BAR WITH DATA *****
+    window.eventBus.on('DataStreamsBar_dataUpdate', (arrayMeasureValue) => {
+      let measure = arrayMeasureValue[0];
+      let value = arrayMeasureValue[1];
+      if (this.sceneManager.ocean){
+        if (measure == 'Hm0')
+          this.sceneManager.ocean.updateWaveSignificantHeight(value);
+        else if (measure == 'Mdir')
+          this.sceneManager.ocean.updateMeanWaveDirection(value);
+      }
+    });
+
+
     // ***** SEA PANEL *****
     // Change ocean steepness
     window.eventBus.on('SeaPanel_steepnessSliderClicked', (steepness) => {

@@ -72,17 +72,31 @@ export default {
           let ddData = this.dailyData[movingDate.toISOString()];
           if (ddData != undefined){
             // Paint
-            // Calculate position in canvas
-            let posX = (i/numDays) * canvas.width;
-            let posY = canvas.height/2;
-            // Calculate width?
-            // Calculate height (use datatypes max?)
-            
-            ctx.beginPath();
-            let radius = 1;
-            ctx.arc(posX, posY, radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = 'red';
-            ctx.fill();
+            let measures = ['Hm0', 'WSPD', 'UCUR_0m'];
+            for (let j = 0; j < measures.length; j++){
+              // If measure exists in dataset
+              if (ddData[measures[j]]){
+                // Calculate position in canvas
+                let posX = (i/numDays) * canvas.width;
+                let padding = canvas.height * 0.2;
+                let posY = padding + j * (canvas.height-padding) / measures.length;
+                // Calculate width?
+                // Calculate height (use datatypes max?)
+                let factor = 1;
+                let dataType = this.dataManager.OBSEADataRetriever.DataTypes[measures[j]];
+                if (dataType){
+                  if (dataType.signValue){
+                    factor = Math.max(1,ddData[measures[j]]/dataType.signValue);
+                  }
+                }
+                
+                ctx.beginPath();
+                let radius = 1;
+                ctx.arc(posX, posY, radius*factor, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'darkblue';
+                ctx.fill();
+              }
+            }
 
           } else {
            //console.log(movingDate.toISOString().substring(10));
@@ -194,6 +208,25 @@ export default {
       this.updateCanvas();
       //console.log("Updating canvas and start and end dates from data streams");
     },
+
+    updateCurrentDate: function(isoString){
+      // Get data for this date
+      // TODO: load from DataManager
+      // FOR NOW: daily value
+      isoString = isoString.substring(0,10) + 'T00:00:00.000Z';
+      let ddData= this.dailyData[isoString];
+      if (ddData != undefined){
+        let measures = this.dataManager.OBSEADataRetriever.Measures;
+        for (let i = 0; i< measures.length; i++){
+          let value = ddData[measures[i]];
+          if (value != undefined)
+            window.eventBus.emit('DataStreamsBar_dataUpdate', [measures[i], value]);
+        }
+
+      }
+    },
+
+
 
 
 

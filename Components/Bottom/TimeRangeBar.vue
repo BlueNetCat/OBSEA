@@ -343,6 +343,8 @@ export default {
         let message = centeredDate.toISOString().substring(0, 16) + "Z";
         if (this.$refs.rangeSlider)
           this.$refs.rangeSlider.setMessage(message);
+        if (this.$refs.dataStreamsBar)
+          this.$refs.dataStreamsBar.updateCurrentDate(centeredDate.toISOString())
       },
 
 
