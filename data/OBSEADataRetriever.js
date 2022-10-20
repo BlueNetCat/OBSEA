@@ -6,11 +6,11 @@ import OBSEADailyDataMax from "/OBSEA/data/StaticData/OBSEADailyDataMax.js"
 // Stores and retrieves data
 export class OBSEADataRetriever{
 
-  static OBSEADailyDataMax = OBSEADailyDataMax;
+  OBSEADailyDataMax = OBSEADailyDataMax;
 
   dataKeys;
   baseURLStaticFiles = '/OBSEA/data/StaticData/';
-  //staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
+
   staticFiles = ['obsea_2011_1.csv', 'obsea_2011_2.csv',
                   'obsea_2013_1.csv', 'obsea_2013_2.csv',
                   'obsea_2014_1.csv', 'obsea_2014_2.csv', 
@@ -239,7 +239,7 @@ export class OBSEADataRetriever{
       let timeString = csv[i][0];
       let isoString = this.getISOStringFromCSVTimestamp(timeString);
       // Turn it into daily
-      isoString = isoString.substring(0, 10) + "T00:00.000Z";
+      isoString = isoString.substring(0, 10) + "T00:00:00.000Z";
       // First daily data
       if (this.dailyData[isoString] == undefined) this.dailyData[isoString] = {}
       // Iterate through measures
@@ -269,8 +269,8 @@ export class OBSEADataRetriever{
       }
     }
 
-    //console.log(JSON.stringify(this.dailyData));
-    OBSEADataRetriever.OBSEADailyDataMax = this.dailyData;
+    console.log(JSON.stringify(this.dailyData));
+    this.OBSEADailyDataMax = this.dailyData;
   }
 
   // Transform the csv string to 

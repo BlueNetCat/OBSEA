@@ -19,21 +19,25 @@
 // Import components here
 
 export default {
-  name: "tracks-timeline",
+  name: "data-streams-bar",
   created() {
-
 
   },
   mounted() {
+    // Data manager
+    this.dataManager = new DataManager();
+    this.dailyData = this.dataManager.getDailyData();
+
+
     // TODO: ANOTHER OPTION IS TO USE PATH
     // CREATE BALLS FOR EVENTS? MOVING WINDOW?
     this.canvas = this.$refs.dataStreamsCanvas;
     let parentEl = this.canvas.parentElement;
     this.canvas.height = 30; // TODO: DEPENDANT ON THE NUMBER OF STREAMS TO DISPLAY
     this.canvas.width = parentEl.offsetWidth;
-    let ctx = this.canvas.getContext('2d');
-    ctx.fillStyle = 'red';
-    ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
+    this.ctx = this.canvas.getContext('2d');
+    //this.ctx.fillStyle = 'red';
+    //this.ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
   },
   data() {
     return {
@@ -46,9 +50,47 @@ export default {
     // INTERNAL METHODS
     // Paint data streams on canvas
     updateCanvas: function(){
+      if (this.dailyData == undefined)
+        return;
 
-      if (this.timeSpan > 500){ // Use daily data
+      let canvas = this.canvas;
+      let ctx = this.ctx;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      if (this.timeSpanInHours > 0){ // Use daily data
         // Read data
+        // Set start and end date to T00:00:00.000Z
+        this.startDate = new Date(this.startDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
+        this.endDate = new Date(this.endDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
+        // Calculate number of days
+        let numDays = (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 3600 * 24);
+        if (numDays != Math.floor(numDays)) console.error("Num days should be integer!!");
+        // Iterate for each day
+        let movingDate = new Date(this.startDate.toISOString());
+        for (let i = 0; i<numDays; i++){
+          let ddData = this.dailyData[movingDate.toISOString()];
+          if (ddData != undefined){
+            // Paint
+            // Calculate position in canvas
+            let posX = (i/numDays) * canvas.width;
+            let posY = canvas.height/2;
+            // Calculate width?
+            // Calculate height (use datatypes max?)
+            
+            ctx.beginPath();
+            let radius = 1;
+            ctx.arc(posX, posY, radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+
+          }
+
+          // Increase one day
+          movingDate.setDate(movingDate.getDate() + 1);
+        }
+
+        
         // Start index
         // let sIdx = DataManager.getHourlyDataIndex(this.startDate);
         // End index
@@ -139,11 +181,13 @@ export default {
     },
     // Set start and end dates
     setStartEndDates: function (sDate, eDate) {
+      
       this.startDate.setTime(sDate.getTime());
       this.endDate.setTime(eDate.getTime());
       this.timeSpanInHours = (this.endDate.getTime() - this.startDate.getTime()) / 36e5;
 
-      this.udpateCanvas();
+      this.updateCanvas();
+      console.log("Updating canvas and start and end dates from data streams");
     },
 
 
@@ -152,14 +196,6 @@ export default {
     // Set the geojson features
     setFeatures: function (inFeatures) {
       this.features = inFeatures;
-    },
-    // Set start and end dates
-    setStartEndDates: function (sDate, eDate) {
-      this.startDate.setTime(sDate.getTime());
-      this.endDate.setTime(eDate.getTime());
-      //this.features.pop();
-      this.features.push([]); // TODO: FIX TRICK, DIRTY HACK. FORCES setFeaturesStyle() in Vue
-      this.features.pop();
     },
     // Show selected track
     showSelectedTrack: function (id) {
@@ -193,7 +229,7 @@ export default {
 
 
 <style scoped>
-#tracks-timeline {
+#data-streams-bar {
   position: relative;
   width: calc(100% - 130px);
   height: 30px;

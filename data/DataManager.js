@@ -30,24 +30,28 @@ class DataManager{
   ]
 
   constructor(){
+    // Singleton
+    if (DataManager.instace != undefined)
+      return DataManager.instance;
+
+    // Constructor
     this.OBSEADataRetriever = new OBSEADataRetriever();
     this.WMSDataRetriever = new WMSDataRetriever();
 
-    // Test static data OBSEA
     // TODO: files should only be loaded on demand (more than 20Mb of data, no need to download)
-    //        - Create image of data availability
-    //          - Maybe check daily? As in, is there a data point that day? then its 365*year points
-    //        - Create time bar
     //        - Load files on demand
     
     // Load all static files to compute the daily maximum
-    if (!OBSEADataRetriever.OBSEADailyDataMax)
+    if (!this.OBSEADataRetriever.OBSEADailyDataMax)
       this.getStaticData();
-
 
     // Test data manager
     //this.getDataOnTimeInstant('2019-01-01T01:30:00.000Z');
     this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
+
+    // Singleton
+    DataManager.instance = this;
+    
   }
 
 
@@ -94,6 +98,15 @@ class DataManager{
     this.OBSEADataRetriever.fetchFromStaticFiles((csv) => {
       //console.log(csv);
     })
+  }
+
+
+
+
+
+  // PUBLIC METHODS
+  getDailyData(){
+    return this.OBSEADataRetriever.OBSEADailyDataMax;
   }
 
  

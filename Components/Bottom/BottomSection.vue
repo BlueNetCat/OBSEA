@@ -79,7 +79,6 @@ import TimeRangeBar from "/OBSEA/Components/Bottom/TimeRangeBar.vue"
 export default {
   name:"BottomSection",
   mounted() {
-    new DataManager();
     // Subscribe to camera change to hide OBSEA underwater camera
     window.eventBus.on('Canvas3D_cameraChange', (sceneManager) => {
       let camPos = sceneManager.camera.position;

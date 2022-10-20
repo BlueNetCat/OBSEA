@@ -25,7 +25,7 @@
             
             
             <!-- Data availability -->
-            <data-streams-bar style="width:100%"></data-streams-bar>
+            <data-streams-bar ref="dataStreamsBar" style="width:100%"></data-streams-bar>
             
             
             
@@ -113,6 +113,10 @@ export default {
     },
     mounted (){
       this.createHTMLTimeline();
+      // Set start and end dates
+      if (this.$refs.dataStreamsBar)
+        this.$refs.dataStreamsBar.setStartEndDates(this.startDate, this.endDate);
+      // Create event listener
       window.addEventListener('resize', this.setMonthNames);
     },
     unmounted() {
@@ -196,6 +200,8 @@ export default {
               this.updateRangeSlider()
             }, this.FRAMERATE);
         }
+
+        // TODO: UPDATE CENTER DATE ON THE SIMULATION/DATA STREAM
       },
 
       // Display the year on the timeline
@@ -322,6 +328,10 @@ export default {
         // Emit
         this.$emit('changeSelDates', [this.selStartDate, this.selEndDate]);
         this.$emit('changeLimits', [this.startDate, this.endDate]);
+
+        // TODO > ONLY WHEN STARTDATE AND ENDDATE CHANGE
+        if (this.$refs.dataStreamsBar)
+          this.$refs.dataStreamsBar.setStartEndDates(this.startDate, this.endDate);
       },
 
       // Update centered date
