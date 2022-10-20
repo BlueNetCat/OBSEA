@@ -22,7 +22,13 @@
               @mouseup="onRangeSliderMouseUp($event)" 
               @drag="onRangeSliderDrag($event)"
             style="height: 50px; width: 100%"></range-slider>
+            
+            
             <!-- Data availability -->
+            <data-streams-bar style="width:100%"></data-streams-bar>
+            
+            
+            
             <!-- Horizontal calendar -->
             <!-- Year calendar -->
             <div class="timeline">
@@ -63,6 +69,7 @@
 
 
 <script>
+import DataStreamsBar from '/OBSEA/Components/Bottom/DataStreamsBar.vue';
 // Import components
 import RangeSlider from '/OBSEA/Components/Bottom/RangeSlider.vue'
 
@@ -694,7 +701,8 @@ export default {
 
     },
     components: {
-      'range-slider': RangeSlider
+      'range-slider': RangeSlider,
+      'data-streams-bar': DataStreamsBar,
     },
     computed: {
 
