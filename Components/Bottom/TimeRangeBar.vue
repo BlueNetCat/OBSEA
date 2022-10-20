@@ -1,47 +1,59 @@
 <template>
     <div id="time-range-bar">
 
-      <div class="container-flex bottom-0 left-0 right-0" style="width:100%;">
-
-        <!-- One row containing two columns. Col1 is start-end info. Col2 is timeline-->
-        <div class="row justify-content-start m-0" style="flex-wrap: nowrap">
-          <div class="col-sm-2 p-0" style="max-width: 130px; min-width: 130px">
-            <!-- Start and ending date -->
-            <div class="infoStartEndDate p-2 h-100 notextselect">
-              <div><b>Start:</b> {{startStr}}</div>
-              <div><b>End:</b> {{endStr}}</div>
-            </div>
+      <div>
+        <!-- Two cols -->
+        <div class="container-columns" style="align-items: end">
+          
+          <!-- Controls/Start stop -->
+          <!-- Start and ending date -->
+          <div class="infoStartEndDate notextselect">
+            <div><b>Start:</b> {{startStr}}</div>
+            <div><b>End:</b> {{endStr}}</div>
           </div>
-          <div class="col p-0">
-            <!-- Range slider -->
-            <range-slider 
-                ref="rangeSlider"
-                @change="onRangeSliderChange($event)" 
-                @mousedown="onRangeSliderMouseDown($event)" 
-                @mouseup="onRangeSliderMouseUp($event)"
-                @drag="onRangeSliderDrag($event)" 
-              style="height: 50px"></range-slider>
 
+
+          <!-- Three rows -->
+          <div class="container-rows" style="width:100%">
+            <!-- Time slider -->
+            <range-slider ref="rangeSlider" 
+              @change="onRangeSliderChange($event)" 
+              @mousedown="onRangeSliderMouseDown($event)"
+              @mouseup="onRangeSliderMouseUp($event)" 
+              @drag="onRangeSliderDrag($event)"
+            style="height: 50px; width: 100%"></range-slider>
+            <!-- Data availability -->
+            <!-- Horizontal calendar -->
             <!-- Year calendar -->
             <div class="timeline">
-              <button v-for="yy in years" class="m-0 p-0" :class="[yy.wght == 0 ? 'hiddenClass' : yy.num % 2 == 0 ? 'yearButton' : 'yearButton even']" @click="onYearClicked($event)" :key="yy.num" :id="yy.num" :title="yy.num" :style="{width: yy.wght + '%'}">{{yy.num}}</button>
+              <button v-for="yy in years" class="m-0 p-0"
+                :class="[yy.wght == 0 ? 'hiddenClass' : yy.num % 2 == 0 ? 'yearButton' : 'yearButton even']"
+                @click="onYearClicked($event)" :key="yy.num" :id="yy.num" :title="yy.num"
+                :style="{width: yy.wght + '%'}">{{yy.num}}</button>
             </div>
-
+            
             <!-- Month calendar -->
             <div class="timeline" ref="monthTimeline">
-              <button v-for="mm in months" class="m-0 p-0" :class="[mm.wght == 0 ? 'hiddenClass' : 'monthButton']" @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="mm.title" :style="{width: mm.wght + '%'}">{{mm.name}}</button>
+              <button v-for="mm in months" class="m-0 p-0" :class="[mm.wght == 0 ? 'hiddenClass' : 'monthButton']"
+                @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="mm.title"
+                :style="{width: mm.wght + '%'}">{{mm.name}}</button>
             </div>
-
+            
             <!-- Days calendar -->
-            <div class="timeline" ref="dayTimeline">
-              <button v-for="dd in days" class="m-0 p-0" :class="[dd.wght == 0 ? 'hiddenClass' : 'dayButton']"
-                @click="onDayClicked($event)" :key="dd.key" :id="dd.key" :title="dd.title"
-                :style="{width: dd.wght + '%'}">{{dd.name}}</button>
-            </div>
-        
+            <Transition> <!-- Vue transition -->
+              <div class="timeline" ref="dayTimeline" v-show="days.length!=0">
+                <button v-for="dd in days" class="m-0 p-0" :class="[dd.wght == 0 ? 'hiddenClass' : 'dayButton']"
+                  @click="onDayClicked($event)" :key="dd.key" :id="dd.key" :title="dd.title"
+                  :style="{width: dd.wght + '%'}">{{dd.name}}</button>
+              </div>
+            </Transition>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
 </template>
 
@@ -761,10 +773,28 @@ export default {
 
   border-right: 2px solid #02488e33;
 
+  max-width: 130px;
+  min-width: 130px;
+  padding: 10px;
+
   align-items: center;
   display: flex;
   flex-direction: column;
   align-content: center;
   justify-content: center;
+}
+
+
+/* Transition */
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.3s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+  height: 0;
+  transform: translateY(20px);
 }
 </style>
