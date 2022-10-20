@@ -1,12 +1,21 @@
 <template>
-    <div id="app-rangeslider">
+    <div id="time-slider">
       <!-- https://javascript.info/mouse-drag-and-drop -->
-      <div class="rangeslider">
+      <div class="timeSliderContainer" ref="timeSliderContainer">
         
-        <!-- Middle handle -->
-        <button @mousedown="onMouseDownMiddleHandle" @touchstart="onMouseDownMiddleHandle" class="rangeHandle rangeHandleMiddle" ref="middleHandle" style="left: 50%">
-        {{message}}
-        </button>
+        <!-- Time handle -->
+        <div>
+          <!-- Arrow -->
+          
+          <!-- Button -->
+          <button @mousedown="onMouseDownMiddleHandle" @touchstart="onMouseDownMiddleHandle" class="timeHandle timeHandle" ref="middleHandle" 
+            title="Drag to select the time"
+            style="left: 50%">
+            {{message}}
+            <div class="timeHandlePointer"></div>
+          </button>
+        </div>
+        
 
       </div>
     </div>
@@ -20,16 +29,14 @@
 <script>
 
 export default {
-    name: "app-rangeslider",
+    name: "time-slider",
     created (){
       // Non-reactive variables this.$options.
       
     },
     mounted (){
       // Find HTML elements
-      // this.leftHandleEl = this.$el.getElementsByClassName("rangeHandleLeft")[0];
-      // this.rightHandleEl = this.$el.getElementsByClassName("rangeHandleRight")[0];
-      this.middleHandleEl = this.$el.getElementsByClassName("rangeHandleMiddle")[0];
+      this.handleEl = this.$el.getElementsByClassName("timeHandle")[0];
       this.calcMiddleHandlePosition();
     },
     setup() {
@@ -38,7 +45,7 @@ export default {
     data (){
       return {
         // HTML Elements
-        middleHandleEl: undefined,
+        handleEl: undefined,
 
         // Spacing between side handles and middle handle
         paddingRatio: 0.5,
@@ -47,7 +54,7 @@ export default {
         // Percentage value
         value: 50,
         // Slider message
-        message: 'Hello',
+        message: 'Drag to select the time',
       }
     },
     methods: {
@@ -81,16 +88,18 @@ export default {
         // Document event
         document.removeEventListener("mouseup", this.removeEventListeners);
         document.removeEventListener("touchend", this.removeEventListeners);
+        // TODO: isDragging = false?
       },
 
 
       // Move middle handle
       onMouseMoveMiddleHandle: function(event){
 
-        let el = this.middleHandleEl;
-        let totalWidth = el.parentElement.offsetWidth; // Get total width of container in pixels
+        let el = this.handleEl;
+        let containerEl = this.$refs.timeSliderContainer;
+        let totalWidth = containerEl.offsetWidth; // Get total width of container in pixels
         let pageX = event.pageX ? event.pageX : event.touches[0].pageX;
-        let relMouseX = pageX - el.parentElement.offsetLeft;
+        let relMouseX = pageX - containerEl.offsetLeft;
         let percMargin = (100*(relMouseX - el.offsetWidth/2)/totalWidth); // Get margin from mouse position in percentage
 
         let widthHandleMiddle = 100*(el.offsetWidth)/totalWidth;
@@ -98,7 +107,7 @@ export default {
         let sidePadding = Math.min(this.paddingRatio * widthHandleMiddle * 0.5, this.maxPadding/2);
         percMargin = Math.min(percMargin, 100 - widthHandleMiddle - sidePadding); // Right side
         percMargin = Math.max(percMargin, sidePadding); // Left side
-        this.middleHandleEl.style.left = percMargin + '%';
+        this.handleEl.style.left = percMargin + '%';
 
         // Emit values
         this.$emit('drag', this.getRange());
@@ -121,8 +130,8 @@ export default {
         
         let width = pRight - pLeft - widthHandleLeft;
 
-        this.middleHandleEl.style.left = pLeft + widthHandleLeft + Math.min(this.paddingRatio * width * 0.5, this.maxPadding/2) + '%';
-        this.middleHandleEl.style.width = width - Math.min(width * this.paddingRatio, this.maxPadding) + '%';
+        this.handleEl.style.left = pLeft + widthHandleLeft + Math.min(this.paddingRatio * width * 0.5, this.maxPadding/2) + '%';
+        this.handleEl.style.width = width - Math.min(width * this.paddingRatio, this.maxPadding) + '%';
       },
 
 
@@ -130,10 +139,10 @@ export default {
       // Get range in floats
       getRange: function(){
         
-        let totalWidth = this.middleHandleEl.parentElement.offsetWidth; // Get total width of container in pixels
-        let widthHandleMiddle = 100 * (this.middleHandleEl.offsetWidth) / totalWidth;
+        let totalWidth = this.handleEl.parentElement.offsetWidth; // Get total width of container in pixels
+        let widthHandleMiddle = 100 * (this.handleEl.offsetWidth) / totalWidth;
 
-        let pLeft = parseFloat(this.middleHandleEl.style.left.replace('%', ''));
+        let pLeft = parseFloat(this.handleEl.style.left.replace('%', ''));
         let pRight = pLeft + widthHandleMiddle;
 
         this.value = ((pLeft + pRight)/2).toFixed(1);
@@ -180,46 +189,57 @@ export default {
 
 
 <style scoped>
-.rangeslider {
-  position: relative;
-  background-color: rgba(198, 239, 255, 0.8);
+.timeSliderContainer {
+  position: relative; 
   width: 100%;
   height: 50px;
   max-height: 50px;
-  border-top-right-radius: 0.25rem;
-  border-top-left-radius: 0.25rem;
   padding: 1rem 1.25rem;
-  border: 1px solid rgba(0,0,0,.125);
   display: inline-block;
+  /* background-color: rgba(198, 239, 255, 0.8); */
+  /* border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem; */
+  /* border: 1px solid rgba(0,0,0,.125); */
 }
 
-.rangeHandle {
+.timeHandle {
   position: absolute;  
   top: 0.5rem; 
   bottom: 0.5rem; 
   border:none;
-  /* width: 1rem;  */
   cursor: ew-resize;
   border-radius: 0.2rem;
-  background-color: rgba(107, 193, 228, 0.8);
-  color: rgba(4, 85, 117, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background-color: rgba(4, 85, 117,1);
+  
   user-select: none;
+
+  opacity: 0.95;
+  padding-left: 6px;
+  padding-right: 6px;
+  cursor: grab;
+  font-size: 13px;
+  color: white;
 
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.rangeHandle:hover {
-  background-color: rgba(84, 159, 189, 0.9);
+.timeHandle:hover {
+  /* background-color: rgba(84, 159, 189, 0.9); */
+  background-color: rgba(2, 54, 74, 1);
+  
 }
 
-.rangeHandleMiddle {
-  opacity: 0.8;
-  padding-left: 6px;
-  padding-right: 6px;
-  cursor: grab;
-  font-size: 13px;
-  color: black;
+
+.timeHandlePointer{
+  background-color: white;
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    bottom: -5px;
+    rotate: 45deg;
+    border-top-left-radius: 10px;
 }
 </style>
