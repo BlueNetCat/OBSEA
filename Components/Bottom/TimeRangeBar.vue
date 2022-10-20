@@ -88,7 +88,7 @@ export default {
       // Range array // TODO: initialize with values default values from RangeSlider. Could put a emit on mounted in range slider to set it
       this.rangeArray = [25, 75];
       // Update rate
-      this.dayIncrement = 5;
+      this.timeIncrement = 5;
       this.FRAMERATE = 40;
       
     },
@@ -141,45 +141,35 @@ export default {
 
       // Update loop according to range slider
       updateRangeSlider: function(){
+        let totalTimeSpan = this.endDate.getTime() - this.startDate.getTime();
         // Middle handle (dragging)
-        if (this.isRangeDragging){
+        if (this.isRangeDragging){ // Legacy, before there were left and right handels
+          // Calculate time increment
+          let maxTimeIncrement = totalTimeSpan * 0.05; // 5%
+
           if (this.rangeArray[0] < 10){
-            this.dayIncrement = 10 - this.rangeArray[0]; // TODO: RELATIVE TO TOTAL TIMESPAN
+            let factor = (10 - this.rangeArray[0])/10;
+            this.timeIncrement = maxTimeIncrement * factor * factor; // squared
             if (this.decreaseStartingDate())
               this.decreaseEndingDate();
-           //this.updateHTMLTimeline();
           } else if (this.rangeArray[1] > 90){
-            this.dayIncrement = this.rangeArray[1] - 90; // TODO: RELATIVE TO TOTAL TIMESPAN
+            let factor = (this.rangeArray[1] - 90) / 10;
+            this.timeIncrement = maxTimeIncrement * factor * factor; // squared
             if (this.increaseEndingDate())
               this.increaseStartDate();
-            //this.updateHTMLTimeline();
           }
         } 
-        // Right-Left handles
-        // else {
-        //   if (this.rangeArray[0] < 10){     
-        //     this.dayIncrement = 10 - this.rangeArray[0]; 
-        //     this.decreaseStartingDate();
-        //     //this.updateHTMLTimeline();
-        //   }
-        //   else if (this.rangeArray[1] > 90){
-        //     this.dayIncrement = this.rangeArray[1] - 90;
-        //     this.increaseEndingDate();
-        //     //this.updateHTMLTimeline();
-        //   }
-        // }
-        // Update selected start and end dates
-        let totalTime = this.endDate.getTime() - this.startDate.getTime();
-        this.selStartDate.setTime(this.startDate.getTime() + totalTime*this.rangeArray[0]/100);
-        this.selEndDate.setTime(this.startDate.getTime() + totalTime * this.rangeArray[1]/100);
 
-        let centeredValue = this.rangeArray[0] * 0.5 + this.rangeArray[1]*0.5;
-        // TODO: CENTERED DATE DOES NOT AGREE WITH TIME RANGE BAR
-        let centeredDate = new Date(this.startDate.getTime() + totalTime * centeredValue /100);
-        this.$refs.rangeSlider.setMessage(centeredDate.toISOString());
+        // Update selected start and end dates  
+        this.selStartDate.setTime(this.startDate.getTime() + totalTimeSpan *this.rangeArray[0]/100);
+        this.selEndDate.setTime(this.startDate.getTime() + totalTimeSpan * this.rangeArray[1]/100);
 
+        
         // Update HTML timeline
         this.updateHTMLTimeline();
+
+        // Update centered date
+        this.updateCenteredDate();
 
         // Update loop
         if (this.isRangeChanging){
@@ -211,6 +201,7 @@ export default {
         // Set handles in range slider
         this.setRangeSlider();
         this.updateHTMLTimeline();
+        this.updateCenteredDate();
       },
 
       // Display X months on the timeline
@@ -240,6 +231,7 @@ export default {
         // Set handles in range slider
         this.setRangeSlider();
         this.updateHTMLTimeline();
+        this.updateCenteredDate();
       },
 
       // Display X days on the timeline
@@ -261,8 +253,6 @@ export default {
 
         this.startDate = sDate;
         this.endDate = eDate;
-        console.log(this.startDate.toISOString())
-        console.log(this.endDate.toISOString())
         // Change selected dates to cover the months
         this.selStartDate = new Date(this.startDate.getTime());
         this.selStartDate.setUTCDate(this.selStartDate.getUTCDate() + daysSides/2); // Add half a month
@@ -272,13 +262,14 @@ export default {
         // Set handles in range slider
         this.setRangeSlider();
         this.updateHTMLTimeline();
+        this.updateCenteredDate();
       },
 
 
       // INTERNAL METHODS
       // Decrease starting date (returns false if the starting date does not decrease)
       decreaseStartingDate(){
-        this.startDate.setUTCDate(this.startDate.getUTCDate() - this.dayIncrement);
+        this.startDate.setTime(this.startDate.getTime() - this.timeIncrement);
         if (this.startDate < this.limStartDate){
           this.startDate = new Date(Math.max(this.limStartDate, this.startDate));
           return false;
@@ -287,15 +278,15 @@ export default {
       },
       // Decrease ending date
       decreaseEndingDate(){
-        this.endDate.setUTCDate(this.endDate.getUTCDate() - this.dayIncrement);
+        this.endDate.setTime(this.endDate.getTime() - this.timeIncrement);
       },
       // Increase starting date
       increaseStartDate(){
-        this.startDate.setUTCDate(this.startDate.getUTCDate() + this.dayIncrement);
+        this.startDate.setTime(this.startDate.getTime() + this.timeIncrement);
       },
       // Increase ending date (returns false if the ending date does not increase)
       increaseEndingDate(){
-        this.endDate.setUTCDate(this.endDate.getUTCDate() + this.dayIncrement);
+        this.endDate.setTime(this.endDate.getTime() + this.timeIncrement);
         if (this.endDate > this.limEndDate){
           this.endDate = new Date(Math.min(this.limEndDate, this.endDate));
           return false;
@@ -312,6 +303,17 @@ export default {
         // Emit
         this.$emit('changeSelDates', [this.selStartDate, this.selEndDate]);
         this.$emit('changeLimits', [this.startDate, this.endDate]);
+      },
+
+      // Update centered date
+      updateCenteredDate(){
+        let totalTimeSpan = this.endDate.getTime() - this.startDate.getTime();
+        let centeredValue = this.rangeArray[0] * 0.5 + this.rangeArray[1] * 0.5;
+        let centeredDate = new Date(this.startDate.getTime() + totalTimeSpan * centeredValue / 100);
+        centeredDate.setMinutes(Math.floor(centeredDate.getMinutes() / 30) * 30); // 30 min intervals
+        let message = centeredDate.toISOString().substring(0, 16) + "Z";
+        if (this.$refs.rangeSlider)
+          this.$refs.rangeSlider.setMessage(message);
       },
 
 
@@ -407,10 +409,7 @@ export default {
         let endMonth = this.endDate.getUTCMonth();
         let endDay = this.endDate.getUTCDate();
         let endHour = this.endDate.getUTCHours();
-        let totalYears = endYear - startYear;
-        console.log(startDay + ":"+ startHour +","+ endDay + ":" + endHour);
-        console.log(this.startDate.toISOString())
-        console.log(this.endDate.toISOString())
+
         
         
         // Find reactive array indexes
