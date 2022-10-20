@@ -1,16 +1,29 @@
 import OBSEADataTypes from "/OBSEA/data/OBSEADataTypes.js";
+import OBSEADailyDataMax from "/OBSEA/data/StaticData/OBSEADailyDataMax.js"
 
 // // https://data.obsea.es/api/Datastreams(27)/Observations?$select=resultTime,result&$top=1000000&$filter=resultQuality/qc_flag eq 1 and resultTime ge 2021-01-01T00:00:00z and resultTime lt 2022-01-01T00:00:00z&$orderBy=resultTime asc
 
 // Stores and retrieves data
 export class OBSEADataRetriever{
 
-  dataKeys;
-  baseURLStaticFiles = '/OBSEA/data/';
-  //staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
-  staticFiles = ['obsea_2019_2.csv', 'obsea_2019_1.csv', 'obsea_2020_2.csv', 'obsea_2020_1.csv', 'obsea_2021_1.csv', 'obsea_2021_2.csv'];
+  static OBSEADailyDataMax = OBSEADailyDataMax;
 
-  dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxDailiy[]
+  dataKeys;
+  baseURLStaticFiles = '/OBSEA/data/StaticData/';
+  //staticFiles = ['obsea_2019.csv', 'obsea_2020.csv', 'obsea_2021.csv'];
+  staticFiles = ['obsea_2011_1.csv', 'obsea_2011_2.csv',
+                  'obsea_2013_1.csv', 'obsea_2013_2.csv',
+                  'obsea_2014_1.csv', 'obsea_2014_2.csv', 
+                  'obsea_2015_1.csv', 'obsea_2015_2.csv',
+                  'obsea_2016_1.csv', 'obsea_2016_2.csv',
+                  'obsea_2017_1.csv', 'obsea_2017_2.csv',
+                  'obsea_2018_1.csv', 'obsea_2018_2.csv', 
+                  'obsea_2019_1.csv', 'obsea_2019_2.csv', 
+                  'obsea_2020_1.csv', 'obsea_2020_2.csv', 
+                  'obsea_2021_1.csv', 'obsea_2021_2.csv'];
+
+  dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxdaily[]
+  dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X
 
   constructor(){
 
@@ -218,112 +231,57 @@ export class OBSEADataRetriever{
     const header = csv[0];
     const measures = header.slice(1, header.length); // All measures //['Hm0', 'WSPD', 'UCUR_0m'];
     let measureIndices = [];
-    for (let i = 0; i < measures.length; i++)
+    for (let i = 0; i < measures.length; i++){
       measureIndices[i] = header.findIndex((e) => e == measures[i]);
-
-    // Data availability array
-    // TODO: could setup this as a class variable and store per year
-    let areAvailable = []; // measures available - Hm0, WSPD, UCUR_0m
-    let maxDailyValue = [];
-    let floatTimestamp = [];
-    let dayTimestamp = [];
-
-    const yearStart = parseInt(csv[1][0].substring(0, 4));
-    const monthStart = parseInt(csv[1][0].substring(5, 7));
-    const dayStart = parseInt(csv[1][0].substring(8, 10));
-
-    let date = new Date(yearStart + '-' +
-                        monthStart.toString().padStart(2, '0') + '-'+
-                        dayStart.toString().padStart(2, '0') + 'T00:00:00.000Z');
-
-    const lastRow = csv[csv.length - 1][0];
-    const endDate = new Date(lastRow.substring(0, 10) + 'T00:00:00.000Z');
-
-    let csvIndex = 1;
-    let dayCount = dayStart - 1; // set starting index at 0 for day 1 of areAvailable and maxDailyValue
-    // Iterate through all days of the year
-    while (date <= endDate) {
-
-      areAvailable[dayCount] = [];
-      maxDailyValue[dayCount] = [];
-
-      // Store date
-      dayTimestamp[dayCount] = date.toISOString().substring(0,10);
-      floatTimestamp[dayCount] = date.getTime();
-
-      // Check every timestamp of a day
-      for (let i = 0; i < 24 * 3; i++) { // Samples every half an hour (24*2) + an hour for the hour change in spring/autumn
-        let month = parseInt(csv[csvIndex][0].substring(5, 7));
-        let day = parseInt(csv[csvIndex][0].substring(8, 10));
-
-        // Check if data exists for measures
-        // TODO: optimization: could put this loop outside and exit when a data point is found for a day
-        for (let j = 0; j < measureIndices.length; j++) {
-          let content = csv[csvIndex][measureIndices[j]];
-          if (content.length != 0) {
-            areAvailable[dayCount][j] = true;
-            // Find maximum daily value for a measure
-            maxDailyValue[dayCount][j] = maxDailyValue[dayCount][j] == undefined ? parseFloat(content) : Math.max(maxDailyValue[dayCount][j], parseFloat(content));
-          }
-          // If it does not exists, areAvailable is undefined
-        }
-        //console.log("Day; " + day + ", " + date.getUTCDate() + ", Day count: " + dayCount + ", Month: " + (date.getUTCMonth() + 1) + ", " + month);
-        // Continue examining csv
-        if (day == date.getUTCDate() && (date.getUTCMonth() + 1) == month && csvIndex != csv.length-1)
-          csvIndex++;
-        else // Escape
-          i = 24 * 3;
-      }
-
-      // Add one day
-      date.setUTCDate(date.getUTCDate() + 1);
-      dayCount += 1;
     }
 
-
-    // Generate json data for daily availability
-    // It assumes that the csv rows are ordered in time
-    // TODO: files can load randomly, so we have to take time into account. DO NOT USE PUSH!
-    this.dataAvailability.measures = measures;
-    // Iterate through all values
-    for (let i = 0; i < areAvailable.length; i++){
-      let yy = dayTimestamp[i].substring(0,4);
-      if (this.dataAvailability[yy] == undefined)
-        this.dataAvailability[yy] = {areAvailable: [], maxDailyValue: [], timestamp: [], dateStr: []};
-      
-      // Check if value was already stored
-      let ind = this.dataAvailability[yy].dateStr.findIndex(el => el == dayTimestamp[i]);
-      if (ind != -1){
-        this.dataAvailability[yy].dateStr[ind] = dayTimestamp[i];
-        this.dataAvailability[yy].timestamp[ind] = floatTimestamp[i];
-        this.dataAvailability[yy].areAvailable[ind]  = areAvailable[i];
-        this.dataAvailability[yy].maxDailyValue[ind] = maxDailyValue[i];
-      } else {
-        // Find where to store the value
-        let indSmaller = this.dataAvailability[yy].timestamp.findIndex(el => el < floatTimestamp[i]); 
-        let indBigger = this.dataAvailability[yy].timestamp.findIndex(el => el > floatTimestamp[i]); 
-        // Store values for that year
-        if (indBigger == -1){ // floatTimestamp is bigger than all times
-          this.dataAvailability[yy].areAvailable.push(areAvailable[i]);
-          this.dataAvailability[yy].maxDailyValue.push(maxDailyValue[i]);  
-          this.dataAvailability[yy].timestamp.push(floatTimestamp[i]); 
-          this.dataAvailability[yy].dateStr.push(dayTimestamp[i]);
-        } else if (indSmaller == -1){ // All present values are bigger, put at the beginning
-          this.dataAvailability[yy].areAvailable.unshift(areAvailable[i]);
-          this.dataAvailability[yy].maxDailyValue.unshift(maxDailyValue[i]);
-          this.dataAvailability[yy].timestamp.unshift(floatTimestamp[i]);
-          this.dataAvailability[yy].dateStr.unshift(dayTimestamp[i]);
-        } else { // First bigger value gives the position
-          this.dataAvailability[yy].areAvailable.splice(indBigger, 0, areAvailable[i]);
-          this.dataAvailability[yy].maxDailyValue.splice(indBigger, 0, maxDailyValue[i]);
-          this.dataAvailability[yy].timestamp.splice(indBigger , 0, floatTimestamp[i]);
-          this.dataAvailability[yy].dateStr.splice(indBigger, 0, dayTimestamp[i]);
-        }
+    for (let i = 1; i<csv.length; i++){
+      let timeString = csv[i][0];
+      let isoString = this.getISOStringFromCSVTimestamp(timeString);
+      // Turn it into daily
+      isoString = isoString.substring(0, 10) + "T00:00.000Z";
+      // First daily data
+      if (this.dailyData[isoString] == undefined) this.dailyData[isoString] = {}
+      // Iterate through measures
+      for (let j = 0; j<measures.length; j++){
+        let measureName = measures[j];
+        // First iteration
+        if (this.dailyData[isoString][measureName] == undefined) this.dailyData[isoString][measureName] = -999;
+        // Get value
+        let value = csv[i][j + 1] == '' ? -999 : parseFloat(csv[i][j + 1]);
+        this.dailyData[isoString][measureName] = Math.max(value, this.dailyData[isoString][measureName]);
       }
     }
     
+    // Clean -999 and timestamps without data
+    let timeKeys = Object.keys(this.dailyData);
+    for (let i = 0; i<timeKeys.length; i++){
+      let hasData = false;
+      let measKeys = Object.keys(this.dailyData[timeKeys[i]]);
+      for (let j = 0; j<measKeys.length; j++){
+        if (this.dailyData[timeKeys[i]][measKeys[j]] == -999) {
+          delete this.dailyData[timeKeys[i]][measKeys[j]];
+        } else
+          hasData = true;
+      }
+      if (hasData == false){
+        delete this.dailyData[timeKeys[i]];
+      }
+    }
+
+    //console.log(JSON.stringify(this.dailyData));
+    OBSEADataRetriever.OBSEADailyDataMax = this.dailyData;
+  }
+
+  // Transform the csv string to 
+  getISOStringFromCSVTimestamp = function(timeString){
     
-    console.log(this.dataAvailability);
+    let year = timeString.substring(0, 4);
+    let month = timeString.substring(5, 7);
+    let day = timeString.substring(8, 10);
+    let hour = timeString.substring(11, 16);
+
+    return year + "-" + month + "-" + day + "T" + hour + ".000Z";
   }
 
 

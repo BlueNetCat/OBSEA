@@ -2,7 +2,7 @@
   <div id="data-streams-bar">
     <!-- A div with the same width as TimeRange -->
     <div class="streamsContainer" ref="streamsContainer">
-      hello
+      <canvas ref="dataStreamsCanvas"></canvas>
       <!-- <div class="trackMark" :class="{active: ff.selected}" @click="onTrackClicked" :id="ff.properties.id"
         :key="ff.properties.id" v-for="ff in features" :style="setFeatureStyle(ff)">
         &#11044;
@@ -25,7 +25,15 @@ export default {
 
   },
   mounted() {
-
+    // TODO: ANOTHER OPTION IS TO USE PATH
+    // CREATE BALLS FOR EVENTS? MOVING WINDOW?
+    this.canvas = this.$refs.dataStreamsCanvas;
+    let parentEl = this.canvas.parentElement;
+    this.canvas.height = 30; // TODO: DEPENDANT ON THE NUMBER OF STREAMS TO DISPLAY
+    this.canvas.width = parentEl.offsetWidth;
+    let ctx = this.canvas.getContext('2d');
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
   },
   data() {
     return {
@@ -36,6 +44,35 @@ export default {
   },
   methods: {
     // INTERNAL METHODS
+    // Paint data streams on canvas
+    updateCanvas: function(){
+
+      if (this.timeSpan > 500){ // Use daily data
+        // Read data
+        // Start index
+        // let sIdx = DataManager.getHourlyDataIndex(this.startDate);
+        // End index
+        // let eIdx = DataManager.getHourlyDataIndex(this.endDate);
+
+        // Count number of days
+
+        // First and last days may not have full width (does it matter, on over 500 days?)
+
+        // Divide total width with number of days to get width per day
+
+        // Paint bars
+        // Get max per data type
+
+        
+      } else { // Use hourly data
+        // Load data in DataManager.js (async)
+        // await DataManager.getData(this.startDate, this.endDate);
+
+      }
+    },
+
+
+
     setFeatureStyle: function (ff) {
       // Current date
       let currDate = new Date(ff.properties.info.Date);
@@ -89,7 +126,29 @@ export default {
       this.$emit('clickTrackMark', id);
     },
 
+
+
+
     // PUBLIC METHODS
+    // Set data
+    setDailyData: function(data){
+      this.dailyData = data;
+    },
+    setHourlyData: function(data){
+      this.hourlyData = data;
+    },
+    // Set start and end dates
+    setStartEndDates: function (sDate, eDate) {
+      this.startDate.setTime(sDate.getTime());
+      this.endDate.setTime(eDate.getTime());
+      this.timeSpanInHours = (this.endDate.getTime() - this.startDate.getTime()) / 36e5;
+
+      this.udpateCanvas();
+    },
+
+
+
+
     // Set the geojson features
     setFeatures: function (inFeatures) {
       this.features = inFeatures;

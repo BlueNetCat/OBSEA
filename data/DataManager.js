@@ -39,7 +39,11 @@ class DataManager{
     //          - Maybe check daily? As in, is there a data point that day? then its 365*year points
     //        - Create time bar
     //        - Load files on demand
-    this.getStaticData();
+    
+    // Load all static files to compute the daily maximum
+    if (!OBSEADataRetriever.OBSEADailyDataMax)
+      this.getStaticData();
+
 
     // Test data manager
     //this.getDataOnTimeInstant('2019-01-01T01:30:00.000Z');
@@ -88,7 +92,7 @@ class DataManager{
   // Get static data
   getStaticData(){
     this.OBSEADataRetriever.fetchFromStaticFiles((csv) => {
-      console.log(csv);
+      //console.log(csv);
     })
   }
 
