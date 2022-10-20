@@ -144,12 +144,12 @@ export default {
         // Middle handle (dragging)
         if (this.isRangeDragging){
           if (this.rangeArray[0] < 10){
-            this.dayIncrement = 10 - this.rangeArray[0];
+            this.dayIncrement = 10 - this.rangeArray[0]; // TODO: RELATIVE TO TOTAL TIMESPAN
             if (this.decreaseStartingDate())
               this.decreaseEndingDate();
            //this.updateHTMLTimeline();
           } else if (this.rangeArray[1] > 90){
-            this.dayIncrement = this.rangeArray[1] - 90;
+            this.dayIncrement = this.rangeArray[1] - 90; // TODO: RELATIVE TO TOTAL TIMESPAN
             if (this.increaseEndingDate())
               this.increaseStartDate();
             //this.updateHTMLTimeline();
@@ -198,8 +198,8 @@ export default {
         if (sDate.toISOString() == this.startDate.toISOString() && eDate.toISOString() == this.endDate.toISOString()){
           this.startDate = new Date(this.limStartDate);
           this.endDate = new Date(this.limEndDate);
-          this.selStartDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, this.startDate.getDate());
-          this.selEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth() - 1, this.startDate.getDate());
+          this.selStartDate = new Date(this.startDate.getUTCFullYear(), this.startDate.getUTCMonth() + 1, this.startDate.getUTCDate());
+          this.selEndDate = new Date(this.endDate.getUTCFullYear(), this.endDate.getUTCMonth() - 1, this.startDate.getUTCDate());
         } else{
           this.startDate = sDate;
           this.endDate = eDate;
@@ -219,8 +219,8 @@ export default {
         let month = parseInt(event.target.id.split('-')[0]);
         let year = parseInt(event.target.id.split('-')[1]);
         let selDate = new Date(year, month);
-        let sDate = new Date(Math.max(this.limStartDate, selDate.setMonth(selDate.getMonth() - monthsSides)));
-        let eDate = new Date(Math.min(this.limEndDate, selDate.setMonth(selDate.getMonth() + monthsSides*2 + 1)));
+        let sDate = new Date(Math.max(this.limStartDate, selDate.setUTCMonth(selDate.getUTCMonth() - monthsSides)));
+        let eDate = new Date(Math.min(this.limEndDate, selDate.setUTCMonth(selDate.getUTCMonth() + monthsSides*2 + 1)));
         // If month is clicked twice, open year
         // TODO: USER TEST - MAYBE CONFUSING?
         if (sDate.toISOString() == this.startDate.toISOString() && eDate.toISOString() == this.endDate.toISOString()){
@@ -233,9 +233,9 @@ export default {
         this.endDate = eDate;
         // Change selected dates to cover the months
         this.selStartDate = new Date(this.startDate.getTime());
-        this.selStartDate.setDate(this.selStartDate.getDate() + monthsSides/2); // Add half a month
+        this.selStartDate.setUTCMonth(this.selStartDate.getUTCMonth() + monthsSides/2); // Add half a month
         this.selEndDate = new Date(this.endDate.getTime());
-        this.selEndDate.setDate(this.selEndDate.getDate() - monthsSides/2); // Remove half a month
+        this.selEndDate.setUTCMonth(this.selEndDate.getUTCMonth() - monthsSides/2); // Remove half a month
         
         // Set handles in range slider
         this.setRangeSlider();
@@ -244,16 +244,13 @@ export default {
 
       // Display X days on the timeline
       onDayClicked: function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-
         let daysSides = 2; // TODO: VIEWPORT RELATIVE
         let day = parseInt(event.target.id.split('-')[0]);
         let month = parseInt(event.target.id.split('-')[1]);
         let year = parseInt(event.target.id.split('-')[2]);
         let selDate = new Date(year, month, day);
-        let sDate = new Date(Math.max(this.limStartDate, selDate.setDate(selDate.getDate() - daysSides)));
-        let eDate = new Date(Math.min(this.limEndDate, selDate.setDate(selDate.getDate() + daysSides * 2 + 1)));
+        let sDate = new Date(Math.max(this.limStartDate, selDate.setUTCDate(selDate.getUTCDate() - daysSides)));
+        let eDate = new Date(Math.min(this.limEndDate, selDate.setUTCDate(selDate.getUTCDate() + daysSides * 2 + 1)));
         // If day is clicked twice, open month
         // TODO: USER TEST - MAYBE CONFUSING?
         if (sDate.toISOString() == this.startDate.toISOString() && eDate.toISOString() == this.endDate.toISOString()) {
@@ -264,11 +261,13 @@ export default {
 
         this.startDate = sDate;
         this.endDate = eDate;
+        console.log(this.startDate.toISOString())
+        console.log(this.endDate.toISOString())
         // Change selected dates to cover the months
         this.selStartDate = new Date(this.startDate.getTime());
-        this.selStartDate.setDate(this.selStartDate.getDate() + daysSides/2); // Add half a month
+        this.selStartDate.setUTCDate(this.selStartDate.getUTCDate() + daysSides/2); // Add half a month
         this.selEndDate = new Date(this.endDate.getTime());
-        this.selEndDate.setDate(this.selEndDate.getDate() - daysSides/2); // Remove half a month
+        this.selEndDate.setUTCDate(this.selEndDate.getUTCDate() - daysSides/2); // Remove half a month
 
         // Set handles in range slider
         this.setRangeSlider();
@@ -279,7 +278,7 @@ export default {
       // INTERNAL METHODS
       // Decrease starting date (returns false if the starting date does not decrease)
       decreaseStartingDate(){
-        this.startDate.setDate(this.startDate.getDate() - this.dayIncrement);
+        this.startDate.setUTCDate(this.startDate.getUTCDate() - this.dayIncrement);
         if (this.startDate < this.limStartDate){
           this.startDate = new Date(Math.max(this.limStartDate, this.startDate));
           return false;
@@ -288,15 +287,15 @@ export default {
       },
       // Decrease ending date
       decreaseEndingDate(){
-        this.endDate.setDate(this.endDate.getDate() - this.dayIncrement);
+        this.endDate.setUTCDate(this.endDate.getUTCDate() - this.dayIncrement);
       },
       // Increase starting date
       increaseStartDate(){
-        this.startDate.setDate(this.startDate.getDate() + this.dayIncrement);
+        this.startDate.setUTCDate(this.startDate.getUTCDate() + this.dayIncrement);
       },
       // Increase ending date (returns false if the ending date does not increase)
       increaseEndingDate(){
-        this.endDate.setDate(this.endDate.getDate() + this.dayIncrement);
+        this.endDate.setUTCDate(this.endDate.getUTCDate() + this.dayIncrement);
         if (this.endDate > this.limEndDate){
           this.endDate = new Date(Math.min(this.limEndDate, this.endDate));
           return false;
@@ -308,8 +307,8 @@ export default {
       // Update selected start-end dates
       updateStartEndInfo(){
         
-        this.startStr = this.selStartDate.toDateString().substring(4);
-        this.endStr = this.selEndDate.toDateString().substring(4);
+        this.startStr = this.startDate.toUTCString().substring(5, 16);//.toDateString().substring(4); 
+        this.endStr = this.endDate.toUTCString().substring(5, 16);//.toDateString().substring(4);
         // Emit
         this.$emit('changeSelDates', [this.selStartDate, this.selEndDate]);
         this.$emit('changeLimits', [this.startDate, this.endDate]);
@@ -318,16 +317,16 @@ export default {
 
       // Creates the years and months arrays (HTML elements by vue) according to end and start date
       createHTMLTimeline: function(){
-        let startMonth = this.startDate.getMonth();
-        let startDay = this.startDate.getDate();
-        let endMonth = this.endDate.getMonth();
-        let endDay = this.endDate.getDate();
+        let startMonth = this.startDate.getUTCMonth();
+        let startDay = this.startDate.getUTCDate();
+        let endMonth = this.endDate.getUTCMonth();
+        let endDay = this.endDate.getUTCDate();
         
         // Calculate how many years (and a percentage of the year too)
         // Calculate how many months are between end and start date
         // Calculate how many days
-        let startYear = this.startDate.getFullYear();
-        let endYear = this.endDate.getFullYear();
+        let startYear = this.startDate.getUTCFullYear();
+        let endYear = this.endDate.getUTCFullYear();
         let totalYears = endYear - startYear;
 
         let daysInFirstMonth = this.getDaysInMonth(startYear, startMonth + 1);
@@ -400,13 +399,19 @@ export default {
 
       // Updates the width and visibility of the months and years according to the start and end dates
       updateHTMLTimeline: function(){
-        let startYear = this.startDate.getFullYear();
-        let startMonth = this.startDate.getMonth();
-        let startDay = this.startDate.getDate();
-        let endYear = this.endDate.getFullYear();
-        let endMonth = this.endDate.getMonth();
-        let endDay = this.endDate.getDate();
+        let startYear = this.startDate.getUTCFullYear();
+        let startMonth = this.startDate.getUTCMonth();
+        let startDay = this.startDate.getUTCDate();
+        let startHour = this.startDate.getUTCHours();
+        let endYear = this.endDate.getUTCFullYear();
+        let endMonth = this.endDate.getUTCMonth();
+        let endDay = this.endDate.getUTCDate();
+        let endHour = this.endDate.getUTCHours();
         let totalYears = endYear - startYear;
+        console.log(startDay + ":"+ startHour +","+ endDay + ":" + endHour);
+        console.log(this.startDate.toISOString())
+        console.log(this.endDate.toISOString())
+        
         
         // Find reactive array indexes
         let sIdxMonths;
@@ -444,11 +449,15 @@ export default {
             // Get days in a month
             let daysInMonth = this.getDaysInMonth(idxY, idxM + 1);
             // Weight according to number of days
-            if (idxM == sM && idxY == startYear) // First month
-              monthlyWeight = (daysInMonth - startDay + 1) / daysInMonth;
-            else if (idxY == endYear && idxM == endMonth) // Last month
-              monthlyWeight = endDay / daysInMonth;
-            else
+            if (idxM == sM && idxY == startYear){ // First month
+              let dayWght = (24 - startHour) / 24;
+              monthlyWeight = (daysInMonth - (startDay - dayWght)) / daysInMonth;
+              monthlyWeight *= daysInMonth/31; // Compensate weights. It solves artifacts when only two months are visible
+            } else if (idxY == endYear && idxM == endMonth){ // Last month
+              let dayWght = endHour / 24;
+              monthlyWeight = (endDay - 1 + dayWght) / daysInMonth;
+              monthlyWeight *= daysInMonth / 31; // Compensate weights. It solves artifacts when only two months are visible
+            } else
               monthlyWeight = daysInMonth / 31;
             // Store weight
             this.months[sIdxMonths].wght = monthlyWeight;
@@ -488,11 +497,17 @@ export default {
               if (idxM == endMonth) // Last month (WARN: same as above)
                 eD = endDay;
               for (let idxD = sD; idxD <= eD; idxD++){
-                //console.log(idxY + ", " + (idxM+1) + ", " + idxD);
+                let dayWght = 1;
+                if (idxD == sD && idxM == startMonth) // First day
+                  dayWght = (24-startHour)/24;
+                else if (idxD == eD && idxM == endMonth){
+                  dayWght = endHour / 24;
+                }
                 this.days.push({
                   num: idxD,
-                  wght: 1,
+                  wght: dayWght,
                   key: idxD + "-" + idxM + "-" + idxY,
+                  title: idxD + "-" + (idxM+1) + "-" + idxY,
                   year: idxY,
                   month: idxM+1,
                   name: idxD
@@ -577,7 +592,7 @@ export default {
 
       // Days in a month
       getDaysInMonth: function(year, month) {
-        return new Date(year, month, 0).getDate();
+        return new Date(year, month, 0).getDate(); // getUTCDate returns daysInMonth - 1
       },
 
       // Set time range slider according to selected start and end dates
@@ -605,7 +620,7 @@ export default {
         this.selStartDate = new Date(Math.max(this.limStartDate, sDate));
         // Set visible starting date one month before selected
         this.startDate = new Date(this.selStartDate.getTime());
-        this.startDate.setMonth(this.startDate.getMonth() - 1);
+        this.startDate.setUTCMonth(this.startDate.getUTCMonth() - 1);
         // Limit start date
         this.startDate = new Date(Math.max(this.limStartDate, this.startDate));
       },
@@ -615,7 +630,7 @@ export default {
         this.selEndDate = new Date(Math.min(this.limEndDate, eDate));
         // Set visible starting date one month after selected
         this.endDate = new Date(this.selEndDate.getTime());
-        this.endDate.setMonth(this.endDate.getMonth() + 1);
+        this.endDate.setUTCMonth(this.endDate.getUTCMonth() + 1);
         // Limit end date
         this.endDate = new Date(Math.min(this.limEndDate, this.endDate));
       },
