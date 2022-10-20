@@ -100,3 +100,9 @@
   align-items: center;
   flex-wrap: nowrap;
 }
+
+
+/* BUTTON */
+button {
+  pointer-events: visible;
+}

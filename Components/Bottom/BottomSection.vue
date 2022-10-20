@@ -138,6 +138,7 @@ export default {
   position: absolute;
   bottom: 0px;
   width: 100vw;
+  pointer-events: none;
 }
 .bottom-icons {
   display: flex;
