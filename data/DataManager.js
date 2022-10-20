@@ -42,7 +42,7 @@ class DataManager{
     //        - Load files on demand
     
     // Load all static files to compute the daily maximum
-    if (!this.OBSEADataRetriever.OBSEADailyDataMax)
+    if (!this.OBSEADataRetriever.DailyDataMax)
       this.getStaticData();
 
     // Test data manager
@@ -106,7 +106,7 @@ class DataManager{
 
   // PUBLIC METHODS
   getDailyData(){
-    return this.OBSEADataRetriever.OBSEADailyDataMax;
+    return this.OBSEADataRetriever.DailyDataMax;
   }
 
  
