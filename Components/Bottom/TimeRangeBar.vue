@@ -35,7 +35,7 @@
               <button v-for="yy in years" class="m-0 p-0"
                 :class="[yy.wght == 0 ? 'hiddenClass' : yy.num % 2 == 0 ? 'yearButton' : 'yearButton even']"
                 @click="onYearClicked($event)" :key="yy.num" :id="yy.num" :title="yy.num"
-                :style="{width: yy.wght + '%'}">{{yy.num}}</button>
+                :style="{width: yy.wght + '%'}">{{yy.name}}</button>
             </div>
             
             <!-- Month calendar -->
@@ -117,10 +117,10 @@ export default {
       if (this.$refs.dataStreamsBar)
         this.$refs.dataStreamsBar.setStartEndDates(this.startDate, this.endDate);
       // Create event listener
-      window.addEventListener('resize', this.setMonthNames);
+      window.addEventListener('resize', this.setTimeButtonNames);
     },
     unmounted() {
-      window.removeEventListener('resize', this.setMonthNames);
+      window.removeEventListener('resize', this.setTimeButtonNames);
     },
     setup() {
         
@@ -411,11 +411,11 @@ export default {
         // Calculate wght according to number of years/months
         this.calcWidthPercentage();
         // Change month name according to width in pixels
-        this.setMonthNames();
+        this.setTimeButtonNames();
         // TODO ERROR: NONE OF THIS WORKS. THE SIDE PANEL CHANGES WIDTH AND SHRINKS monthTimeline, CHANING ITS WIDTH. IT SHOULD DISPATCH AN EVENT BUT IT DOES NOT
         // It is fixed by doing a concatenation of events
-        this.$refs.monthTimeline.addEventListener('resize', this.setMonthNames);
-        this.$refs.dayTimeline.addEventListener('resize', this.setDayNames);
+        this.$refs.monthTimeline.addEventListener('resize', this.setTimeButtonNames);
+
         //this.$refs.monthTimeline.addEventListener("webkitTransitionEnd", this.setMonthNames); // Code for Chrome, Safari and Opera
         //this.$refs.monthTimeline.addEventListener("transitionend", this.setMonthNames); // Standard syntax
 
@@ -552,8 +552,7 @@ export default {
         // Calculate wght according to number of years/months
         this.calcWidthPercentage();
         // Change month and day names according to width in pixels
-        this.setMonthNames();
-        this.setDayNames();
+        this.setTimeButtonNames();
         // Update selected start-end dates
         this.updateStartEndInfo();
 
@@ -571,18 +570,29 @@ export default {
           this.days.forEach(dd => dd.wght = 100 * dd.wght / totalDayWght); // Apply width according to element width
         }
         // For months
-        let totalMonthwght = 0;
-        this.months.forEach(mm => totalMonthwght += mm.wght); // Calculate total month proportion or width
-        this.months.forEach(mm => mm.wght = 100 * mm.wght/totalMonthwght); // Apply width according to element width
+        let totalMonthWght = 0;
+        this.months.forEach(mm => totalMonthWght += mm.wght); // Calculate total month proportion or width
+        this.months.forEach(mm => mm.wght = 100 * mm.wght/totalMonthWght); // Apply width according to element width
         // For years
-        let totalYearwght = 0;
-        this.years.forEach(yy => totalYearwght += yy.wght); // Calculate total month proportion or width
-        this.years.forEach(yy => yy.wght = 100 * yy.wght/totalYearwght); // Apply width according to element width
+        let totalYearWght = 0;
+        this.years.forEach(yy => totalYearWght += yy.wght); // Calculate total month proportion or width
+        this.years.forEach(yy => yy.wght = 100 * yy.wght / totalYearWght); // Apply width according to element width
       },
 
       // Change the month name according to the width in pixels
-      setMonthNames: function(){
+      setTimeButtonNames: function(){
         let totalWidth = this.$refs.monthTimeline.offsetWidth;
+        
+        // Years
+        this.years.forEach(yy => {
+          let pixelWidth = yy.wght / 100 * totalWidth;
+          if (pixelWidth < 50)
+            yy.name = "'" + String(yy.num).substring(2);
+          else
+            yy.name = yy.num;
+        })
+
+        // Months
         this.months.forEach(mm => {
           let pixelWidth = mm.wght/100 * totalWidth;
           if (pixelWidth < 20)
@@ -598,22 +608,19 @@ export default {
           mm.title = this.monthAbbr[mm.num][2] + ", " + mm.year;
         });
         
-      },
-
-
-      // Change day names according to the width in pixels
-      setDayNames: function(){
-        let totalWidth = this.$refs.monthTimeline.offsetWidth;
-        if (this.days.length != 0){
+        // Days
+        if (this.days.length != 0) {
           let pixelsPerDay = totalWidth / this.days.length;
           this.days.forEach(dd => {
-            if (pixelsPerDay <20)
+            if (pixelsPerDay < 20)
               dd.name = '';
             else
               dd.name = dd.num;
           })
         }
       },
+
+
 
       // Month num to Month string
       monthNum2Str: function(monthNum){
@@ -703,10 +710,7 @@ export default {
     
       },
 
-      // The side panel has been opened or closed. Update the month names. Called from Map.vue > AppManager.vue > AppSidePanel.vue
-      onTabOpenClose: function(){
-        this.setMonthNames();
-      },
+
 
 
 
