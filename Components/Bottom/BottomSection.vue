@@ -39,10 +39,13 @@
     <camera-youtube v-show="showCamera"></camera-youtube>
 
     <!-- Time Range Bar -->
-    <time-range-bar></time-range-bar>
-
-    <!-- Current information available (temp, etc...)-->
-    <data-ticker></data-ticker>
+    <Transition><!-- Vue transition -->
+      <time-range-bar v-show="showDataBar"></time-range-bar>
+    </Transition>
+      <!-- Current information available (temp, etc...)-->
+    <Transition>
+      <data-ticker v-show="showDataBar"></data-ticker>
+    </Transition>
 
   </div>
 </template>
@@ -66,21 +69,18 @@ export default {
       if (camPos.y > -5)
         this.isUnderwater = false;
     });
+    window.eventBus.on('InstrumentsMenu_measuresButtonClicked', () => {
+      this.showDataBar = !this.showDataBar;
+    });
   },
   data() {
     return {
       isUnderwater: false,
       showCamera: false,
 
+      showDataBar: true,
+
       date: new Date(),
-
-      WSPD: 15,
-      WDIR: 30,
-      HM0: 1,
-      TEMP: 22,
-      TEMPBOTTOM: 13,
-      PSAL: 35,
-
       
     }
   },
@@ -164,5 +164,19 @@ button {
 
 .cls-2 {
   fill-rule: evenodd;
+}
+
+
+/* Transitions for elements */
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.3s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+  height: 0;
+  transform: translateY(20px);
 }
 </style>
