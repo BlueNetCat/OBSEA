@@ -245,22 +245,26 @@ class SceneManager{
         if (this.obseaBuoy !== undefined) {
           if (this.obseaBuoy.isLoaded) {
             // Get y position and normal of the wave on that point
-            // let position = new THREE.Vector3();
-            // let normal = new THREE.Vector3();
-            // ocean.getNormalAndPositionAt(position, normal);
+            let position = new THREE.Vector3();
+            let normal = new THREE.Vector3();
+            this.ocean.getNormalAndPositionAt(position, normal);
+            
+            // Exponential Moving Average (EMA) for position
+            let coef = 0.8; // TODO: SHOULD NOT DEPEND ON FRAMERATE!!
+            // dt from 16 to 40
+            coef = 0.95 - 0.4 * (1 - dt / 16); // Dependent on frame rate
+            
+            let obseaBuoy = this.obseaBuoy;
+            obseaBuoy.root.position.x = obseaBuoy.root.position.x * coef + (1 - coef) * position.x;
+            obseaBuoy.root.position.y = obseaBuoy.root.position.y * coef + (1 - coef) * position.y;
+            obseaBuoy.root.position.z = obseaBuoy.root.position.z * coef + (1 - coef) * position.z;
 
-            // // Exponential Moving Average (EMA) for position
-            // let coef = 0.98;
-            // obseaBuoy.root.position.x = obseaBuoy.root.position.x * coef + (1 - coef) * position.x;
-            // obseaBuoy.root.position.y = obseaBuoy.root.position.y * coef + (1 - coef) * position.y;
-            // obseaBuoy.root.position.z = obseaBuoy.root.position.z * coef + (1 - coef) * position.z;
-
-            // // EMA for rotation
-            // normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
-            // let tempQuat = new THREE.Quaternion();
-            // tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
-            // tempQuat.normalize();
-            // obseaBuoy.root.quaternion.slerp(tempQuat, 0.002);
+            // EMA for rotation
+            normal.applyAxisAngle(new THREE.Vector3(1, 0, 0), 90 * Math.PI / 180)
+            let tempQuat = new THREE.Quaternion();
+            tempQuat.setFromUnitVectors(new THREE.Vector3(1, 0, 0), normal.normalize());
+            tempQuat.normalize();
+            obseaBuoy.root.quaternion.slerp(tempQuat, 0.002);
           }
         }
       }

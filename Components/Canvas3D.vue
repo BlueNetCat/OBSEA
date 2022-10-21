@@ -89,9 +89,9 @@ export default {
       // Calculate steepness
       let steepness = 0.1 + 0.2 * Math.min(1, Hm0/3);
       if (Hm0 < 0.1) steepness = 0.05;
-      this.sceneManager.ocean.updateSwell1('height', Hm0);
-      this.sceneManager.ocean.updateSwell1('direction', Mdir);
-      this.sceneManager.ocean.updateSwell1('steepness', steepness);
+      this.sceneManager.ocean.updateSwell('height', Hm0, 0);
+      this.sceneManager.ocean.updateSwell('direction', Mdir, 0);
+      this.sceneManager.ocean.updateSwell('steepness', steepness, 0);
     }
 
     // ***** SEA PANEL *****
@@ -113,15 +113,15 @@ export default {
     // Change swell 1
     window.eventBus.on('SeaPanel_swell1HeightSliderClicked', (height) => {
       if (this.sceneManager.ocean)
-        this.sceneManager.ocean.updateSwell1('height',height);
+        this.sceneManager.ocean.updateSwell('height',height, 0);
     });
     window.eventBus.on('SeaPanel_swell1DirectionKnobClicked', (direction) => {
       if (this.sceneManager.ocean)
-        this.sceneManager.ocean.updateSwell1('direction', direction);
+        this.sceneManager.ocean.updateSwell('direction', direction, 0);
     });
     window.eventBus.on('SeaPanel_swell1SteepnessSliderClicked', (steepness) => {
       if (this.sceneManager.ocean)
-        this.sceneManager.ocean.updateSwell1('steepness', steepness);
+        this.sceneManager.ocean.updateSwell('steepness', steepness, 0);
     });
     // ***** WIND PANEL *****
     // Change wind
