@@ -8,7 +8,8 @@
           <!-- Arrow -->
           
           <!-- Button -->
-          <button @mousedown="onMouseDownMiddleHandle" @touchstart="onMouseDownMiddleHandle" class="timeHandle timeHandle" ref="middleHandle" 
+          <button @mousedown="onMouseDownMiddleHandle" @touchstart="onMouseDownMiddleHandle" @touchend="removeEventListeners" 
+            class="timeHandle timeHandle" ref="middleHandle" 
             title="Drag to select the time"
             style="left: 50%">
             {{message}}
