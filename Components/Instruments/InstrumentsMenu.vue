@@ -83,7 +83,7 @@ export default {
     },
     measuresButtonClicked: function(e){
       window.eventBus.emit('InstrumentsMenu_measuresButtonClicked');
-      window.open('https://www.obsea.es/dashboard/', '_blank');
+      //window.open('https://www.obsea.es/dashboard/', '_blank');
     },
     // Show/hide FPS panel
     fpsButtonClicked: function(e){
