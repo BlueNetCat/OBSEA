@@ -55,7 +55,7 @@ export default {
           this.sceneManager.ocean.updateMeanWaveDirection(dataInTimestamp['Mdir']);
           this.sceneManager.ocean.updateDirectionalSpread(dataInTimestamp['Spr1']);
           // Generate swell
-          
+          generateSwell(dataInTimestamp['Hm0'], dataInTimestamp['Mdir']);
           // Calculate steepness
           let steepness = 0.1 + 0.3 * Math.min(1, dataInTimestamp['Hm0'] / 6);
           this.sceneManager.ocean.updateSteepness(steepness);
@@ -64,6 +64,8 @@ export default {
           this.sceneManager.ocean.updateMeanWaveDirection(0);
           this.sceneManager.ocean.updateDirectionalSpread(180);
           this.sceneManager.ocean.updateSteepness(0.05);
+          // Reset swell
+          generateSwell(0.05, 180);
         }
       }
       // Wind
@@ -83,7 +85,14 @@ export default {
       }
 
     });
-
+    const generateSwell = (Hm0, Mdir) => {
+      // Calculate steepness
+      let steepness = 0.1 + 0.2 * Math.min(1, Hm0/3);
+      if (Hm0 < 0.1) steepness = 0.05;
+      this.sceneManager.ocean.updateSwell1('height', Hm0);
+      this.sceneManager.ocean.updateSwell1('direction', Mdir);
+      this.sceneManager.ocean.updateSwell1('steepness', steepness);
+    }
 
     // ***** SEA PANEL *****
     // Change ocean steepness
