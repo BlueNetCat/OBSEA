@@ -608,7 +608,6 @@ export default {
             } 
             // Last item
             else if (i == (timeItems.length - 1)){
-              console.log(tt.wght + ", " + accumulatedWeight + ", " + i % skipItemsNum);
               tt.wght = accumulatedWeight * 100 / totalWght;
             } 
             // Hidden items
