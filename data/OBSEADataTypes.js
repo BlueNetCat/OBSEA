@@ -34,7 +34,7 @@ const OBSEADataTypes = {
     description: 'Spectral significant wave height of waves by acoustic doppler wave array',
     url: 'https://data.obsea.es/api/Datastreams(197)',
     units: 'm',
-    signValue: 4, // 4 meters significant value
+    signValue: 3, // 4 meters significant value
   },
   'Hmax': {
     name: 'Hmax',
