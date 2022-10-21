@@ -10,6 +10,18 @@ export default es = {
 
   "compassButtonTitle": "Orienta la camara hacia el norte",
 
+
+
+  "WSPD": "Velocidad del viento",
+  "WDIR": "Dirección del viento",
+  "Hm0": "Altura oleaje (media)",
+  "Hmax": "Altura máxima de oleaje",
+  "Mdir": "Dirección oleaje (media)",
+  "Spr1": "Difusión direccional oleaje",
+  "AIRT": "Temperatura del aire",
+  "TEMP": "Temperatura (base submarina)",
+  "PSAL": "Salinidad (base submarina)",
+
   "Wind": "Viento",
   "Waves": "Oleaje",
 

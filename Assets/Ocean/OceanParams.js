@@ -128,6 +128,10 @@ export class OceanParameters{
     this.generateDistributions();
     //this.updateHTMLGidget();
   }
+  updateDirectionalSpread = function(spr1){
+    this.oceanParameters.Spr1 = spr1;
+    this.generateDistributions();
+  }
 
 
 

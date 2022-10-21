@@ -3,12 +3,22 @@
 import ca from '/OBSEA/lang/ca.js';
 import en from '/OBSEA/lang/en.js';
 import es from '/OBSEA/lang/es.js';
-
-import * as importDefault from "/OBSEA/Components/SceneManager.js"
-window.SceneManager = importDefault.default.SceneManager;
+// Load classes
+// SceneManager
+import SceneManager from "/OBSEA/Components/SceneManager.js"
+window.SceneManager = SceneManager;
+// DataManager
+import DataManager from "/OBSEA/data/DataManager.js"
+window.DataManager = DataManager;
 
 // Declare translations
-const i18n = VueI18n.createI18n();
+const i18n = VueI18n.createI18n({
+  // https://vue-i18n.intlify.dev/guide/essentials/fallback.html#explicit-fallback-with-one-locale
+  silentTranslationWarn: true, 
+  silentFallbackWarn: true,
+  missingWarn: false,
+  fallbackWarn: false,
+});
 // Declare event emitter
 // https://github.com/developit/mitt
 window.eventBus = window.mitt();

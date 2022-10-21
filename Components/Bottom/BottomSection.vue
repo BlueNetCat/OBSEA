@@ -1,5 +1,5 @@
 <template>
-  <div id="bottom-section" style="margin-right: 10px">
+  <div id="bottom-section">
 
     <!-- Bottom icons -->
     <!-- Above water -->
@@ -38,31 +38,14 @@
     <!-- Underwater camera -->
     <camera-youtube v-show="showCamera"></camera-youtube>
 
-    <!-- Current information available (temp, etc...)-->
-    <div class="bottom-bar" v-show="false">
-      <div class="data-title">
-        {{$t("Data ")}}
-      </div>
-      <div class="data-text">
-        <div> <!-- TODO: Duplicate this section to have continuous text https://www.fridaandfolks.com/ -->
-          {{$t("Date")}}: {{date.toLocaleString()}},
-
-          {{$t("Wind speed")}}: {{WSPD}} m/s, 
-          {{$t("Wind direction")}}: {{WDIR}}º,
-          {{$t("Wave significant height")}}: {{HM0}} m,
-
-          {{$t("Air temperature")}}: {{AIRT}}ºC,
-          {{$t("Atmospheric pressure")}}: {{APRES}} bars,
-
-          {{$t("Sea surface temperature")}}: {{TEMP}}ºC,
-          {{$t("Sea bottom temperature")}}(~20m): {{TEMPBOTTOM}}ºC,
-          {{$t("Salinity")}}: {{PSAL}} ‰,
-        </div>
-        
-
-
-      </div>
-    </div>
+    <!-- Time Range Bar -->
+    <Transition><!-- Vue transition -->
+      <time-range-bar v-show="showDataBar"></time-range-bar>
+    </Transition>
+      <!-- Current information available (temp, etc...)-->
+    <Transition>
+      <data-ticker v-show="showDataBar"></data-ticker>
+    </Transition>
 
   </div>
 </template>
@@ -70,7 +53,9 @@
 
 
 <script>
+import DataTicker from '/OBSEA/Components/Bottom/DataTicker.vue';
 import CameraYoutube from "/OBSEA/Components/Bottom/CameraYoutube.vue"
+import TimeRangeBar from "/OBSEA/Components/Bottom/TimeRangeBar.vue"
 
 export default {
   name:"BottomSection",
@@ -84,21 +69,18 @@ export default {
       if (camPos.y > -5)
         this.isUnderwater = false;
     });
+    window.eventBus.on('InstrumentsMenu_measuresButtonClicked', () => {
+      this.showDataBar = !this.showDataBar;
+    });
   },
   data() {
     return {
       isUnderwater: false,
       showCamera: false,
 
+      showDataBar: true,
+
       date: new Date(),
-
-      WSPD: 15,
-      WDIR: 30,
-      HM0: 1,
-      TEMP: 22,
-      TEMPBOTTOM: 13,
-      PSAL: 35,
-
       
     }
   },
@@ -119,12 +101,15 @@ export default {
   },
   components: {
     "camera-youtube": CameraYoutube,
+    "time-range-bar": TimeRangeBar,
+    "data-ticker": DataTicker,
   }
 }
 </script>
 
 
 
+    DataTicker
 
 
 
@@ -133,6 +118,7 @@ export default {
   position: absolute;
   bottom: 0px;
   width: 100vw;
+  pointer-events: none;
 }
 .bottom-icons {
   display: flex;
@@ -148,45 +134,6 @@ button {
   border-radius: 50%;
 }
 
-
-/* Bottom bar with data */
-.bottom-bar {
-  background-color: #acd1ffc7;
-  font-size: small;
-
-  display:flex;
-  flex-direction: row;
-  overflow: hidden;
-}
-.bottom-bar > div {
-  padding: 5px;
-}
-.data-title {
-  white-space: nowrap;
-  background-color: #8dc0fe;
-  padding-right: 2px;
-  z-index: 1;
-}
-.data-text{
-  z-index: 0;
-  white-space: nowrap;
-  animation: tickerh linear 15s infinite;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-.data-text:hover {
-  animation-play-state: paused;
-}
-/* Data text ticker animation */
-@keyframes tickerh {
-  0% {
-    transform: translate3d(100%, 0px, 0px);
-    
-  }
-  100% {
-    transform: translate3d(-100%, 0px, 0px);
-  }
-}
 
 
 
@@ -217,5 +164,19 @@ button {
 
 .cls-2 {
   fill-rule: evenodd;
+}
+
+
+/* Transitions for elements */
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.3s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+  height: 0;
+  transform: translateY(20px);
 }
 </style>

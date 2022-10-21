@@ -10,6 +10,17 @@ export default en = {
 
   "compassButtonTitle": "Set the camera facing north",
 
+
+  "WSPD": "Wind speed",
+  "WDIR": "Wind direction",
+  "Hm0": "Wave height (average)",
+  "Hmax": "Wave maximum height",
+  "Mdir": "Wave direction (average)",
+  "Spr1": "Wave directional spreading",
+  "AIRT": "Air temperature",
+  "TEMP": "Temperature (underwater base)",
+  "PSAL": "Salinity (underwater base)",
+
   "Wind": "Wind",
   "Waves": "Waves",
 
