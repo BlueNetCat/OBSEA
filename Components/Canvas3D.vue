@@ -48,14 +48,34 @@ export default {
     window.eventBus.on('DataStreamsBar_dataDailyUpdate', (dataInTimestamp) => {
 
       // Ocean
-      if (this.sceneManager.ocean && dataInTimestamp['Hm0']){
-        this.sceneManager.ocean.updateWaveSignificantHeight(dataInTimestamp['Hm0']);
-        this.sceneManager.ocean.updateMeanWaveDirection(dataInTimestamp['Mdir']);
+      if (this.sceneManager.ocean){
+        if (dataInTimestamp['Hm0']){
+          // TODO: THIS CALLS GENERATEWAVES 3 TIMES (PARAMETERS COULD BE SET AT ONCE)
+          this.sceneManager.ocean.updateWaveSignificantHeight(dataInTimestamp['Hm0']);
+          this.sceneManager.ocean.updateMeanWaveDirection(dataInTimestamp['Mdir']);
+          this.sceneManager.ocean.updateDirectionalSpread(dataInTimestamp['Spr1']);
+          // Generate swell
+          
+          // Calculate steepness
+          let steepness = 0.1 + 0.3 * Math.min(1, dataInTimestamp['Hm0'] / 6);
+          this.sceneManager.ocean.updateSteepness(steepness);
+        } else { // No ocean data
+          this.sceneManager.ocean.updateWaveSignificantHeight(0.1);
+          this.sceneManager.ocean.updateMeanWaveDirection(0);
+          this.sceneManager.ocean.updateDirectionalSpread(180);
+          this.sceneManager.ocean.updateSteepness(0.05);
+        }
       }
       // Wind
       if (this.sceneManager.flag && dataInTimestamp['WSPD']){
         this.sceneManager.flag.setWindParameters('windSpeed', dataInTimestamp['WSPD'] * 3.6); // km/h
         this.sceneManager.flag.setWindParameters('windDirection', dataInTimestamp['WDIR']);
+        // Ocean steepness
+        if (this.sceneManager.ocean){
+          let windKMH = dataInTimestamp['WSPD'] * 3.6;
+          let steepness = 0.05 + 0.25 * Math.min(1, windKMH / 25);
+          this.sceneManager.ocean.updateSteepness(steepness);
+        }
       }
       // Currents
       if (this.sceneManager.currents && dataInTimestamp['UCUR_0m']){

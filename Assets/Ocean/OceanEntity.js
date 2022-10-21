@@ -206,6 +206,11 @@ class OceanEntity {
     this.oceanParams.updateMeanWaveDirection(mdir);
     this.updateParamsTexture();
   }
+  // Update wave directional spread
+  updateDirectionalSpread = function(spr1){
+    this.oceanParams.updateDirectionalSpread(spr1);
+    this.updateParamsTexture();
+  }
 
   // Update ocean parameters
   updateOceanParameters = function(params){
