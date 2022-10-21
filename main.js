@@ -12,7 +12,13 @@ import DataManager from "/OBSEA/data/DataManager.js"
 window.DataManager = DataManager;
 
 // Declare translations
-const i18n = VueI18n.createI18n();
+const i18n = VueI18n.createI18n({
+  // https://vue-i18n.intlify.dev/guide/essentials/fallback.html#explicit-fallback-with-one-locale
+  silentTranslationWarn: true, 
+  silentFallbackWarn: true,
+  missingWarn: false,
+  fallbackWarn: false,
+});
 // Declare event emitter
 // https://github.com/developit/mitt
 window.eventBus = window.mitt();
