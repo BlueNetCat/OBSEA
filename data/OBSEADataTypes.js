@@ -62,9 +62,9 @@ const OBSEADataTypes = {
   },
 
   // Current
-  'Current':{
-    name: 'Current',
-    altNames: ['Sea water velocity', 'Sea velocity', 'CUR', 'UCUR', 'VCUR', 'ZCUR'],
+  'CUR':{
+    name: 'CUR',
+    altNames: ['Current','Sea water velocity', 'Sea velocity', 'CUR', 'UCUR', 'VCUR', 'ZCUR'],
     description: 'Velocity of water current in the water body',
     url: {
       baseURL: 'https://data.obsea.es/api/Datastreams(X)',
@@ -96,9 +96,9 @@ const OBSEADataTypes = {
 
 
   // Temperature
-  'Sea bottom temperature': {
-    name: 'Sea bottom temperature',
-    altNames: ['TEMP', 'Sea underwater temperature'],
+  'TEMP': {
+    name: 'TEMP',
+    altNames: ['Sea bottom temperature','TEMP', 'Sea underwater temperature'],
     description: 'Sea water temperature data from sensor deployed at OBSEA',
     url: ['https://data.obsea.es/api/Datastreams(1)', 'https://data.obsea.es/api/Datastreams(6)',
       'https://data.obsea.es/api/Datastreams(11)', 'https://data.obsea.es/api/Datastreams(216)',
@@ -106,9 +106,9 @@ const OBSEADataTypes = {
     units: 'ºC'
   },
   // Salinity
-  'Salinity': {
-    name: 'Salinity',
-    altNames: ['SAL', 'PSAL', 'Sea underwater salinity', 'Sea bottom salinity', 'Sea water salinity'],
+  'PSAL': {
+    name: 'PSAL',
+    altNames: ['Salinity','SAL', 'PSAL', 'Sea underwater salinity', 'Sea bottom salinity', 'Sea water salinity'],
     description: 'Sea water salinity data from sensor deployed at OBSEA',
     url: ['https://data.obsea.es/api/Datastreams(4)', 'https://data.obsea.es/api/Datastreams(9)',
       'https://data.obsea.es/api/Datastreams(14)', 'https://data.obsea.es/api/Datastreams(19)'],
