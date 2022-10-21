@@ -239,7 +239,7 @@ export default {
     height: 10px;
     position: absolute;
     bottom: -5px;
-    rotate: 45deg;
+    transform: rotate(45deg);
     border-top-left-radius: 10px;
 }
 </style>
