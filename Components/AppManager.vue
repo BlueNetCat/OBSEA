@@ -1,6 +1,6 @@
 <template>
   <!-- Container -->
-  <div id="app-manager">
+  <div id="app-manager" ref="appManager">
 
     <!-- Canvas 3D -->
     <canvas3D></canvas3D>
@@ -51,7 +51,12 @@ export default {
     
   },
   mounted() {
-
+    // Mobile bottom bar full height fix
+    // https://dev.to/admitkard/mobile-issue-with-100vh-height-100-100vh-3-solutions-3nae
+    this.$refs.appManager.style.height = window.innerHeight + 'px';
+    window.onresize =  () => {
+      this.$refs.appManager.style.height = window.innerHeight + 'px';
+    }; 
   },
   data (){
     return {
@@ -75,8 +80,12 @@ export default {
 <style scoped>
 #app-manager {
     width: 100vw;
+
     height: 100vh;
     position: fixed;
+    /*height: 100%;
+    position: absolute;*/
+
   }
 
   .OBSEABanner {

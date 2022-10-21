@@ -65,8 +65,8 @@ class SceneManager{
     document.body.appendChild(stats.dom);
     stats.dom.style.right = '0px';
     stats.dom.style.left = null;
-    stats.isVisible = true;
-    
+    stats.isVisible = false;
+    stats.showPanel(false);
     
     
 

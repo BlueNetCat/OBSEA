@@ -78,11 +78,10 @@ export default {
 <style scoped>
 #central-panel {
   z-index: 2;
-  position: absolute;
   background-color: #d7effab3;
   max-width: 600px;
   max-height: 90vh!important;
-  position: absolute;
+  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -98,11 +97,11 @@ export default {
     width: 100vw;
     margin: 0;
     right: 0;
-    max-height: 100vh!important;
+    max-height: 100%!important;
     overflow-y: auto;
   }
   #central-panel>div {
-    max-height: 100vh !important;
+    max-height: 100% !important;
     
   }
 }
