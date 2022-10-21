@@ -35,6 +35,10 @@ export default {
     let parentEl = this.canvas.parentElement;
     this.canvas.height = 30; // TODO: DEPENDANT ON THE NUMBER OF STREAMS TO DISPLAY
     this.canvas.width = parentEl.offsetWidth;
+    window.addEventListener("resize", () =>{
+      this.canvas.width = parentEl.offsetWidth;
+      this.updateCanvas();
+    });
     this.ctx = this.canvas.getContext('2d');
     //this.ctx.fillStyle = 'red';
     //this.ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
