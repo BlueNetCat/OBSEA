@@ -108,8 +108,10 @@ export default {
 
 /* Bottom bar with data */
 .bottom-bar {
-  background-color: #acd1ffc7;
+  /* background-color: #acd1ffc7; */
+  background-color: rgba(16, 112, 150, 0.9);
   font-size: small;
+  color: white;
 
   pointer-events: auto;
   user-select: none;
@@ -125,7 +127,10 @@ export default {
 
 .data-title {
   white-space: nowrap;
-  background-color: #8dc0fe;
+  border-radius: 0.2rem;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background-color: rgba(4, 85, 117, 1);
+  color: white;
   padding-right: 2px;
   z-index: 1;
 }
@@ -153,5 +158,4 @@ export default {
     transform: translate3d(-100%, 0px, 0px);
   }
 }
-
 </style>
