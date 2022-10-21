@@ -82,9 +82,7 @@ export default {
         // }
         if (dataType){
           this.dataOnTimeInstant[key] = params[key].toFixed(1) + " " + dataType.units;
-        } else {
-          console.log("Measure not shown: " + key);
-        }
+        } 
       });
     }
 
