@@ -69,14 +69,19 @@ export default {
         }
       }
       // Wind
-      if (this.sceneManager.flag && dataInTimestamp['WSPD']){
-        this.sceneManager.flag.setWindParameters('windSpeed', dataInTimestamp['WSPD'] * 3.6); // km/h
-        this.sceneManager.flag.setWindParameters('windDirection', dataInTimestamp['WDIR']);
-        // Ocean steepness
-        if (this.sceneManager.ocean){
-          let windKMH = dataInTimestamp['WSPD'] * 3.6;
-          let steepness = 0.05 + 0.25 * Math.min(1, windKMH / 25);
-          this.sceneManager.ocean.updateSteepness(steepness);
+      if (this.sceneManager.flag){
+        if (dataInTimestamp['WSPD']){
+          this.sceneManager.flag.showFlag();
+          this.sceneManager.flag.setWindParameters('windSpeed', dataInTimestamp['WSPD'] * 3.6); // km/h
+          this.sceneManager.flag.setWindParameters('windDirection', dataInTimestamp['WDIR']);
+          // Ocean steepness
+          if (this.sceneManager.ocean){
+            let windKMH = dataInTimestamp['WSPD'] * 3.6;
+            let steepness = 0.05 + 0.25 * Math.min(1, windKMH / 25);
+            this.sceneManager.ocean.updateSteepness(steepness);
+          }
+        } else { // Hide flag when there is no wind data
+          this.sceneManager.flag.hideFlag();
         }
       }
       // Currents

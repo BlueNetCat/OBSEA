@@ -56,6 +56,13 @@ class FlagEntity {
       this.windDirection = value + 180;
   }
 
+  hideFlag(){
+    this.root.visible = false;
+  }
+  showFlag(){
+    this.root.visible = true;
+  }
+
   updateWindParameters(params){
     // If no data, hide.
     this.root.visible = params.WSPD == undefined ? false : true;
