@@ -25,8 +25,8 @@ export default {
   },
   mounted() {
     // Data manager
-    this.dataManager = new DataManager();
-    this.dailyData = this.dataManager.getDailyData();
+    this.DataManager = new DataManager();
+    this.dailyData = this.DataManager.getDailyData();
 
 
     // TODO: ANOTHER OPTION IS TO USE PATH
@@ -87,7 +87,7 @@ export default {
                 // Calculate width?
                 // Calculate height (use datatypes max?)
                 let factor = 1;
-                let dataType = this.dataManager.OBSEADataRetriever.DataTypes[measures[j]];
+                let dataType = this.DataManager.OBSEADataRetriever.DataTypes[measures[j]];
                 if (dataType){
                   if (dataType.signValue){
                     factor = Math.max(1,ddData[measures[j]]/dataType.signValue);
@@ -220,6 +220,7 @@ export default {
       isoString = isoString.substring(0,10) + 'T00:00:00.000Z';
       let ddData= this.dailyData[isoString];
       if (ddData != undefined){
+        ddData.timestamp = isoString; // TODO: should remove this if OBSEA daily static data is regenerated
         window.eventBus.emit('DataStreamsBar_dataUpdate', ddData);
 
         // let measures = this.dataManager.OBSEADataRetriever.Measures;
