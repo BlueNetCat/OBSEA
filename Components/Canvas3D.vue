@@ -45,15 +45,23 @@ export default {
 
 
     // ***** TIME BAR WITH DATA *****
-    window.eventBus.on('DataStreamsBar_dataUpdate', (arrayMeasureValue) => {
-      let measure = arrayMeasureValue[0];
-      let value = arrayMeasureValue[1];
-      if (this.sceneManager.ocean){
-        if (measure == 'Hm0')
-          this.sceneManager.ocean.updateWaveSignificantHeight(value);
-        else if (measure == 'Mdir')
-          this.sceneManager.ocean.updateMeanWaveDirection(value);
+    window.eventBus.on('DataStreamsBar_dataUpdate', (dataInTimestamp) => {
+
+      // Ocean
+      if (this.sceneManager.ocean && dataInTimestamp['Hm0']){
+        this.sceneManager.ocean.updateWaveSignificantHeight(dataInTimestamp['Hm0']);
+        this.sceneManager.ocean.updateMeanWaveDirection(dataInTimestamp['Mdir']);
       }
+      // Wind
+      if (this.sceneManager.flag && dataInTimestamp['WSPD']){
+        this.sceneManager.flag.setWindParameters('windSpeed', dataInTimestamp['WSPD']);
+        this.sceneManager.flag.setWindParameters('windDirection', dataInTimestamp['WDIR']);
+      }
+      // Currents
+      if (this.sceneManager.currents && dataInTimestamp['UCUR_0m']){
+          this.sceneManager.currents.setCurrentParameters(dataInTimestamp);
+      }
+
     });
 
 

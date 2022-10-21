@@ -77,7 +77,7 @@ class CurrentEntity {
 
 
 
-  updateCurrentParameters(params){
+  setCurrentParameters(params){//updateCurrentParameters(params){
 
     
 

@@ -220,12 +220,14 @@ export default {
       isoString = isoString.substring(0,10) + 'T00:00:00.000Z';
       let ddData= this.dailyData[isoString];
       if (ddData != undefined){
-        let measures = this.dataManager.OBSEADataRetriever.Measures;
-        for (let i = 0; i< measures.length; i++){
-          let value = ddData[measures[i]];
-          if (value != undefined)
-            window.eventBus.emit('DataStreamsBar_dataUpdate', [measures[i], value]);
-        }
+        window.eventBus.emit('DataStreamsBar_dataUpdate', ddData);
+
+        // let measures = this.dataManager.OBSEADataRetriever.Measures;
+        // for (let i = 0; i< measures.length; i++){
+        //   let value = ddData[measures[i]];
+        //   if (value != undefined)
+        //     window.eventBus.emit('DataStreamsBar_dataUpdate', [measures[i], value]);
+        // }
 
       }
     },
