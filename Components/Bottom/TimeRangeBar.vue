@@ -117,10 +117,10 @@ export default {
       if (this.$refs.dataStreamsBar)
         this.$refs.dataStreamsBar.setStartEndDates(this.startDate, this.endDate);
       // Create event listener
-      window.addEventListener('resize', this.setTimeButtonNames);
+      window.addEventListener('resize', this.windowIsResizing);
     },
     unmounted() {
-      window.removeEventListener('resize', this.setTimeButtonNames);
+      window.removeEventListener('resize', this.windowIsResizing);
     },
     setup() {
         
@@ -558,26 +558,66 @@ export default {
 
       },
 
-
+      // Start and end does not change, but the size of the screen does
+      windowIsResizing: function(){
+        this.updateHTMLTimeline();
+        this.updateCenteredDate();
+      },
 
 
       // Calculate width percentage according to weight
       calcWidthPercentage: function(){
+        let totalWidth = this.$refs.monthTimeline.offsetWidth;
         // For days
         if (this.days.length != 0){ // If visible / exist
-          let totalDayWght = 0;
-          this.days.forEach(dd => totalDayWght += dd.wght); // Calculate total day proportion or width
-          this.days.forEach(dd => dd.wght = 100 * dd.wght / totalDayWght); // Apply width according to element width
+          this.calcWidthPercentagePerTimeScale(this.days, totalWidth);
         }
         // For months
-        let totalMonthWght = 0;
-        this.months.forEach(mm => totalMonthWght += mm.wght); // Calculate total month proportion or width
-        this.months.forEach(mm => mm.wght = 100 * mm.wght/totalMonthWght); // Apply width according to element width
+        this.calcWidthPercentagePerTimeScale(this.months, totalWidth);
         // For years
-        let totalYearWght = 0;
-        this.years.forEach(yy => totalYearWght += yy.wght); // Calculate total month proportion or width
-        this.years.forEach(yy => yy.wght = 100 * yy.wght / totalYearWght); // Apply width according to element width
+        this.calcWidthPercentagePerTimeScale(this.years, totalWidth);
+        // let totalMonthWght = 0;
+        // this.months.forEach(mm => totalMonthWght += mm.wght); // Calculate total month proportion or width
+        // this.months.forEach(mm => mm.wght = 100 * mm.wght/totalMonthWght); // Apply width according to element width
+        // For years
+        // let totalYearWght = 0;
+        // this.years.forEach(yy => totalYearWght += yy.wght); // Calculate total month proportion or width
+        // this.years.forEach(yy => yy.wght = 100 * yy.wght / totalYearWght); // Apply width according to element width
       },
+      // Calculate per time scale
+      // TODO: (BUT NEEDS TO BE SPECIFIC FOR MONTHS AND DAYS) take into account end of month and end of year
+      calcWidthPercentagePerTimeScale: function (timeItems, totalWidth) {
+        let totalWght = 0;
+        timeItems.forEach(tt => totalWght += tt.wght); // Calculate total weight
+
+        // Set weight to 0 if pixel width is too small
+        let pixelWidth = totalWidth / totalWght;
+        let minPixelWidth = 15;
+        let skipItemsNum = Math.ceil(minPixelWidth / pixelWidth);
+        if (pixelWidth > minPixelWidth)
+          timeItems.forEach(tt => tt.wght = 100 * tt.wght / totalWght); // Apply width according to element width
+        else{
+          let accumulatedWeight = 0;
+          timeItems.forEach((tt, i) => {
+            let isShown = (i % skipItemsNum) == 0 ? 1 : 0;
+            accumulatedWeight += tt.wght;
+            // Every skipItemsNum item
+            if (isShown){
+              tt.wght = accumulatedWeight * 100 / totalWght;
+              accumulatedWeight = 0;
+            } 
+            // Last item
+            else if (i == (timeItems.length - 1)){
+              console.log(tt.wght + ", " + accumulatedWeight + ", " + i % skipItemsNum);
+              tt.wght = accumulatedWeight * 100 / totalWght;
+            } 
+            // Hidden items
+            else 
+              tt.wght = 0;
+          });
+        }
+      },
+
 
       // Change the month name according to the width in pixels
       setTimeButtonNames: function(){
