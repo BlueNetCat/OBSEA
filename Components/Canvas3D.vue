@@ -54,7 +54,7 @@ export default {
       }
       // Wind
       if (this.sceneManager.flag && dataInTimestamp['WSPD']){
-        this.sceneManager.flag.setWindParameters('windSpeed', dataInTimestamp['WSPD']);
+        this.sceneManager.flag.setWindParameters('windSpeed', dataInTimestamp['WSPD'] * 3.6); // km/h
         this.sceneManager.flag.setWindParameters('windDirection', dataInTimestamp['WDIR']);
       }
       // Currents
