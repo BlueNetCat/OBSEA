@@ -242,7 +242,7 @@ export class OBSEADataRetriever{
       // Turn it into daily
       isoString = isoString.substring(0, 10) + "T00:00:00.000Z";
       // First daily data
-      if (this.dailyData[isoString] == undefined) this.dailyData[isoString] = {}
+      if (this.dailyData[isoString] == undefined) this.dailyData[isoString] = {timestamp: isoString}; // NOT TESTED
       // Iterate through measures
       for (let j = 0; j<measures.length; j++){
         let measureName = measures[j];
