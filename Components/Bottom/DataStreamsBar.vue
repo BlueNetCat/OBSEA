@@ -96,7 +96,8 @@ export default {
                 
                 ctx.beginPath();
                 let radius = 1;
-                ctx.arc(posX, posY, radius*factor, 0, 2 * Math.PI, false);
+                let radMod = Math.min(3, radius * factor * factor);
+                ctx.arc(posX, posY, radMod, 0, 2 * Math.PI, false);
                 ctx.fillStyle = 'darkblue';
                 ctx.fill();
               }
