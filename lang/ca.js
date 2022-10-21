@@ -10,6 +10,17 @@ export default ca = {
 
   "compassButtonTitle": "Orienta la càmara cap al nord",
 
+
+  "WSPD": "Velocitat del vent",
+  "WDIR": "Direcció del vent",
+  "Hm0": "Altura d'onatge (mitja)",
+  "Hmax": "Altura màxima d'onatge",
+  "Mdir": "Direcció d'onatge (mitja)",
+  "Spr1": "Difusió direccional d'onatge",
+  "AIRT": "Temperatura de l'aire",
+  "TEMP": "Temperatura (base submarina)",
+  "PSAL": "Salinitat (base submarina)",
+
   "Wind": "Vent",
   "Waves": "Onatge",
 

@@ -221,7 +221,7 @@ export default {
       let ddData= this.dailyData[isoString];
       if (ddData != undefined){
         ddData.timestamp = isoString; // TODO: should remove this if OBSEA daily static data is regenerated
-        window.eventBus.emit('DataStreamsBar_dataUpdate', ddData);
+        window.eventBus.emit('DataStreamsBar_dataDailyUpdate', ddData);
 
         // let measures = this.dataManager.OBSEADataRetriever.Measures;
         // for (let i = 0; i< measures.length; i++){

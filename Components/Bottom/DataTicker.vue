@@ -4,7 +4,7 @@
     <!-- Current information available (temp, etc...)-->
     <div class="bottom-bar" v-show="true">
       <div class="data-title">
-        {{$t("Data ")}}
+        {{$t(dataOrigin)}}
       </div>
       <div class="data-text">
         <div>
@@ -49,7 +49,7 @@ export default {
         this.isUnderwater = false;
     });
 
-    window.eventBus.on('DataStreamsBar_dataUpdate', this.updateDataTicker);
+    window.eventBus.on('DataStreamsBar_dataDailyUpdate', this.updateDailyDataTicker);
   },
   data() {
     return {
@@ -58,6 +58,7 @@ export default {
 
       DataManager: new DataManager(),
       date: new Date(),
+      dataOrigin: "Daily maximum (OBSEA)",
 
       dataOnTimeInstant: {},
 
@@ -65,16 +66,21 @@ export default {
     }
   },
   methods: {
-    updateDataTicker: function(params){
+    // TODO: instantaneous when it is loaded
+    updateDailyDataTicker: function(params){
+
+      this.dataOrigin = "Daily maximum (OBSEA)";
+
+      this.dataOnTimeInstant = {}; // Reset
       
       Object.keys(params).forEach((key) => {
         // Measures
         let dataType = this.DataManager.OBSEADataRetriever.DataTypes[key];
         // Date
-        if (key == "timestamp"){
-          this.dataOnTimeInstant.Date = params[key].toLocaleString();
-        }
-        else if (dataType){
+        // if (key == "timestamp"){
+        //   this.dataOnTimeInstant.Date = params[key].toLocaleString();
+        // }
+        if (dataType){
           this.dataOnTimeInstant[key] = params[key].toFixed(1) + " " + dataType.units;
         } else {
           console.log("Measure not shown: " + key);

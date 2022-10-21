@@ -45,7 +45,7 @@ export default {
 
 
     // ***** TIME BAR WITH DATA *****
-    window.eventBus.on('DataStreamsBar_dataUpdate', (dataInTimestamp) => {
+    window.eventBus.on('DataStreamsBar_dataDailyUpdate', (dataInTimestamp) => {
 
       // Ocean
       if (this.sceneManager.ocean && dataInTimestamp['Hm0']){

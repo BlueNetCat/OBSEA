@@ -36,30 +36,32 @@ const OBSEADataTypes = {
     units: 'm',
     signValue: 4, // 4 meters significant value
   },
+  'Hmax': {
+    name: 'Hmax',
+    altNames: ['Wave maximum height', 'Maximum wave height', 'hmax', 'HMAX'],
+    description: 'wave height maximum of waves on the water body by acoustic doppler wave array',
+    url: 'https://data.obsea.es/api/Datastreams(200)',
+    units: 'm',
+    signValue: 5, // 4 meters significant value
+  },
 
-  'WDIR': {
-    name: 'WDIR',
+  'Mdir': {
+    name: 'Mdir',
     altNames: [ 'Mean wave direction', 'Wave mean direction'],
     description: 'Direction(from) mean of waves(mean wave direction) on the water body by acoustic doppler wave array',
     url: 'https://data.obsea.es/api/Datastreams(206)',
     units: 'º'
   },
 
-  'WSPR':{
-    name: 'WSPR',
+  'Spr1':{
+    name: 'Spr1',
     altNames: ['Direction spreading of waves', 'WSPR', "Wave direction spreading"],
     description: 'Directional spreading of waves on the water body by acoustic doppler wave array',
     url: 'https://data.obsea.es/api/Datastreams(205)',
     units: 'º'
   },
 
-  'Hmax': {
-    name: 'Hmax',
-    altNames: ['Wave height maximum', 'Wave maximum'],
-    description: 'Wave height maximum of waves on the water body by acoustic doppler wave array',
-    url: 'https://data.obsea.es/api/Datastreams(200)',
-    units: 'm'
-  },
+
 
   // Current
   'CUR':{
@@ -96,6 +98,14 @@ const OBSEADataTypes = {
 
 
   // Temperature
+  'AIRT': {
+    name: 'AIRT',
+    altNames: ['Air temperature', 'AIRT'],
+    description: 'Temperature of atmosphere',
+    url: ['https://data.obsea.es/api/Datastreams(22)', 'https://data.obsea.es/api/Datastreams(26)',
+      'https://data.obsea.es/api/Datastreams(321)', 'https://data.obsea.es/api/Datastreams(327)'],
+    units: 'ºC'
+  },
   'TEMP': {
     name: 'TEMP',
     altNames: ['Sea bottom temperature','TEMP', 'Sea underwater temperature'],
