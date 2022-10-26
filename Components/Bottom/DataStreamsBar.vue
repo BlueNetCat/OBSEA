@@ -80,17 +80,20 @@ export default {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       if (this.timeSpanInHours > 0){ // Use daily data
-        // Read data
-        // Set start and end date to T00:00:00.000Z
-        this.startDate = new Date(this.startDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
-        this.endDate = new Date(this.endDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
         // Calculate number of days
         let numDays = (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 3600 * 24);
-        if (numDays != Math.floor(numDays)) console.error("Num days should be integer!!");
+        numDays += 1; // First and end days count too
+        // Calculate first day proportion
+        let startOfFirstDay = new Date(this.startDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
+        let dayDiff = 1 - (this.startDate.getTime()  - startOfFirstDay.getTime()) / (1000 * 3600 * 24);
+        // Set this to calculate the 
+        this.endDate = new Date(this.endDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
+        //if (numDays != Math.floor(numDays)) console.error("Num days should be integer!!");
         // Iterate for each day
         let movingDate = new Date(this.startDate.toISOString());
-        for (let i = 0; i<numDays; i++){
-          let ddData = this.dailyData[movingDate.toISOString()];
+        for (let i = 0; i< Math.ceil(numDays); i++){
+          let key = movingDate.toISOString().substring(0, 10) + 'T00:00:00.000Z'; // Daily
+          let ddData = this.dailyData[key];
           if (ddData != undefined){
             // Paint
             let measures = ['Hm0', 'WSPD', 'UCUR_0m'];
@@ -98,7 +101,7 @@ export default {
               // If measure exists in dataset
               if (ddData[measures[j]]){
                 // Calculate position in canvas
-                let posX = (i/numDays) * canvas.width;
+                let posX = ((i + dayDiff - 0.5)/(numDays-1)) * canvas.width; // Use the start day difference to position the points
                 let padding = canvas.height * 0.2;
                 let posY = padding + j * (canvas.height-padding) / measures.length;
                 // Calculate width?
