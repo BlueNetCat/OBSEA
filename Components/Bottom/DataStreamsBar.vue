@@ -2,7 +2,7 @@
   <div id="data-streams-bar">
     <!-- A div with the same width as TimeRange -->
     <div class="streamsContainer" ref="streamsContainer">
-      <canvas ref="dataStreamsCanvas"></canvas>
+      <canvas ref="dataStreamsCanvas" @click="streamsContainerClicked"></canvas>
       <!-- <div class="trackMark" :class="{active: ff.selected}" @click="onTrackClicked" :id="ff.properties.id"
         :key="ff.properties.id" v-for="ff in features" :style="setFeatureStyle(ff)">
         &#11044;
@@ -51,6 +51,23 @@ export default {
     }
   },
   methods: {
+    // USER METHODS
+    streamsContainerClicked: function(event) {
+      // TODO: CHANGE RANGE SLIDER TIME
+      let width = event.target.offsetWidth;
+      let mouseX = 0;
+      if (event.offsetX)
+        mouseX = event.offsetX;
+      else if (event.touches)
+        mouseX = event.touches[0].offsetX;
+      else
+        console.log("Something went wrong");
+      
+      let percLeft = 100 * mouseX / width;
+      this.$emit('clicked', percLeft);
+    },
+    
+    
     // INTERNAL METHODS
     // Paint data streams on canvas
     updateCanvas: function(){
@@ -285,7 +302,8 @@ export default {
   height: 100%;
   position: relative;
   border-radius: 1rem;
-  user-select: none;
+  pointer-events: all;
+  cursor: pointer;
 
   background: linear-gradient(90deg, rgba(160, 215, 242, 0) 0%, rgba(160, 215, 242, 0.8) 10%, rgba(160, 215, 242, 0.8) 90%, rgba(160, 215, 242, 0) 100%);
   box-shadow: 0 -1px 2px rgba(160, 215, 242, 0.8);

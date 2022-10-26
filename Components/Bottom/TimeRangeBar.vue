@@ -17,15 +17,17 @@
           <div class="container-rows" style="width:100%">
             <!-- Time slider -->
             <range-slider ref="rangeSlider" 
-              @change="onRangeSliderChange($event)" 
-              @mousedown="onRangeSliderMouseDown($event)"
-              @mouseup="onRangeSliderMouseUp($event)" 
-              @drag="onRangeSliderDrag($event)"
+              @isChanging="onRangeSliderChange($event)" 
+              @mouseIsDown="onRangeSliderMouseDown($event)"
+              @mouseIsUp="onRangeSliderMouseUp($event)" 
+              @isDragging="onRangeSliderDrag($event)"
             style="height: 50px; width: 100%"></range-slider>
             
             
             <!-- Data availability -->
-            <data-streams-bar ref="dataStreamsBar" style="width:100%"></data-streams-bar>
+            <data-streams-bar ref="dataStreamsBar" 
+              @clicked="onDataStreamsClicked($event)"
+            style="width:100%"></data-streams-bar>
             
             
             
@@ -162,6 +164,21 @@ export default {
         this.isRangeDragging = false;
       },
 
+      // Data streams is clicked
+      onDataStreamsClicked: function(perc){
+        
+        this.rangeArray = [perc - 10, perc + 10];
+        this.updateRangeSlider();
+        
+        this.$nextTick(() => {
+          this.$refs.rangeSlider.setSliderPosition(perc); // HACK: calls it twice to position it correctly
+          this.$refs.rangeSlider.setSliderPosition(perc);
+        });
+
+        //setTimeout(() => this.$refs.rangeSlider.setSliderPosition(perc), 500);
+        
+      },
+
       // Update loop according to range slider
       updateRangeSlider: function(){
         let totalTimeSpan = this.endDate.getTime() - this.startDate.getTime();
@@ -188,11 +205,11 @@ export default {
         this.selEndDate.setTime(this.startDate.getTime() + totalTimeSpan * this.rangeArray[1]/100);
 
         
-        // Update HTML timeline
-        this.updateHTMLTimeline();
-
         // Update centered date
         this.updateCenteredDate();
+
+        // Update HTML timeline
+        this.updateHTMLTimeline();
 
         // Update loop
         if (this.isRangeChanging){

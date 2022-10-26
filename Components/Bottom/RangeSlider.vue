@@ -62,6 +62,8 @@ export default {
       // USER HTML ACTIONS
       // Declare events for middle handle
       onMouseDownMiddleHandle: function(event) {
+
+        event.preventDefault();
         
         // Disable drag and drop support (is enabled sometimes without a reason) https://javascript.info/mouse-drag-and-drop
         event.target.ondragstart = function(){return false};
@@ -77,7 +79,7 @@ export default {
         document.addEventListener("mouseup", this.removeEventListeners);
         document.addEventListener("touchend", this.removeEventListeners);
         // Emit onmousedown
-        this.$emit('mousedown', this.getRange());
+        this.$emit('mouseIsDown', this.getRange());
         // Relocate on mouse down
         // TODO?
         //this.onMouseMoveMiddleHandle(event);
@@ -90,6 +92,7 @@ export default {
         document.removeEventListener("mouseup", this.removeEventListeners);
         document.removeEventListener("touchend", this.removeEventListeners);
         // TODO: isDragging = false?
+        this.$emit('mouseIsUp');
       },
 
 
@@ -111,7 +114,7 @@ export default {
         this.handleEl.style.left = percMargin + '%';
 
         // Emit values
-        this.$emit('drag', this.getRange());
+        this.$emit('isDragging', this.getRange());
       },
 
 
@@ -159,6 +162,15 @@ export default {
 
 
       // PUBLIC METHODS
+      setSliderPosition: function(perc) {
+
+        let totalWidth = this.handleEl.parentElement.offsetWidth; // Get total width of container in pixels
+        let percWidthHandleMiddle = 100 * (this.handleEl.offsetWidth) / totalWidth;
+        percWidthHandleMiddle -= 1; // HACK to position cursor exactly where mouse is
+
+        this.handleEl.style.left = (perc - percWidthHandleMiddle/2) + '%';
+
+      },
       // Set the range
       // TODO: SHOULD BE A SINGLE VALUE
       setRange: function(inRange){
