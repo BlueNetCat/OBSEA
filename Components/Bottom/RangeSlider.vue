@@ -166,7 +166,7 @@ export default {
 
         let totalWidth = this.handleEl.parentElement.offsetWidth; // Get total width of container in pixels
         let percWidthHandleMiddle = 100 * (this.handleEl.offsetWidth) / totalWidth;
-        percWidthHandleMiddle -= 1; // HACK to position cursor exactly where mouse is
+        //percWidthHandleMiddle -= 1; // HACK to position cursor exactly where mouse is
 
         this.handleEl.style.left = (perc - percWidthHandleMiddle/2) + '%';
 
