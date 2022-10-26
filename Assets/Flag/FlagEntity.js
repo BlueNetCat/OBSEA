@@ -57,10 +57,12 @@ class FlagEntity {
   }
 
   hideFlag(){
-    this.root.visible = false;
+    if (this.root)
+      this.root.visible = false;
   }
   showFlag(){
-    this.root.visible = true;
+    if (this.root)
+      this.root.visible = true;
   }
 
   updateWindParameters(params){

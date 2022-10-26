@@ -194,9 +194,12 @@ class OceanEntity {
   // USER INPUT 
   // Steepness range slider
   updateSteepness = function(steepness){
-    this.oceanTile.material.uniforms.u_steepnessFactor.value = steepness;
+    if (this.oceanTile)
+      this.oceanTile.material.uniforms.u_steepnessFactor.value = steepness;
   }
   updateSwell = function(varName, value, index){
+    if (!this.oceanTile)
+      return;
     if (varName == 'height'){
       this.swellParameters[index].Hm0 = value;
       this.oceanTile.material.uniforms.u_wave1Params.value.y = value;// steepness, waveHeight, directionx, directionz
@@ -235,6 +238,8 @@ class OceanEntity {
   }
 
   updateParamsTexture() {
+    if (!this.oceanTile)
+      return;
     let paramsData = this.oceanParams.getWaveParamsImageData();
     let paramsTexture = new THREE.DataTexture(paramsData, this.imgSize, this.imgSize, THREE.RGBAFormat, THREE.UnsignedByteType);
     paramsTexture.magFilter = THREE.NearestFilter;
