@@ -13,6 +13,10 @@
       <!-- About obsea -->
       <h4>{{$t('infoPanel.aboutObsea')}}</h4>
       <p>{{$t('infoPanel.p2')}}</p>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d22674.59644209604!2d1.743679785621899!3d41.18117490234741!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a38406e50198d9%3A0x3aeb311db44b1f56!2sObsea%20Cabled%20Observatory!5e0!3m2!1ses!2ses!4v1666868675522!5m2!1ses!2ses"
+        width="100%" height="300px" style="border:0;" allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
       <p>{{$t('infoPanel.p2_1')}}</p>
       <!-- Contact -->
       <h4>{{$t('infoPanel.contact')}}</h4>
