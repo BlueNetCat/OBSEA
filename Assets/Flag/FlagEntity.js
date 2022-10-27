@@ -50,9 +50,10 @@ class FlagEntity {
 
   // Set wind parameters
   setWindParameters(paramName, value){
-    if (paramName == 'windSpeed')
+    if (paramName == 'windSpeed'){
       this.windIntensity = value;
-    else if (paramName == 'windDirection')
+      this.setFlagBeaufortColor(this.windIntensity);
+    } else if (paramName == 'windDirection')
       this.windDirection = value + 180;
   }
 
@@ -70,7 +71,30 @@ class FlagEntity {
     this.root.visible = params.WSPD == undefined ? false : true;
 
     this.windIntensity = params.WSPD * 3.6 || this.windIntensity; // From m/s to km/h
+    this.setFlagBeaufortColor(this.windIntensity);
     this.windDirection = params.WDIR || this.windDirection;
+  }
+
+  // Set flag color according to wind speed
+  setFlagBeaufortColor(windInt){
+    // Find beaufort scale (windInt is in km/h)
+    let scale = 0;
+    let upperLimBeaufort = [1, 5, 11, 19, 28, 38, 49, 61, 74, 88, 102, 117, 300];
+    for (let i = 0; i< upperLimBeaufort.length; i++){
+      scale = i;
+      if (windInt < upperLimBeaufort[i]){
+        i = upperLimBeaufort.length; // Exit loop
+      }
+    }
+    
+    // Load texture and assign to object
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load('/OBSEA/Assets/Flag/BeaufortScale/'+ scale +'.png');
+    texture.encoding = THREE.sRGBEncoding;
+    texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
+    texture.flipY = false;
+    this.flagObj.children[0].material.map = texture;
+    
   }
 }
 
