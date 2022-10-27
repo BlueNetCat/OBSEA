@@ -27,13 +27,14 @@
             <!-- Data availability -->
             <data-streams-bar ref="dataStreamsBar" 
               @clicked="onDataStreamsClicked($event)"
+              @wheel.prevent="onTimeBarWheel($event)"
             style="width:100%"></data-streams-bar>
             
             
             
             <!-- Horizontal calendar -->
             <!-- Year calendar -->
-            <div class="timeline">
+            <div class="timeline" @wheel.prevent="onTimeBarWheel($event)">
               <button v-for="yy in years" class="m-0 p-0"
                 :class="[yy.wght == 0 ? 'hiddenClass' : yy.num % 2 == 0 ? 'yearButton' : 'yearButton even']"
                 @click="onYearClicked($event)" :key="yy.num" :id="yy.num" :title="yy.num"
@@ -41,7 +42,7 @@
             </div>
             
             <!-- Month calendar -->
-            <div class="timeline" ref="monthTimeline">
+            <div class="timeline" ref="monthTimeline" @wheel.prevent="onTimeBarWheel($event)">
               <button v-for="mm in months" class="m-0 p-0" :class="[mm.wght == 0 ? 'hiddenClass' : 'monthButton']"
                 @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="mm.title"
                 :style="{width: mm.wght + '%'}">{{mm.name}}</button>
@@ -49,7 +50,7 @@
             
             <!-- Days calendar -->
             <Transition> <!-- Vue transition -->
-              <div class="timeline" ref="dayTimeline" v-show="days.length!=0">
+              <div class="timeline" ref="dayTimeline" v-show="days.length!=0" @wheel.prevent="onTimeBarWheel($event)">
                 <button v-for="dd in days" class="m-0 p-0" :class="[dd.wght == 0 ? 'hiddenClass' : 'dayButton']"
                   @click="onDayClicked($event)" :key="dd.key" :id="dd.key" :title="dd.title"
                   :style="{width: dd.wght + '%'}">{{dd.name}}</button>
@@ -220,6 +221,27 @@ export default {
 
         // TODO: UPDATE CENTER DATE ON THE SIMULATION/DATA STREAM
       },
+
+
+
+      // Zoom in / out on the date
+      onTimeBarWheel: function(event){
+        
+        let percZoom = 0.1;
+        let timeInterval = this.endDate.getTime() - this.startDate.getTime();
+        let sign = Math.sign(event.deltaY);
+        this.endDate.setTime(this.endDate.getTime() + sign * timeInterval * percZoom * 0.5);
+        this.startDate.setTime(this.startDate.getTime() - sign * timeInterval * percZoom * 0.5);
+        // Limit starting and ending dates
+        if (this.startDate < this.limStartDate)
+          this.startDate.setTime(this.limStartDate.getTime());
+        if (this.endDate > this.limEndDate)
+          this.endDate.setTime(this.limEndDate.getTime());
+
+        this.updateRangeSlider();
+      },
+
+
 
       // Display the year on the timeline
       onYearClicked: function(event){
