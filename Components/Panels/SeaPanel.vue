@@ -188,8 +188,8 @@ export default {
       let percent = (parseFloat(sliderEl.value) - parseFloat(sliderEl.min)) / (parseFloat(sliderEl.max) - parseFloat(sliderEl.min));
       let tipEl = this.$refs.swell1HeightSliderTip;
       // Displacement
-      let displacement = -tipEl.clientWidth / 2 - sliderEl.clientWidth + sliderEl.clientWidth * percent;
-      tipEl.style = "transform: translateX(" + displacement + "px) translateY(" + -20 + "px)";
+      let displacement = -sliderEl.clientWidth/2 + sliderEl.clientWidth * percent;
+      tipEl.style = "position:absolute; transform: translateX(" + displacement + "px) translateY(" + -20 + "px)";
       tipEl.innerText = parseFloat(e.target.value).toFixed(1) + "m";
     },
     swell1DirectionKnobClicked: function (angle) {
