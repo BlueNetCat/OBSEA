@@ -86,7 +86,10 @@ export default {
       }
       // Currents
       if (this.sceneManager.currents && dataInTimestamp['UCUR_0m']){
-          this.sceneManager.currents.setCurrentParameters(dataInTimestamp);
+        this.sceneManager.currents.showCurrents();
+        this.sceneManager.currents.setCurrentParameters(dataInTimestamp);
+      } else {
+        this.sceneManager.currents.hideCurrents();
       }
 
     });
