@@ -234,7 +234,6 @@ export default {
         let totalWidth = event.target.offsetWidth;
         let mouseX = event.offsetX;
         let leftPerc = mouseX/totalWidth;
-        console.log(leftPerc);
         let rightPerc = 1 - leftPerc;
 
         let sign = Math.sign(event.deltaY);
