@@ -8,6 +8,8 @@ class FlagEntity {
   windIntensity;
   windDirection;
   time = 0;
+
+  beaufortTextures = [];
   
   constructor(scene, onload){
 
@@ -87,13 +89,23 @@ class FlagEntity {
       }
     }
     
-    // Load texture and assign to object
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load('/OBSEA/Assets/Flag/BeaufortScale/'+ scale +'.png');
-    texture.encoding = THREE.sRGBEncoding;
-    texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
-    texture.flipY = false;
-    this.flagObj.children[0].material.map = texture;
+    
+    
+    let texture;
+    // Load texture only when necessary
+    if (this.beaufortTextures[scale] == undefined){
+      // Load texture
+      const loader = new THREE.TextureLoader();
+      texture = loader.load('/OBSEA/Assets/Flag/BeaufortScale/'+ scale +'.png');
+      texture.encoding = THREE.sRGBEncoding;
+      texture.magFilter = THREE.LinearFilter; //THREE.NearestFilter;
+      texture.flipY = false;
+    }
+    else
+      texture = this.beaufortTextures[scale];
+    // Assign to material only if necessary (different beaufort scale now)
+    if (this.flagObj.children[0].material.map.uuid != texture.uuid)
+      this.flagObj.children[0].material.map = texture;
     
   }
 }
