@@ -96,7 +96,7 @@ export default {
           let ddData = this.dailyData[key];
           if (ddData != undefined){
             // Paint
-            let measures = ['Hm0', 'WSPD', 'UCUR_0m'];
+            let measures = ['Hm0', 'WSPD', 'UCUR_1m'];
             for (let j = 0; j < measures.length; j++){
               // If measure exists in dataset
               if (ddData[measures[j]]){
@@ -108,6 +108,9 @@ export default {
                 // Calculate height (use datatypes max?)
                 let factor = 1;
                 let dataType = this.DataManager.OBSEADataRetriever.DataTypes[measures[j]];
+                if (measures[j].includes('CUR')){
+                  dataType = this.DataManager.OBSEADataRetriever.DataTypes['CUR'];
+                }
                 if (dataType){
                   if (dataType.signValue){
                     factor = Math.max(1,ddData[measures[j]]/dataType.signValue);
