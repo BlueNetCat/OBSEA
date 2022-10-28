@@ -91,7 +91,8 @@ const OBSEADataTypes = {
       18: { 'U': '311', 'V': '312', 'Z': '313' },
       19: { 'U': '316', 'V': '317', 'Z': '318' },
     },
-    units: 'm/s'
+    units: 'm/s',
+    signValue: 0.75,
   },
 
 
