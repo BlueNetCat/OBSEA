@@ -103,6 +103,38 @@ export default ca = {
     windParams: 'Modifica el vent',
   },
 
+  timeControl: {
+    "timeSliderTip": "Arrossega per seleccionar la data",
+    "dailyMax": "Màxim diari (OBSEA)"
+  },
+
+
+
+    "January": "Gener",
+    "February": "Febrer",
+    "March": "Març",
+    "April": "Abril",
+    "May": "Maig",
+    "June": "Juny",
+    "July": "Juliol",
+    "August": "Agost",
+    "September": "Setembre",
+    "October": "Octubre",
+    "November": "Novembre",
+    "December": "Desembre",
+    "Jan": "Gen",
+    // "Feb": ,
+    // "Mar": ,
+    "Apr": "Abr",
+    "May": "Maig",
+    // "Jun": ,
+    // "Jul": ,
+    "Aug": "Ago",
+    "Sep": "Set",
+    // "Oct": ,
+    // "Nov": ,
+    "Dec": "Des",
+  
 
   "Data": "Dades",
 }

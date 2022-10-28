@@ -4,7 +4,7 @@
     <!-- Current information available (temp, etc...)-->
     <div class="bottom-bar" v-show="true">
       <div class="data-title">
-        {{$t(dataOrigin)}}
+        {{$t('timeControl.' + dataOrigin)}}
       </div>
       <div class="data-text">
         <div>
@@ -58,7 +58,7 @@ export default {
 
       DataManager: new DataManager(),
       date: new Date(),
-      dataOrigin: "Daily maximum (OBSEA)",
+      dataOrigin: "dailyMax",
 
       dataOnTimeInstant: {},
 
@@ -69,7 +69,7 @@ export default {
     // TODO: instantaneous when it is loaded
     updateDailyDataTicker: function(params){
 
-      this.dataOrigin = "Daily maximum (OBSEA)";
+      this.dataOrigin = "dailyMax";
 
       this.dataOnTimeInstant = {}; // Reset
       

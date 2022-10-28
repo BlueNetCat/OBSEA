@@ -102,6 +102,15 @@ export default en = {
     windParams: 'Set wind parameters',
   },
 
+
+  timeControl: {
+    "timeSliderTip": "Drag to select the date",
+    "dailyMax": "Daily maximum (OBSEA)"
+  },
+  
+  
+
+
   "Data": "Data",
 
 

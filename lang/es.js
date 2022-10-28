@@ -107,5 +107,39 @@ export default es = {
     windParams: 'Modifica el viento',
   },
 
+  timeControl: {
+    "timeSliderTip": "Arrastra para seleccionar la fecha",
+    "dailyMax": "Máximo diario (OBSEA)"
+  },
+
+
+  
+    "January": "Enero",
+    "February": "Febrero",
+    "March": "Marzo",
+    "April": "Abril",
+    "May": "Mayo",
+    "June": "Junio",
+    "July": "Julio",
+    "August": "Agosto",
+    "September": "Septiembre",
+    "October": "Octubre",
+    "November": "Noviembre",
+    "December": "Diciembre",
+    "Jan": "Ene",
+    // "Feb": ,
+    // "Mar": ,
+    "Apr": "Abr",
+    // "May": "May",
+    // "Jun": ,
+    // "Jul": ,
+    "Aug": "Ago",
+    // "Sep": "Sep",
+    // "Oct": ,
+    // "Nov": ,
+    "Dec": "Dic",
+  
+  
+
   "Data": "Datos",
 }

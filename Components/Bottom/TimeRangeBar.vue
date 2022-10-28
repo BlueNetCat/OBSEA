@@ -44,8 +44,8 @@
             <!-- Month calendar -->
             <div class="timeline" ref="monthTimeline" @wheel.prevent="onTimeBarWheel($event)">
               <button v-for="mm in months" class="m-0 p-0" :class="[mm.wght == 0 ? 'hiddenClass' : 'monthButton']"
-                @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="mm.title"
-                :style="{width: mm.wght + '%'}">{{mm.name}}</button>
+                @click="onMonthClicked($event)" :key="mm.key" :id="mm.key" :title="$i18n.t(mm.title) + ', ' + mm.year"
+                :style="{width: mm.wght + '%'}">{{$t(mm.name)}}</button>
             </div>
             
             <!-- Days calendar -->
@@ -675,15 +675,18 @@ export default {
           let pixelWidth = mm.wght/100 * totalWidth;
           if (pixelWidth < 20)
             mm.name = '';
-          else if (pixelWidth < 40)
-            mm.name = this.monthAbbr[mm.num][0];
+          else if (pixelWidth < 40){
+            // HACK: Force translation. It is not reactive. Maybe this should be in the html, but the calculation of the pixel width is not a one-line thing.
+            mm.name = this.$i18n.t(this.monthAbbr[mm.num][1]);
+            mm.name = mm.name[0];
+          }
           else if (pixelWidth < 60)
             mm.name = this.monthAbbr[mm.num][1];
           else
             mm.name = this.monthAbbr[mm.num][2];
 
           // Define title for tootlip
-          mm.title = this.monthAbbr[mm.num][2] + ", " + mm.year;
+          mm.title = this.monthAbbr[mm.num][2];// + ", " + mm.year;
         });
         
         // Days

@@ -10,7 +10,7 @@
           <!-- Button -->
           <button @mousedown="onMouseDownMiddleHandle" @touchstart="onMouseDownMiddleHandle" @touchend="removeEventListeners" 
             class="timeHandle timeHandle" ref="middleHandle" 
-            title="Drag to select the time"
+            :title="$i18n.t('timeControl.timeSliderTip')"
             style="left: 50%">
             {{message}}
             <div class="timeHandlePointer"></div>
@@ -55,7 +55,7 @@ export default {
         // Percentage value
         value: 50,
         // Slider message
-        message: 'Drag to select the time',
+        message: this.$i18n.t('timeControl.timeSliderTip'),
       }
     },
     methods: {
