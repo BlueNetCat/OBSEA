@@ -229,9 +229,17 @@ export default {
         
         let percZoom = 0.1;
         let timeInterval = this.endDate.getTime() - this.startDate.getTime();
+
+        // Choose amount on the left and the right size
+        let totalWidth = event.target.offsetWidth;
+        let mouseX = event.offsetX;
+        let leftPerc = mouseX/totalWidth;
+        console.log(leftPerc);
+        let rightPerc = 1 - leftPerc;
+
         let sign = Math.sign(event.deltaY);
-        this.endDate.setTime(this.endDate.getTime() + sign * timeInterval * percZoom * 0.5);
-        this.startDate.setTime(this.startDate.getTime() - sign * timeInterval * percZoom * 0.5);
+        this.endDate.setTime(this.endDate.getTime() + sign * timeInterval * percZoom * rightPerc);
+        this.startDate.setTime(this.startDate.getTime() - sign * timeInterval * percZoom * leftPerc);
         // Limit starting and ending dates
         if (this.startDate < this.limStartDate)
           this.startDate.setTime(this.limStartDate.getTime());
