@@ -16,6 +16,7 @@ import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.j
 //import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
 import { CurrentEntity } from '/OBSEA/Assets/Current/CurrentEntity.js';
+import { TextMeshEntity } from '/OBSEA/Assets/TextMesh/TextMeshEntity.js';
 
 import { OBSEADataRetriever } from '/OBSEA/data/OBSEADataRetriever.js'
 
@@ -79,6 +80,8 @@ class SceneManager{
     const scene = new THREE.Scene();
     this.scene = scene;
     scene.background = new THREE.Color(0x47A0B9);
+    this.scene.camera = this.camera;
+
     // Fog
     scene.fog = new THREE.FogExp2(new THREE.Color(0x47A0B9), 0.02);
     // Fog only below water
@@ -116,6 +119,10 @@ class SceneManager{
     // Flag
     this.flag = new FlagEntity(scene, () => {
       this.flag.root.position.y = 1.3;
+    });
+    // Test TEXT
+    this.windText = new TextMeshEntity(scene, "", 0.25, 0x000000, () => {
+      this.windText.textObj.position.y = 9;
     });
 
     // Rosa dels vents
@@ -274,23 +281,8 @@ class SceneManager{
 
     // Flag updates
     if (this.flag && this.camera.position.y > 0) {
-      if (this.flag.isLoaded) {
-
-        // // Get wind intensity from slider
-        // let el = document.getElementById("sliderWindIntensity");
-        // let windInt = parseFloat(el.value);
-        // el = document.getElementById("infoWindIntensity");
-        // el.innerHTML = windInt + " km/h";
-
-        // // Get wind direction from slider
-        // el = document.getElementById("sliderWindDir");
-        // let windDir = parseFloat(el.value);
-        // el = document.getElementById("infoWindDir");
-        // el.innerHTML = windDir + " degrees";
-
-        // flag.setWindParams(windInt, windDir);
+      if (this.flag.isLoaded && this.flag.root.visible) {
         this.flag.update(time);
-
       }
     }
 

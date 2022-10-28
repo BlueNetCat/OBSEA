@@ -84,6 +84,13 @@ export default {
           this.sceneManager.flag.hideFlag();
         }
       }
+      if (this.sceneManager.windText){
+        if (dataInTimestamp['WSPD']) {
+          let text = (dataInTimestamp['WSPD'] * 3.6).toFixed(1);
+          this.sceneManager.windText.updateText(text + " km/h");
+        } else
+          this.sceneManager.windText.removeText();
+      }
       // Currents
       if (this.sceneManager.currents && dataInTimestamp['UCUR_0m']){
         this.sceneManager.currents.showCurrents();
@@ -136,6 +143,8 @@ export default {
     window.eventBus.on('WindPanel_windSpeedSliderClicked', (windSpeed) => {
       if (this.sceneManager.flag)
         this.sceneManager.flag.setWindParameters('windSpeed', windSpeed);
+      if (this.sceneManager.windText)
+        this.sceneManager.windText.updateText(windSpeed.toFixed(1) + ' km/h');
     });
     window.eventBus.on('WindPanel_windDirectionKnobClicked', (direction) => {
       if (this.sceneManager.flag)
@@ -151,6 +160,14 @@ export default {
     // Listeners: TopRightNav, BottomSection
     this.sceneManager.controls.addEventListener('change', (e) => {
       window.eventBus.emit('Canvas3D_cameraChange', this.sceneManager);
+
+      // Update text mesh
+      if (this.sceneManager.scene){
+        if (this.sceneManager.windText){
+          this.sceneManager.windText.faceCamera();
+        }
+      }
+
     });
 
   },
