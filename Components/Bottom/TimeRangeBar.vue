@@ -163,6 +163,8 @@ export default {
       onRangeSliderMouseUp: function(rangeArray){
         this.isRangeChanging = false;
         this.isRangeDragging = false;
+        // Update simulation
+        this.updateSimulation();
       },
 
       // Data streams is clicked
@@ -176,8 +178,16 @@ export default {
           this.$refs.rangeSlider.setSliderPosition(perc);
         });
 
+        this.updateSimulation();
         //setTimeout(() => this.$refs.rangeSlider.setSliderPosition(perc), 500);
         
+      },
+
+      // Update simulation
+      updateSimulation: function(){
+        let centeredDate = this.updateCenteredDate();
+        if (this.$refs.dataStreamsBar)
+          this.$refs.dataStreamsBar.updateCurrentDate(centeredDate.toISOString());
       },
 
       // Update loop according to range slider
@@ -218,8 +228,6 @@ export default {
               this.updateRangeSlider()
             }, this.FRAMERATE);
         }
-
-        // TODO: UPDATE CENTER DATE ON THE SIMULATION/DATA STREAM
       },
 
 
@@ -246,6 +254,7 @@ export default {
           this.endDate.setTime(this.limEndDate.getTime());
 
         this.updateRangeSlider();
+        this.updateSimulation();
       },
 
 
@@ -273,6 +282,7 @@ export default {
         this.setRangeSlider();
         this.updateHTMLTimeline();
         this.updateCenteredDate();
+        this.updateSimulation();
       },
 
       // Display X months on the timeline
@@ -303,6 +313,7 @@ export default {
         this.setRangeSlider();
         this.updateHTMLTimeline();
         this.updateCenteredDate();
+        this.updateSimulation();
       },
 
       // Display X days on the timeline
@@ -334,6 +345,7 @@ export default {
         this.setRangeSlider();
         this.updateHTMLTimeline();
         this.updateCenteredDate();
+        this.updateSimulation();
       },
 
 
@@ -389,8 +401,7 @@ export default {
         let message = centeredDate.toISOString().substring(0, 16) + "Z";
         if (this.$refs.rangeSlider)
           this.$refs.rangeSlider.setMessage(message);
-        if (this.$refs.dataStreamsBar)
-          this.$refs.dataStreamsBar.updateCurrentDate(centeredDate.toISOString())
+        return centeredDate;
       },
 
 
