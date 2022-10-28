@@ -3,7 +3,7 @@
   <div class="dropdown">
     <div class="dropbtnBackground">
       <button @click="dropdownClick" class="dropbtn">
-        <svg class="icon-svg nopointerevents" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+        <!-- <svg class="icon-svg nopointerevents" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
           <path class="cls-1" d="M249,42h8V469h-8V42Z" />
           <path class="cls-1" d="M466,251v10H41V251H466Zm0,0v10H41V251H466Z" />
           <path class="cls-1" d="M435,144l5,10H66l5-10H435Zm2.01,0v10.011H69V144H437.01Z" />
@@ -11,7 +11,11 @@
           <circle class="cls-2" cx="253.5" cy="255.5" r="216.5" />
           <ellipse class="cls-2" cx="254" cy="257" rx="145" ry="218" />
           <ellipse class="cls-2" cx="255" cy="256" rx="72" ry="218" />
-        </svg>
+        </svg> -->
+
+        <img class="lang-icon" src="/OBSEA/lang/en-200.png" v-show="$i18n.locale.includes('en')">
+        <img class="lang-icon" src="/OBSEA/lang/es-200.png" v-show="$i18n.locale.includes('es')">
+        <img class="lang-icon" src="/OBSEA/lang/ca-200.png" v-show="$i18n.locale.includes('ca')">
       
       </button>
     </div>
@@ -188,5 +192,11 @@ export default {
 .cat:before {
   content: '';
   background-image: url(/OBSEA/lang/ca-200.png);
+}
+
+.lang-icon {
+  width: 25px;
+  pointer-events: none;
+  box-shadow: 0px 0px 2px rgb(0, 0, 0);
 }
 </style>
