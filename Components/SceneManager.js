@@ -120,21 +120,45 @@ class SceneManager{
     this.flag = new FlagEntity(scene, () => {
       this.flag.root.position.y = 1.3;
     });
-    // Test TEXT
-    this.windText = new TextMeshEntity(scene, "", 0.25, 0x000000, () => {
-      this.windText.textObj.position.y = 9;
-    });
+    
 
     // Rosa dels vents
     this.rosaVents = new RosaVentsEntity(scene);
     this.rosaVents.root.position.y = 7;
-
-
+    
+    // Sea velocity, currents
     this.currents = new CurrentEntity(scene);
 
 
 
-
+    // SCENE TEXT
+    // SURFACE
+    // Wind text mesh
+    this.windText = new TextMeshEntity(scene, "", 0.25, 0x000000, () => {
+      this.windText.textObj.position.y = 9;
+    });
+    // Orientation text meshes
+    this.Ntext = new TextMeshEntity(scene, "N", 0.8, 0xff0000, () => {
+      this.Ntext.textObj.rotation.x = -Math.PI / 2;
+      this.Ntext.textObj.position.y = 1;
+      this.Ntext.textObj.position.z = -8;
+    });
+    this.Stext = new TextMeshEntity(scene, "S", 0.8, 0xffffff, () => {
+      this.Stext.textObj.rotation.x = -Math.PI / 2;
+      this.Stext.textObj.position.y = 1;
+      this.Stext.textObj.position.z = 8;
+    });
+    // BOTTOM
+    // Temperature text
+    this.tempText = new TextMeshEntity(scene, "16º C", 0.25, 0x000000, () => {
+      this.tempText.textObj.rotation.x = -Math.PI / 2;
+      this.tempText.textObj.position.set(3, -19.35, 0);
+    });
+    this.salText = new TextMeshEntity(scene, "37.8 ‰", 0.25, 0x000000, () => {
+      this.salText.textObj.rotation.x = -Math.PI / 2;
+      this.salText.textObj.position.set(3, -19.35, 0.5);
+    });
+    // Potential salinity
 
     // OBSEA Data
     // let dataRetriever = new OBSEADataRetriever(() => {

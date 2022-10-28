@@ -9,6 +9,7 @@ import { TextGeometry } from 'https://threejs.org/examples/jsm/geometries/TextGe
 class TextMeshEntity {
 
   tempVec3 = new THREE.Vector3();
+  tempQuat = new THREE.Quaternion();
 
   constructor(scene, inputText, inputSize, inputColor, onload) {
 
@@ -64,7 +65,7 @@ class TextMeshEntity {
       let material = new THREE.MeshPhongMaterial({
         color: inputColor,
         specular: 0xffffff,
-        shininess: 30,
+        shininess: 5,
         flatShading: false,
         opacity: 0.7,
         transparent: true
@@ -89,6 +90,8 @@ class TextMeshEntity {
     this.color = inColor || this.color;
     // Current position
     this.tempVec3.copy(this.textObj.position);
+    // Current rotation
+    this.tempQuat.copy(this.textObj.quaternion);
     // Remove current text from scene
     this.scene.remove(this.textObj);
     // Create text
@@ -98,8 +101,10 @@ class TextMeshEntity {
     if (this.textObj){
       // Reposition
       this.textObj.position.copy(this.tempVec3);
+      this.textObj.quaternion.copy(this.tempQuat);
       this.scene.add(this.textObj);
-      this.faceCamera();
+      if (this.facesCamera) // Face camera if faceCamera is called before at some point
+        this.faceCamera();
     }
   }
 
@@ -113,6 +118,8 @@ class TextMeshEntity {
       .to(this.tempVec3.set(0, rotY, 0), 50)
       .easing(TWEEN.Easing.Cubic.InOut)
       .start();
+
+    this.facesCamera = true;
   }
 
   removeText(){

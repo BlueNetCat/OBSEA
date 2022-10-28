@@ -83,7 +83,7 @@ export default {
         } else { // Hide flag when there is no wind data
           this.sceneManager.flag.hideFlag();
         }
-      }
+      }// Wind text
       if (this.sceneManager.windText){
         if (dataInTimestamp['WSPD']) {
           let text = (dataInTimestamp['WSPD'] * 3.6).toFixed(1);
@@ -98,6 +98,18 @@ export default {
       } else {
         this.sceneManager.currents.hideCurrents();
       }
+
+      // Temperature and salinity texts
+      if (this.sceneManager.tempText)
+        if (dataInTimestamp['TEMP'])
+          this.sceneManager.tempText.updateText(dataInTimestamp['TEMP'].toFixed(1) + " C");
+        else
+          this.sceneManager.tempText.removeText();
+      if (this.sceneManager.salText)
+        if (dataInTimestamp['PSAL'])
+          this.sceneManager.salText.updateText(dataInTimestamp['PSAL'].toFixed(1) + " ‰");
+        else
+          this.sceneManager.salText.removeText();
 
     });
     const generateSwell = (Hm0, Mdir) => {
