@@ -6,7 +6,7 @@
         <div class="container-columns" style="align-items: end; justify-content: space-between;">
           
           <!-- Controls/Start stop -->
-          <!-- Play Pause -->
+          <!-- Play Pause https://emojipedia.org/ -->
           <div class="playButtons notextselect container-rows" >
             <span class="playPause" @click="playPause" :title="$i18n.t('timeControl.playPause')" v-show="!isPlaying">▶️</span>
             <span class="playPause" @click="playPause" :title="$i18n.t('timeControl.playPause')" v-show="isPlaying">⏸️</span>
