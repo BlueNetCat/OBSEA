@@ -489,7 +489,7 @@ export default {
         
         // Loop if is playing
         if (this.isPlaying)
-          setTimeout(() => this.reproduceTimeline(), 700);
+          setTimeout(() => this.reproduceTimeline(), 1200);
       },
 
 
