@@ -30,17 +30,7 @@
             d="M88,260a55,55,0,0,1,7,4,46.225,46.225,0,0,1,5,4v26a9.609,9.609,0,0,1-3,4,12.415,12.415,0,0,1-6,2,16.166,16.166,0,0,1-9-2V257C83.917,257.954,86,259,88,260Zm312.5,58c3.605-2.2,6.026-2.7,7.5-2,1.727,0.826,2.654,2.851,3,5q-1,18.75-2,37.5a8.469,8.469,0,0,1-2.49,6.01A9.466,9.466,0,0,1,400.5,367a13.641,13.641,0,0,1-10.5-4q1-19,2-38A40.686,40.686,0,0,1,400.5,318Z" />
         </svg>
       </button>
-      <!-- Measures button-->
-      <button @click="measuresButtonClicked">
-        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-          <path id="Rounded_Rectangle_1" data-name="Rounded Rectangle 1" class="meter-1"
-            d="M411,180c48.294,61.225,52.951,127.51,3,208a10,10,0,0,1-10,10H108a10,10,0,0,1-10-10c-49.951-80.49-45.294-146.775,3-208C174.661,86.616,337.339,86.616,411,180Z" />
-          <path class="meterArrow"
-            d="M272.717,391.993L225.1,274.9c-3.683,5.536-7.734,10.417-10.349,9.664-3.565-1.026-2.839-12.053-2.277-20.454,0.707-10.548,1.185-21.149,1.474-32.106q11.97,11.724,23.86,22.77c6.46,5.992,14.888,13.879,12.892,16.991-1.5,2.342-8.4,1.187-15.4-.7l47.687,117.273Z" />
-          <path class="meter-3"
-            d="M84.052,348.56l-4.1-9.12,40-18,4.1,9.12Zm0,0-4.1-9.12,40-18,4.1,9.12ZM76.075,229.818l2.89-9.573,41.992,12.676-2.89,9.573Zm0,0,2.89-9.573,41.992,12.676-2.89,9.573Zm74.194-87.382,8.331-5.531,24.263,36.542-8.331,5.531-2.8-4.222Q161,158.6,150.269,142.436Zm0,0,8.331-5.531,24.263,36.542-8.331,5.531ZM84.052,348.56l-4.1-9.12,40-18,4.1,9.12ZM76.075,229.818l2.89-9.573,41.992,12.676-2.89,9.573Zm74.194-87.382,8.331-5.531,24.263,36.542-8.331,5.531ZM428,349l4.111-9.134-40.071-18.029-4.111,9.134Zm0,0,4.111-9.134-40.071-18.029-4.111,9.134Zm7.991-118.934-2.895-9.589-42.066,12.7,2.9,9.589Zm0,0-2.895-9.589-42.066,12.7,2.9,9.589Zm-74.325-87.524L353.318,137l-24.306,36.6,8.346,5.54,2.808-4.229Zm0,0L353.318,137l-24.306,36.6,8.346,5.54ZM428,349l4.111-9.134-40.071-18.029-4.111,9.134Zm7.991-118.934-2.895-9.589-42.066,12.7,2.9,9.589Zm-74.325-87.524L353.318,137l-24.306,36.6,8.346,5.54ZM250,115h10v43H250V115Z" />
-        </svg>
-      </button>
+      
       <!-- FPS button -->
       <button @click="fpsButtonClicked">
         <strong>FPS</strong>
@@ -80,10 +70,6 @@ export default {
     },
     baseButtonClicked: function (e) {
       window.eventBus.emit('InstrumentsMenu_baseButtonClicked');
-    },
-    measuresButtonClicked: function(e){
-      window.eventBus.emit('InstrumentsMenu_measuresButtonClicked');
-      //window.open('https://www.obsea.es/dashboard/', '_blank');
     },
     // Show/hide FPS panel
     fpsButtonClicked: function(e){
@@ -210,41 +196,5 @@ button:hover {
     stroke-width: 16px;
   }
 
-/* Meter style */
-  .meter-1 {
-    fill: none;
-    stroke-width: 20px;
-  }
-  .meter-1, .meterArrow, .meter-3 {
-    stroke: #1a1a1a;
-    fill-rule: evenodd;
-  }
-  .meterArrow, .meter-3 {
-    fill: #1a1a1a;
-  }
-  .meterArrow {
-    stroke-width: 30px;
-  }
-  .meter-3 {
-    stroke-width: 8px;
-  }
-  /* Meter animation */
-  .meterArrow {
-    animation: meterArrow 6s alternate infinite ease-in-out;
-    transform-origin: 50% 70%;
-  }
 
-  @keyframes meterArrow {
-    0% {
-      transform: rotate(20deg);
-    }
-
-    50% {
-      transform: rotate(-20deg);
-    }
-
-    100% {
-      transform: rotate(20deg);
-    }
-  }
 </style>
