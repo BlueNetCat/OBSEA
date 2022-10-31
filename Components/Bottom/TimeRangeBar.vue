@@ -3,13 +3,27 @@
 
       <div>
         <!-- Two cols -->
-        <div class="container-columns" style="align-items: end">
+        <div class="container-columns" style="align-items: end; justify-content: space-between;">
           
           <!-- Controls/Start stop -->
-          <!-- Start and ending date -->
-          <div class="infoStartEndDate notextselect">
-            <div><b>Start:</b> {{startStr}}</div>
-            <div><b>End:</b> {{endStr}}</div>
+          <!-- Play Pause -->
+          <div class="playButtons notextselect container-rows" >
+            <span class="playPause" @click="playPause" :title="$i18n.t('timeControl.playPause')" v-show="!isPlaying">▶️</span>
+            <span class="playPause" @click="playPause" :title="$i18n.t('timeControl.playPause')" v-show="isPlaying">⏸️</span>
+            <span v-show="isPlaying" style="font-size: 10px">{{timeStepFactor*0.5}}h</span>
+            <!-- Fast-forward / Rewind -->
+            <div class="container-columns" v-show="isPlaying">
+              <div class="stepButtons" @click="rewind" :title="$i18n.t('timeControl.backward')">⏪</div>
+              <div class="stepButtons" @click="fastForward" :title="$i18n.t('timeControl.forward')">⏩</div>
+            </div>
+            <!-- Step forward/backward -->
+            <div class="container-columns" v-show="!isPlaying">
+              <div class="stepButtons" @click="stepBackward" :title="$i18n.t('timeControl.stepBackward')">◀️</div>
+              <div class="stepButtons" @click="stepForward" :title="$i18n.t('timeControl.stepForward')">▶️</div>
+            </div>
+            
+            <!-- <div><b>Start:</b> {{startStr}}</div>
+            <div><b>End:</b> {{endStr}}</div> -->
           </div>
 
 
@@ -112,6 +126,9 @@ export default {
       // Update rate
       this.timeIncrement = 5;
       this.FRAMERATE = 40;
+      // Play/Stop buttons
+      this.timeStep = 0.5; // Half hour
+      this.timeStepFactor = 1; // Fast-forward / Rewind
       
     },
     mounted (){
@@ -137,6 +154,7 @@ export default {
         selEndDate: new Date(),
         startStr: '',
         endStr: '',
+        isPlaying: false,
       }
     },
     methods: {
@@ -182,6 +200,54 @@ export default {
         //setTimeout(() => this.$refs.rangeSlider.setSliderPosition(perc), 500);
         
       },
+
+
+
+
+      // Play pause buttons
+      playPause: function(){
+        this.isPlaying = !this.isPlaying;
+        this.timeStepFactor = 1; // RESET
+        if (this.isPlaying){
+          // Move in time
+          this.reproduceTimeline();
+        }
+      },
+      fastForward: function(){
+        this.fastForwardRewind(1);
+      },
+      rewind: function(){
+        this.fastForwardRewind(-1);
+      },
+      // Function that works for both fastForward and rewind
+      fastForwardRewind: function(sign){
+        // Opposite direction from desired
+        if (Math.sign(this.timeStepFactor) == -sign) {
+          if (this.timeStepFactor == -sign)
+            this.timeStepFactor = sign;
+          else
+            this.timeStepFactor *= 0.5;
+        }
+        else
+          if (Math.abs(this.timeStepFactor) < 16)
+            this.timeStepFactor *= 2;
+        
+      },
+      stepForward: function(){
+        this.timeStepFactor = 1;
+        this.isPlaying = true;
+        this.reproduceTimeline();
+        this.isPlaying = false;
+      },
+      stepBackward: function(){
+        this.timeStepFactor = -1;
+        this.isPlaying = true;
+        this.reproduceTimeline();
+        this.isPlaying = false;
+      },
+
+
+
 
       // Update simulation
       updateSimulation: function(){
@@ -377,6 +443,55 @@ export default {
         return true;
       },
 
+      // Play pause selected date according to play pause fast-forward rewind step buttons
+      reproduceTimeline: function(){
+        if (!this.isPlaying)
+          return
+        // Get current date
+        if (this.currentDate == undefined)
+          this.updateCenteredDate();
+        
+        // Add / Substract time to currentDate
+        this.currentDate.setUTCMinutes(this.currentDate.getUTCMinutes() + 60 * this.timeStepFactor * this.timeStep);
+
+        // Update start and ending dates of timeline if on edges
+        // Calculate percentage position
+        let timeSpan = this.endDate.getTime() - this.startDate.getTime();
+        let perc = 100 * (this.currentDate.getTime() - this.startDate.getTime()) / timeSpan;
+        let maxTimeIncrement = timeSpan * 0.1; // 20%
+        if (perc > 90){
+          this.timeIncrement = maxTimeIncrement * 4;
+          if (this.increaseEndingDate())
+            this.increaseStartDate();
+        } else if (perc < 10){
+          this.timeIncrement = maxTimeIncrement * 4;
+          if (this.decreaseStartingDate())
+            this.decreaseEndingDate();
+        }
+
+
+        // Set message in range slider
+        if (this.$refs.rangeSlider){
+          this.$refs.rangeSlider.setMessage(this.currentDate.toISOString().substring(0, 16) + "Z");
+        // TODO: REPOSITION SLIDER
+          // Calculate percentage
+          let timeSpan = this.endDate.getTime() - this.startDate.getTime();
+          let perc = 100 * (this.currentDate.getTime() - this.startDate.getTime()) / timeSpan;
+          this.$refs.rangeSlider.setSliderPosition(perc);
+        }
+        // Center on date
+        this.centerOnDate(this.currentDate);
+
+        // Update simulation
+        if (this.$refs.dataStreamsBar)
+          this.$refs.dataStreamsBar.updateCurrentDate(this.currentDate.toISOString());
+
+        
+        // Loop if is playing
+        if (this.isPlaying)
+          setTimeout(() => this.reproduceTimeline(), 700);
+      },
+
 
       // Update selected start-end dates
       updateStartEndInfo(){
@@ -401,6 +516,7 @@ export default {
         let message = centeredDate.toISOString().substring(0, 16) + "Z";
         if (this.$refs.rangeSlider)
           this.$refs.rangeSlider.setMessage(message);
+        this.currentDate = centeredDate;
         return centeredDate;
       },
 
@@ -796,16 +912,16 @@ export default {
         }
         
         // Set starting and ending dates
-        this.setSelStartDate(cDate.setTime(timeStart));
+        //this.setSelStartDate(cDate.setTime(timeStart));
         
 
-        this.setSelEndDate(cDate.setTime(timeEnd));
+        //this.setSelEndDate(cDate.setTime(timeEnd));
 
         // Set handles in range slider
         this.setRangeSlider();
         this.updateHTMLTimeline();
         // Emit selected dates. This updates the FishingTracks style
-        this.$emit('changeSelDates', [this.selStartDate, this.selEndDate]);
+        //this.$emit('changeSelDates', [this.selStartDate, this.selEndDate]);
     
       },
 
@@ -887,8 +1003,8 @@ export default {
   user-select:none;
 }
 
-.infoStartEndDate {
-  font-size: 13px;
+.playButtons {
+  font-size: 20px;
   /*width: fit-content;*/
   background: rgba(198, 239, 255, 0.8);
   border-top-right-radius: 0.2rem;
@@ -896,15 +1012,26 @@ export default {
 
   border-right: 2px solid #02488e33;
 
-  max-width: 130px;
-  min-width: 130px;
-  padding: 10px;
+  max-width: 80px;
+  min-width: 70px;
+  padding: 5px;
 
   align-items: center;
   display: flex;
   flex-direction: column;
   align-content: center;
   justify-content: center;
+}
+
+.playPause{
+  font-size: 40px;
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.stepButtons {
+  cursor: pointer;
+  pointer-events: all;
 }
 
 
