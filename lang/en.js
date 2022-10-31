@@ -8,6 +8,9 @@ export default en = {
   "waveButtonTitle": "Set the ocean swell",
   "windButtonTitle": "Set the wind",
 
+  "externalLinkButton": "Go to the data source",
+  "measuresButton": "Open/Close the data panel",
+
   "compassButtonTitle": "Set the camera facing north",
 
 

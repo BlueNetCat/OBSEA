@@ -8,6 +8,9 @@ export default es = {
   "waveButtonTitle": "Configura el oleaje",
   "windButtonTitle": "Modifica el viento",
 
+  "externalLinkButton": "Ve a la fuente de datos",
+  "measuresButton": "Obre/Cierra el panel de datos",
+
   "compassButtonTitle": "Orienta la camara hacia el norte",
 
 

@@ -8,6 +8,9 @@ export default ca = {
   "waveButtonTitle": "Configura l'onatge",
   "windButtonTitle": "Modifica el vent",
 
+  "externalLinkButton": "Ves a la font de dades",
+  "measuresButton": "Obre/Tanca el panell de dades",
+
   "compassButtonTitle": "Orienta la càmara cap al nord",
 
 

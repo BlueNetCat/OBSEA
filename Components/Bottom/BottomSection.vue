@@ -40,7 +40,18 @@
 
     <!-- Show/Hide data bar button-->
     <div class="bottom-icons" :class="showDataBar ? 'dataBarContainerOn' : ''">
-      <button @click="dataBarButtonClicked" ref="dataBarButton" class="dataBarButton" :class="showDataBar ? 'dataBarButtonOn' : 'dataBarButtonOff'">
+
+      <!-- External link-->
+      <button v-show="showDataBar" @click="externalLinkButtonClicked" :title="$i18n.t('externalLinkButton')">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="-128 -128 768 768">
+          <path class="externalLink1" d="M254,87H63V446H423V261" />
+          <path class="externalLink2"
+            d="M244.261,247.638l155.1-155.276L344.774,60.889c42.943,8.955,78.55.356,117.958-13.66-14.537,38.916-20.81,74.931-13.626,118.109l-32.423-56.1L261.348,264.745Z" />
+        </svg>
+      </button>
+
+      <!-- Show/Hide measures-->
+      <button @click="dataBarButtonClicked" ref="dataBarButton" class="dataBarButton" :class="showDataBar ? 'dataBarButtonOn' : ''" :title="$i18n.t('measuresButton')">
         <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
           <path id="Rounded_Rectangle_1" data-name="Rounded Rectangle 1" class="meter-1"
             d="M411,180c48.294,61.225,52.951,127.51,3,208a10,10,0,0,1-10,10H108a10,10,0,0,1-10-10c-49.951-80.49-45.294-146.775,3-208C174.661,86.616,337.339,86.616,411,180Z" />
@@ -112,7 +123,9 @@ export default {
     },
     dataBarButtonClicked: function (e) {
       this.showDataBar = !this.showDataBar;
-      //window.open('https://www.obsea.es/dashboard/', '_blank');
+    },
+    externalLinkButtonClicked: function(e) {
+      window.open('https://www.obsea.es/dashboard/', '_blank');
     },
   },
   components: {
@@ -159,15 +172,10 @@ button {
   border-bottom-left-radius: 0%;
   border-bottom-right-radius: 0%;
 }
-.dataBarButtonOn {
-  transform: translateY(15px);
-}
 .dataBarContainerOn {
-  height: 0;
+  transform: translateY(70px);
 }
-.dataBarButtonOff {
-  /* background-color:blue; */
-}
+
 
 
 
@@ -200,6 +208,25 @@ button {
 .cls-2 {
   fill-rule: evenodd;
 }
+
+
+.externalLink1 {
+  fill: none;
+  stroke-width: 31.35px;
+}
+
+.externalLink1,
+.externalLink2 {
+  stroke: #000;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-rule: evenodd;
+}
+
+.externalLink2 {
+  stroke-width: 14.04px;
+}
+    
 
 
 
