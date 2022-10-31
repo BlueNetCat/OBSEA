@@ -109,8 +109,15 @@ export default es = {
 
   timeControl: {
     "timeSliderTip": "Arrastra para seleccionar la fecha",
-    "dailyMax": "Máximo diario (OBSEA)"
-  },
+    "dailyMax": "Máximo diario (OBSEA)",
+    "playPause": "Reproducir/Parar",
+    "stepForward": "Desplázate al siguiente punto",
+    "stepBackward": "Desplázate al punto anterior",
+    "forward": "Avance rápido",
+    "backward": "Marcha atrás"
+  },  
+  
+
 
 
   

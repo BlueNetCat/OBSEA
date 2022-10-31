@@ -105,9 +105,13 @@ export default ca = {
 
   timeControl: {
     "timeSliderTip": "Arrossega per seleccionar la data",
-    "dailyMax": "Màxim diari (OBSEA)"
+    "dailyMax": "Màxim diari (OBSEA)",
+    "playPause": "Reproduïr/Aturar",
+    "stepForward": "Ves al següent punt",
+    "stepBackward": "Ves al punt anterior",
+    "forward": "Avanç rápid",
+    "backward": "Rebobinar"
   },
-
 
 
     "January": "Gener",

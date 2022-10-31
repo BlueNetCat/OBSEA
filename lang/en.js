@@ -105,7 +105,12 @@ export default en = {
 
   timeControl: {
     "timeSliderTip": "Drag to select the date",
-    "dailyMax": "Daily maximum (OBSEA)"
+    "dailyMax": "Daily maximum (OBSEA)",
+    "playPause": "Play/Pause",
+    "stepForward": "Step forward",
+    "stepBackward": "Step backward",
+    "forward": "Fast-forward",
+    "backward": "Rewind"
   },
   
   
