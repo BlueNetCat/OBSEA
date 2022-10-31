@@ -10,7 +10,7 @@
           <div class="playButtons notextselect container-rows" >
             <span class="playPause" @click="playPause" :title="$i18n.t('timeControl.playPause')" v-show="!isPlaying">▶️</span>
             <span class="playPause" @click="playPause" :title="$i18n.t('timeControl.playPause')" v-show="isPlaying">⏸️</span>
-            <span v-show="isPlaying" style="font-size: 10px">{{timeStepFactor*0.5}}h</span>
+            <span v-show="isPlaying" style="font-size: 10px; margin: -5px;">{{timeStepFactor*0.5}}h</span>
             <!-- Fast-forward / Rewind -->
             <div class="container-columns" v-show="isPlaying">
               <div class="stepButtons" @click="rewind" :title="$i18n.t('timeControl.backward')">⏪</div>
@@ -1014,6 +1014,7 @@ export default {
 
   max-width: 80px;
   min-width: 70px;
+  height: 90px;
   padding: 5px;
 
   align-items: center;
