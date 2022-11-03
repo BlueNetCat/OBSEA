@@ -166,19 +166,17 @@ export class OBSEADataRetriever{
     
   }
   // Load single file on demand
-  fetchFromStaticFile = function (fileName, callback) {
-    debugger;
-
+  fetchFromStaticFile = function (fileName) {
+    
     let url = this.baseURLStaticFiles;
     url += fileName;
 
-    fetch(url)
+    return fetch(url)
       .then(res => res.text())
       .then(rawSS => {
-        let csvData = this.processCSV(rawSS);
-        callback(csvData);
+        return this.processCSV(rawSS);
       })
-      .catch(e => console.error("Error when parsing .csv: " + e));
+      .catch(e => console.error("Error when loading and parsing csv: " + e));
     
   }
 
@@ -333,10 +331,12 @@ export class OBSEADataRetriever{
 
 
   // PUBLIC METHODS
-  loadHalfHourlyData = function(date, callback){
+  loadHalfHourlyData = function(date){
     let isLateHalfYear = date.getUTCMonth() + 1 >= 6;
     let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
-    this.fetchFromStaticFile(fileName, (csv) => (this.storeHalfHourlyData(csv)));
+    this.fetchFromStaticFile(fileName)
+      .then(csv => this.storeHalfHourlyData(csv))
+      .catch(e => console.error("Could not load static file " + fileName + ". " + e));
   }
 
 
