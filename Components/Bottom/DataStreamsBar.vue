@@ -162,59 +162,6 @@ export default {
 
 
 
-    setFeatureStyle: function (ff) {
-      // Current date
-      let currDate = new Date(ff.properties.info.Date);
-      // Visibility
-      let visible = currDate > this.startDate && currDate < this.endDate;
-
-      // Left position according to start and end date
-      let leftPercentage = -1 + 100 * (currDate.getTime() - this.startDate.getTime()) / (this.endDate.getTime() - this.startDate.getTime());
-      // Limit on the sides to avoid overflow
-      leftPercentage = Math.min(97, leftPercentage);
-      leftPercentage = Math.max(0, leftPercentage);
-      // Opacity on the edges
-      let opacity = 0.5;
-      if (leftPercentage < 10)
-        opacity *= leftPercentage / 10;
-      else if (leftPercentage > 90)
-        opacity *= (100 - leftPercentage) / 10;
-      // Port
-      let port = ff.properties.info.Port;
-      // Top position according to port
-      let top = this.portOrder[port];
-
-      // Color according to port from palette.js
-      let colorPort = palette ? palette[port].color : [0, 255, 0];
-
-      if (visible) {
-        return {
-          color: 'rgba(' + colorPort + ', 1.0)',
-          left: leftPercentage + '%',
-          top: (8 + top * 5) + '%',
-          opacity: opacity,
-          '-webkit-text-stroke-width': '0.5px',
-          '-webkit-text-stroke-color': 'black',
-          transition: 'left 0.3s, opacity 0.5s',
-        }
-        // If it is not visible, hide it
-      } else {
-        return {
-          color: 'rgba(' + colorPort + ', 1.0)',
-          left: leftPercentage + '%',//'0%',
-          top: (8 + top * 5) + '%',
-          opacity: 0,
-        }
-      }
-    },
-
-
-    onTrackClicked: function (event) {
-      let id = event.target.id;
-      //this.showSelectedTrack(id); // It is already called from Map.vue
-      this.$emit('clickTrackMark', id);
-    },
-
 
 
 
@@ -232,6 +179,19 @@ export default {
       this.startDate.setTime(sDate.getTime());
       this.endDate.setTime(eDate.getTime());
       this.timeSpanInHours = (this.endDate.getTime() - this.startDate.getTime()) / 36e5;
+
+      // Load half-hourly data if timespan is smaller than X
+      // Number of points should be smaller or equal than the number of pixels available, but
+      // from daily points to 24*2 points per day is quite a big jump. So we set a minimum for showing the half-hourly data
+      // TODO: Consider using the minimum radius of the circles here (default is 1, thus diameter is 2 pixels)
+      if (this.timeSpanInHours * 2 <= Math.max(this.$refs.dataStreamsCanvas.width, 24 * 2 * 60)){ 
+        // Load data (DataManager loads the file if it was not loaded already, taking into account the start and end dates).
+        // TODO: in our case, the start-end date is always less than 6 months and the static files are divided into 6 months periods,
+        // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
+        this.DataManager.loadStaticData(this.startDate);
+        this.DataManager.loadStaticData(this.endDate);
+        console.log("HERE " + this.$refs.dataStreamsCanvas.width);
+      }
 
       this.updateCanvas();
       //console.log("Updating canvas and start and end dates from data streams");
@@ -258,29 +218,6 @@ export default {
     },
 
 
-
-
-
-
-    // Set the geojson features
-    setFeatures: function (inFeatures) {
-      this.features = inFeatures;
-    },
-    // Show selected track
-    showSelectedTrack: function (id) {
-      this.features.forEach(ff => {
-        if (ff.properties.info.Id == id) {
-          ff.selected = true;
-        } else
-          ff.selected = false;
-      });
-    },
-    // Hides the selected track (none selected)
-    hideSelectedTrack: function () {
-      this.features.forEach(ff => {
-        ff.selected = false;
-      });
-    }
 
   },
   components: {
