@@ -177,7 +177,16 @@ export class OBSEADataRetriever{
         return this.processCSV(rawSS);
       })
       .catch(e => console.error("Error when loading and parsing csv: " + e));
-    
+  }
+
+  // Finds the right file to load.
+  // Returns a promise
+  loadHalfHourlyData = function (date) {
+    let isLateHalfYear = date.getUTCMonth() + 1 >= 6;
+    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
+    return this.fetchFromStaticFile(fileName)
+      .then(csv => this.storeHalfHourlyData(csv))
+      .catch(e => console.error("Could not load static file " + fileName + ". " + e));
   }
 
 
@@ -260,7 +269,7 @@ export class OBSEADataRetriever{
         }
       }
     }
-    console.log(this.halfHourlyData);
+    return this.halfHourlyData;
   }
 
   // Generate daily data availability image
@@ -317,9 +326,9 @@ export class OBSEADataRetriever{
     let year = timeString.substring(0, 4);
     let month = timeString.substring(5, 7);
     let day = timeString.substring(8, 10);
-    let hour = timeString.substring(11, 16);
+    let hourMin = timeString.substring(11, 16);
 
-    return year + "-" + month + "-" + day + "T" + hour + ".000Z";
+    return year + "-" + month + "-" + day + "T" + hourMin + ":00.000Z";
   }
 
 
@@ -331,13 +340,24 @@ export class OBSEADataRetriever{
 
 
   // PUBLIC METHODS
-  loadHalfHourlyData = function(date){
-    let isLateHalfYear = date.getUTCMonth() + 1 >= 6;
-    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
-    this.fetchFromStaticFile(fileName)
-      .then(csv => this.storeHalfHourlyData(csv))
-      .catch(e => console.error("Could not load static file " + fileName + ". " + e));
+  // If data is not loaded for that date, load file, otherwise return data
+  // Returns a promise
+  getHalfHourlyData = function(date){
+    let timestamp = date.toISOString();
+    timestamp.substring(0, 14);
+    let min = parseInt(timestamp.substring(14, 16));
+    let normMin = parseInt(30 * Math.floor(min / 30));
+    timestamp = timestamp.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z'
+
+    // Check if the data was already loaded
+    if (!this.halfHourlyData[timestamp]) {
+      return this.loadHalfHourlyData(date);
+    } else {
+      return new Promise((resolve, rej) => resolve(this.halfHourlyData)); // TODO THINK
+    }
   }
+
+  
 
 
 

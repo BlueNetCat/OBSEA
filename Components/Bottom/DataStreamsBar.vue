@@ -188,8 +188,8 @@ export default {
         // Load data (DataManager loads the file if it was not loaded already, taking into account the start and end dates).
         // TODO: in our case, the start-end date is always less than 6 months and the static files are divided into 6 months periods,
         // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
-        this.DataManager.loadStaticData(this.startDate);
-        this.DataManager.loadStaticData(this.endDate);
+        this.DataManager.loadStaticData(this.startDate).then(res => console.log(res));
+        this.DataManager.loadStaticData(this.endDate).then(res => console.log(res));
         console.log("HERE " + this.$refs.dataStreamsCanvas.width);
       }
 
