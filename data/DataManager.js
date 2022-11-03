@@ -96,9 +96,12 @@ class DataManager{
   // Get static data
   getStaticData(){
     this.OBSEADataRetriever.fetchFromStaticFiles((csv) => {
+      // this is a callback function
       //console.log(csv);
     })
   }
+
+  
 
 
 
@@ -107,6 +110,20 @@ class DataManager{
   // PUBLIC METHODS
   getDailyData(){
     return this.OBSEADataRetriever.DailyDataMax;
+  }
+  // Loads the half-hourly static files according to a date
+  loadStaticData(date){
+    let timestamp = date.toISOString(); // TODO
+    // Check if halfHourlyData exists
+    if (!this.OBSEADataRetriever.halfHourlyData){
+      this.OBSEADataRetriever.loadHalfHourlyData(date);
+    } 
+    // Check if the data was already loaded
+    else if (!this.OBSEADataRetriever.halfHourlyData[timestamp]){
+      this.OBSEADataRetriever.loadHalfHourlyData(date);
+    } else{
+      return this.OBSEADataRetriever.halfHourlyData; // TODO THINK
+    }
   }
 
  

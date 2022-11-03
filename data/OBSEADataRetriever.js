@@ -6,9 +6,12 @@ import OBSEADailyDataMax from "/OBSEA/data/StaticData/OBSEADailyDataMax.js"
 // Stores and retrieves data
 export class OBSEADataRetriever{
 
+  
   DailyDataMax = OBSEADailyDataMax;
   DataTypes = OBSEADataTypes;
   Measures = ["TEMP", "PSAL", "AIRT", "Hm0", "H3", "H10", "Hmax", "Spr1", "Mdir", "WDIR", "WSPD", "UCUR_0m", "VCUR_0m", "ZCUR_0m", "UCUR_1m", "VCUR_1m", "ZCUR_1m", "UCUR_2m", "VCUR_2m", "ZCUR_2m", "UCUR_3m", "VCUR_3m", "ZCUR_3m", "UCUR_4m", "VCUR_4m", "ZCUR_4m", "UCUR_5m", "VCUR_5m", "ZCUR_5m", "UCUR_6m", "VCUR_6m", "ZCUR_6m", "UCUR_7m", "VCUR_7m", "ZCUR_7m", "UCUR_8m", "VCUR_8m", "ZCUR_8m", "UCUR_9m", "VCUR_9m", "ZCUR_9m", "UCUR_10m", "VCUR_10m", "ZCUR_10m", "UCUR_11m", "VCUR_11m", "ZCUR_11m", "UCUR_12m", "VCUR_12m", "ZCUR_12m", "UCUR_13m", "VCUR_13m", "ZCUR_13m", "UCUR_14m", "VCUR_14m", "ZCUR_14m", "UCUR_15m", "VCUR_15m", "ZCUR_15m", "UCUR_16m", "VCUR_16m", "ZCUR_16m", "UCUR_17m", "VCUR_17m", "ZCUR_17m", "UCUR_18m", "VCUR_18m", "ZCUR_18m", "UCUR_19m", "VCUR_19m", "ZCUR_19m"];
+  
+  halfHourlyData = {};
   dataKeys;
   baseURLStaticFiles = '/OBSEA/data/StaticData/';
 
@@ -143,7 +146,7 @@ export class OBSEADataRetriever{
 
 
 
-
+  // Load all files
   fetchFromStaticFiles = function(callback){
 
     for (let i = 0; i<this.staticFiles.length; i++){
@@ -160,6 +163,22 @@ export class OBSEADataRetriever{
         })
         .catch(e => console.error("Error when parsing .csv: " + e));
     }
+    
+  }
+  // Load single file on demand
+  fetchFromStaticFile = function (fileName, callback) {
+    debugger;
+
+    let url = this.baseURLStaticFiles;
+    url += fileName;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(rawSS => {
+        let csvData = this.processCSV(rawSS);
+        callback(csvData);
+      })
+      .catch(e => console.error("Error when parsing .csv: " + e));
     
   }
 
@@ -224,13 +243,33 @@ export class OBSEADataRetriever{
 
 
 
-
+  // Store loaded halfHourlyData
+  storeHalfHourlyData(csv) {
+    const header = csv[0];
+    const measures = header.slice(1, header.length); // All measures without timestamp //['Hm0', 'WSPD', 'UCUR_0m'];
+    // Iterate csv rows
+    for (let i = 1; i < csv.length; i++) {
+      let timeString = csv[i][0];
+      let isoString = this.getISOStringFromCSVTimestamp(timeString);
+      // First data
+      if (this.halfHourlyData[isoString] == undefined) this.halfHourlyData[isoString] = {timestamp: isoString};
+      // Iterate through measures
+      for (let j = 0; j < measures.length; j++) {
+        let measureName = measures[j];        
+        // Get and store value
+        if (csv[i][j + 1] != ''){
+          this.halfHourlyData[isoString][measureName] = parseFloat(csv[i][j + 1]);
+        }
+      }
+    }
+    console.log(this.halfHourlyData);
+  }
 
   // Generate daily data availability image
   // In principle this script is exectued for the generation of a static JSON file that will be loaded here or in DataManager
   generateDailyDataAvailabilityJSON(csv) {
     const header = csv[0];
-    const measures = header.slice(1, header.length); // All measures //['Hm0', 'WSPD', 'UCUR_0m'];
+    const measures = header.slice(1, header.length); // All measures without timestamp //['Hm0', 'WSPD', 'UCUR_0m'];
     let measureIndices = [];
     for (let i = 0; i < measures.length; i++){
       measureIndices[i] = header.findIndex((e) => e == measures[i]);
@@ -283,6 +322,21 @@ export class OBSEADataRetriever{
     let hour = timeString.substring(11, 16);
 
     return year + "-" + month + "-" + day + "T" + hour + ".000Z";
+  }
+
+
+  
+
+
+
+
+
+
+  // PUBLIC METHODS
+  loadHalfHourlyData = function(date, callback){
+    let isLateHalfYear = date.getUTCMonth() + 1 >= 6;
+    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
+    this.fetchFromStaticFile(fileName, (csv) => (this.storeHalfHourlyData(csv)));
   }
 
 
