@@ -40,8 +40,8 @@ class DataManager{
 
     // TODO: files should only be loaded on demand (more than 20Mb of data, no need to download)
     //        - Load files on demand
-    
-    // Load all static files to compute the daily maximum
+
+    // Load all static files to compute the daily maximum (this data is stored locally in "/OBSEA/data/StaticData/OBSEADailyDataMax.js")
     if (!this.OBSEADataRetriever.DailyDataMax)
       this.getStaticData();
 
@@ -96,9 +96,12 @@ class DataManager{
   // Get static data
   getStaticData(){
     this.OBSEADataRetriever.fetchFromStaticFiles((csv) => {
+      // this is a callback function
       //console.log(csv);
     })
   }
+
+  
 
 
 
@@ -107,6 +110,12 @@ class DataManager{
   // PUBLIC METHODS
   getDailyData(){
     return this.OBSEADataRetriever.DailyDataMax;
+  }
+
+  // Loads the half-hourly static files according to a date
+  loadStaticData(date){
+    // Returns a promise
+    return this.OBSEADataRetriever.getHalfHourlyData(date);
   }
 
  

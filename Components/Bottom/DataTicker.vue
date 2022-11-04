@@ -49,7 +49,8 @@ export default {
         this.isUnderwater = false;
     });
 
-    window.eventBus.on('DataStreamsBar_dataDailyUpdate', this.updateDailyDataTicker);
+    window.eventBus.on('DataStreamsBar_dataDailyUpdate', (params) => { this.dataOrigin = "dailyMax"; this.updateDataTicker(params)});
+    window.eventBus.on('DataStreamsBar_dataHalfHourlyUpdate', (params) => { this.dataOrigin = "halfHourly"; this.updateDataTicker(params) });
   },
   data() {
     return {
@@ -67,9 +68,7 @@ export default {
   },
   methods: {
     // TODO: instantaneous when it is loaded
-    updateDailyDataTicker: function(params){
-
-      this.dataOrigin = "dailyMax";
+    updateDataTicker: function(params){
 
       this.dataOnTimeInstant = {}; // Reset
       

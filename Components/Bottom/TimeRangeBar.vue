@@ -1011,6 +1011,7 @@ export default {
   border-top-left-radius: 0.2rem;
 
   border-right: 2px solid #02488e33;
+  bottom: 0; /* Fix for mobile? */
 
   max-width: 80px;
   min-width: 70px;
