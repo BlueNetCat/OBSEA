@@ -208,7 +208,8 @@ export class OBSEADataRetriever{
 
   processCSV(rawSS) {
     // Split by end of line
-    let rowsSS = rawSS.split("\r\n");
+    rawSS = rawSS.replace("\r", '');
+    let rowsSS = rawSS.split("\n");
     for (let i = 0; i < rowsSS.length; i++) {
       rowsSS[i] = rowsSS[i].split(","); // Split by comma
     }
