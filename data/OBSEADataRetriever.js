@@ -344,7 +344,6 @@ export class OBSEADataRetriever{
   // Returns a promise
   getHalfHourlyData = function(date){
     let timestamp = date.toISOString();
-    timestamp.substring(0, 14);
     let min = parseInt(timestamp.substring(14, 16));
     let normMin = parseInt(30 * Math.floor(min / 30));
     timestamp = timestamp.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z'
