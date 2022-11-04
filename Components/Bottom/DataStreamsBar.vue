@@ -30,6 +30,9 @@ export default {
     // Half-hourly data is on demand
     this.halfHourlyData = {};
 
+    // Zoom level
+    this.isDailyVisible = true;
+
     // TODO: ANOTHER OPTION IS TO USE PATH
     // CREATE BALLS FOR EVENTS? MOVING WINDOW?
     this.canvas = this.$refs.dataStreamsCanvas;
@@ -86,6 +89,7 @@ export default {
       
       // For daily maximum representation
       if (this.timeSpanInHours > this.maxHalfHourlyPoints || this.DataManager.OBSEADataRetriever.isLoading){ // Use daily data
+        this.isDailyVisible = true;
         // Calculate number of days
         let numDays = (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 3600 * 24);
         numDays += 1; // First and end days count too
@@ -162,6 +166,7 @@ export default {
 
         
       } else { // Use hourly data
+        this.isDailyVisible = false;
         if (Object.keys(this.halfHourlyData).length == 0){
           console.log("Half hourly data is empty but it was loaded?");
           debugger;
@@ -186,9 +191,7 @@ export default {
         for (let i = 0; i < Math.ceil(numHalfHours); i++) {
           // Half hourly key
           let key = movingDate.toISOString();
-          let min = parseInt(key.substring(14, 16));
-          let normMin = parseInt(30 * Math.floor(min / 30));
-          key = key.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z';
+          key = this.setISOStringToHalfHourly(key);
           
           let hhData = this.halfHourlyData[key];
           if (hhData != undefined) {
@@ -247,6 +250,13 @@ export default {
       }
     },
 
+    // Clean ISO string to have a half-hour step
+    setISOStringToHalfHourly: function(isoString){
+      let min = parseInt(isoString.substring(14, 16));
+      let normMin = parseInt(30 * Math.floor(min / 30));
+      return isoString.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z';
+    },
+
 
 
 
@@ -290,21 +300,22 @@ export default {
 
     updateCurrentDate: function(isoString){
       // Get data for this date
-      // TODO: load from DataManager
-      // FOR NOW: daily value
-      isoString = isoString.substring(0,10) + 'T00:00:00.000Z';
-      let ddData= this.dailyData[isoString];
-      if (ddData != undefined){
-        ddData.timestamp = isoString; // TODO: should remove this if OBSEA daily static data is regenerated
-        window.eventBus.emit('DataStreamsBar_dataDailyUpdate', ddData);
-
-        // let measures = this.dataManager.OBSEADataRetriever.Measures;
-        // for (let i = 0; i< measures.length; i++){
-        //   let value = ddData[measures[i]];
-        //   if (value != undefined)
-        //     window.eventBus.emit('DataStreamsBar_dataUpdate', [measures[i], value]);
-        // }
-
+      // Check zoom level
+      // Use daily data when zoom level is close and nothing is loading
+      if (!this.isDailyVisible) { 
+        isoString = this.setISOStringToHalfHourly(isoString);
+        let hhData = this.halfHourlyData[isoString];
+        if (hhData != undefined){
+          window.eventBus.emit('DataStreamsBar_dataHalfHourlyUpdate', hhData);
+        }
+      } else {
+        // Daily value
+        isoString = isoString.substring(0,10) + 'T00:00:00.000Z';
+        let ddData= this.dailyData[isoString];
+        if (ddData != undefined){
+          ddData.timestamp = isoString; // TODO: should remove this if OBSEA daily static data is regenerated
+          window.eventBus.emit('DataStreamsBar_dataDailyUpdate', ddData);
+        }
       }
     },
 

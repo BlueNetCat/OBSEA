@@ -109,6 +109,7 @@ export default en = {
   timeControl: {
     "timeSliderTip": "Drag to select the date",
     "dailyMax": "Daily maximum (OBSEA)",
+    "halfHourly": "30min average (OBSEA)",
     "playPause": "Play/Pause",
     "stepForward": "Step forward",
     "stepBackward": "Step backward",

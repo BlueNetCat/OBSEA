@@ -45,8 +45,7 @@ export default {
 
 
     // ***** TIME BAR WITH DATA *****
-    window.eventBus.on('DataStreamsBar_dataDailyUpdate', (dataInTimestamp) => {
-
+    const updateData = (dataInTimestamp) => {
       // Ocean
       if (this.sceneManager.ocean){
         if (dataInTimestamp['Hm0']){
@@ -111,7 +110,7 @@ export default {
         else
           this.sceneManager.salText.removeText();
 
-    });
+    };
     const generateSwell = (Hm0, Mdir) => {
       // Calculate steepness
       let steepness = 0.1 + 0.2 * Math.min(1, Hm0/3);
@@ -120,6 +119,8 @@ export default {
       this.sceneManager.ocean.updateSwell('direction', Mdir, 0);
       this.sceneManager.ocean.updateSwell('steepness', steepness, 0);
     }
+    window.eventBus.on('DataStreamsBar_dataDailyUpdate', updateData);
+    window.eventBus.on('DataStreamsBar_dataHalfHourlyUpdate', updateData);
 
     // ***** SEA PANEL *****
     // Change ocean steepness
