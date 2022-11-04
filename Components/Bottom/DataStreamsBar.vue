@@ -27,7 +27,8 @@ export default {
     // Data manager
     this.DataManager = new DataManager();
     this.dailyData = this.DataManager.getDailyData();
-
+    // Half-hourly data is on demand
+    this.halfHourlyData = {};
 
     // TODO: ANOTHER OPTION IS TO USE PATH
     // CREATE BALLS FOR EVENTS? MOVING WINDOW?
@@ -35,13 +36,17 @@ export default {
     let parentEl = this.canvas.parentElement;
     this.canvas.height = 30; // TODO: DEPENDANT ON THE NUMBER OF STREAMS TO DISPLAY
     this.canvas.width = parentEl.offsetWidth;
+
     window.addEventListener("resize", () =>{
       this.canvas.width = parentEl.offsetWidth;
       this.updateCanvas();
     });
     this.ctx = this.canvas.getContext('2d');
-    //this.ctx.fillStyle = 'red';
-    //this.ctx.fillRect(0,0, this.canvas.width, this.canvas.height);
+
+    // This number decides when to paint one point a day or 24*2 points a day
+    this.maxHalfHourlyPoints = 24 * 60;
+    // Memory allocation
+    this.movingDate = new Date();
   },
   data() {
     return {
@@ -79,7 +84,8 @@ export default {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      if (this.timeSpanInHours > 0){ // Use daily data
+      // For daily maximum representation
+      if (this.timeSpanInHours > this.maxHalfHourlyPoints || this.DataManager.OBSEADataRetriever.isLoading){ // Use daily data
         // Calculate number of days
         let numDays = (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 3600 * 24);
         numDays += 1; // First and end days count too
@@ -90,7 +96,9 @@ export default {
         this.endDate = new Date(this.endDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
         //if (numDays != Math.floor(numDays)) console.error("Num days should be integer!!");
         // Iterate for each day
-        let movingDate = new Date(this.startDate.toISOString());
+        let movingDate = this.movingDate;
+        movingDate.setTime(this.startDate.getTime());
+        
         for (let i = 0; i< Math.ceil(numDays); i++){
           let key = movingDate.toISOString().substring(0, 10) + 'T00:00:00.000Z'; // Daily
           let ddData = this.dailyData[key];
@@ -154,8 +162,87 @@ export default {
 
         
       } else { // Use hourly data
-        // Load data in DataManager.js (async)
-        // await DataManager.getData(this.startDate, this.endDate);
+        if (Object.keys(this.halfHourlyData).length == 0){
+          console.log("Half hourly data is empty but it was loaded?");
+          debugger;
+          return;
+        }
+        // Calculate number of half hours
+        let numHalfHours = (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 3600 * 0.5);
+        
+        // TODO
+        // Here should be some time corrections maybe?
+        // Calculate first half hour proportion
+        //let startOfFirstDay = new Date(this.startDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
+        //let dayDiff = 1 - (this.startDate.getTime() - startOfFirstDay.getTime()) / (1000 * 3600 * 24);
+        // Set this to calculate the 
+        //this.endDate = new Date(this.endDate.toISOString().substring(0, 10) + 'T00:00:00.000Z');
+
+        // Set moving date
+        let movingDate = this.movingDate;
+        movingDate.setTime(this.startDate.getTime());
+        
+        // Iterate halfhours
+        for (let i = 0; i < Math.ceil(numHalfHours); i++) {
+          // Half hourly key
+          let key = movingDate.toISOString();
+          let min = parseInt(key.substring(14, 16));
+          let normMin = parseInt(30 * Math.floor(min / 30));
+          key = key.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z';
+          
+          let hhData = this.halfHourlyData[key];
+          if (hhData != undefined) {
+
+            // Paint
+            let measures = ['Hm0', 'WSPD', 'UCUR_1m'];
+            for (let j = 0; j < measures.length; j++) {
+              // If measure exists in dataset
+              if (hhData[measures[j]]) {
+                // Calculate position in canvas
+                //let posX = ((i + dayDiff - 0.5) / (numDays - 1)) * canvas.width; // Use the start day difference to position the points
+                let posX = canvas.width * i / numHalfHours; // Use the start day difference to position the points
+                let padding = canvas.height * 0.2;
+                let posY = padding + j * (canvas.height - padding) / measures.length;
+                // Calculate width?
+                // Calculate height (use datatypes max?)
+                let factor = 1;
+                let dataType = this.DataManager.OBSEADataRetriever.DataTypes[measures[j]];
+                if (measures[j].includes('CUR')) {
+                  dataType = this.DataManager.OBSEADataRetriever.DataTypes['CUR'];
+                }
+                if (dataType) {
+                  if (dataType.signValue) {
+                    factor = Math.max(1, hhData[measures[j]] / dataType.signValue);
+                  }
+                }
+
+                ctx.beginPath();
+                let radius = 1;
+                let radMod = Math.min(3, radius * factor * factor);
+                ctx.arc(posX, posY, radMod, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+              }
+            }
+
+
+
+
+
+
+          } else {
+            console.log(key);
+            console.log(Object.keys(this.halfHourlyData));
+            console.log(Object.keys(this.DataManager.OBSEADataRetriever.halfHourlyData));
+            debugger;
+            console.error("Half hourly data was not loaded??" + this.halfHourlyData);
+          }
+
+
+          // Increase half hour
+          movingDate.setUTCMinutes(movingDate.getUTCMinutes() + 30);
+          //console.log(movingDate.toISOString());
+        }
 
       }
     },
@@ -170,8 +257,8 @@ export default {
     setDailyData: function(data){
       this.dailyData = data;
     },
-    setHourlyData: function(data){
-      this.hourlyData = data;
+    setHalfHourlyData: function(data){
+      this.halfHourlyData = data;
     },
     // Set start and end dates
     setStartEndDates: function (sDate, eDate) {
@@ -184,13 +271,17 @@ export default {
       // Number of points should be smaller or equal than the number of pixels available, but
       // from daily points to 24*2 points per day is quite a big jump. So we set a minimum for showing the half-hourly data
       // TODO: Consider using the minimum radius of the circles here (default is 1, thus diameter is 2 pixels)
-      if (this.timeSpanInHours * 2 <= Math.max(this.$refs.dataStreamsCanvas.width, 24 * 2 * 60)){ 
+      if (this.timeSpanInHours <= Math.max(this.$refs.dataStreamsCanvas.width, this.maxHalfHourlyPoints)){ 
         // Load data (DataManager loads the file if it was not loaded already, taking into account the start and end dates).
         // TODO: in our case, the start-end date is always less than 6 months and the static files are divided into 6 months periods,
         // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
-        this.DataManager.loadStaticData(this.startDate).then(res => console.log(res));
-        this.DataManager.loadStaticData(this.endDate).then(res => console.log(res));
-        console.log("HERE " + this.$refs.dataStreamsCanvas.width);
+        let onLoad = (res) => {
+          this.setHalfHourlyData(res); // Store hourly data
+          if (!this.DataManager.OBSEADataRetriever.isLoading) // Update canvas once all files are loaded
+            this.updateCanvas();
+        }
+        this.DataManager.loadStaticData(this.startDate).then(res => onLoad(res));
+        this.DataManager.loadStaticData(this.endDate).then(res => onLoad(res));
       }
 
       this.updateCanvas();
