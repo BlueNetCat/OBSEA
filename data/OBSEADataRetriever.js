@@ -27,7 +27,10 @@ export class OBSEADataRetriever{
                   'obsea_2021_1.csv', 'obsea_2021_2.csv'];
 
   dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxdaily[]
-  dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X
+  dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X ºC
+  // Control the loading status
+  isLoading = false;
+  loadingFiles = 0;
 
   constructor(){
 
@@ -153,9 +156,15 @@ export class OBSEADataRetriever{
       let url = this.baseURLStaticFiles;
       url += this.staticFiles[i];
 
+      this.loadingFiles++;
+      this.isLoading = true;
+
       fetch(url)
         .then(res => res.text())
         .then(rawSS => {
+          this.loadingFiles--;
+          this.isLoading = this.loadingFiles != 0;
+
           let csvData = this.processCSV(rawSS);
           callback(csvData);
           // Generate static JSON
@@ -171,9 +180,15 @@ export class OBSEADataRetriever{
     let url = this.baseURLStaticFiles;
     url += fileName;
 
+    this.loadingFiles++;
+    this.isLoading = true;
+
     return fetch(url)
       .then(res => res.text())
       .then(rawSS => {
+        this.loadingFiles--;
+        this.isLoading = this.loadingFiles != 0;
+
         return this.processCSV(rawSS);
       })
       .catch(e => console.error("Error when loading and parsing csv: " + e));
@@ -182,7 +197,7 @@ export class OBSEADataRetriever{
   // Finds the right file to load.
   // Returns a promise
   loadHalfHourlyData = function (date) {
-    let isLateHalfYear = date.getUTCMonth() + 1 >= 6;
+    let isLateHalfYear = date.getUTCMonth() + 1 >= 7;
     let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
     return this.fetchFromStaticFile(fileName)
       .then(csv => this.storeHalfHourlyData(csv))
