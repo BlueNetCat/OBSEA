@@ -114,9 +114,18 @@ export class OBSEADataRetriever{
     let nextTime = new Date(timestamp);
     nextTime.setUTCMinutes(nextTime.getUTCMinutes() + 25);
     url += 'resultTime ge ' + prevTime.toISOString() + ' and resultTime lt ' + nextTime.toISOString() + '&$orderBy=resultTime asc';
+
+    
     console.log(url);
     let result;
 
+    fetch(url)
+    .then(res => res.json())
+    .then(js => console.log(js))
+    .catch(e => console.error(e))
+    .finally(f => console.log(f))
+
+    return result;
     // Fetch
     try {
       let response = await fetch(url, {

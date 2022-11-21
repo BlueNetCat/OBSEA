@@ -9,26 +9,6 @@ class DataManager{
 
   data = {};
 
-  dataTypes = [
-    "Wave significant height",
-    "Wave maximum height", // Need to include it in CMEMS
-    "Wave direction", // Need to include it in CMEMS
-    "Direction spreading of waves", // Not available in CMEMS?
-
-    "Wind speed", // Not available in CMEMS?
-    "Wind direction", // Not available in CMEMS?
-
-    // Current
-    // Different elevations for OBSEA and CMEMS
-
-    // "Sea surface temperature", // Does not exist in OBSEA
-    "Sea bottom temperature",
-
-    "Salinity", // Bottom for OBSEA, surface for CMEMS
-
-    "Air temperature", // Not available in CMEMS?
-  ]
-
   constructor(){
     // Singleton
     if (DataManager.instace != undefined)
@@ -47,7 +27,17 @@ class DataManager{
 
     // Test data manager
     //this.getDataOnTimeInstant('2019-01-01T01:30:00.000Z');
-    this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
+    let nowDate = new Date();
+    let min = nowDate.getUTCMinutes();
+    if (min > 32){
+      nowDate.setUTCMinutes(0);
+    } else{
+      nowDate.setUTCMinutes(30);
+      nowDate.setUTCHours(nowDate.getUTCHours() - 1);
+    }
+    //this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
+    this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
+    this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
 
     // Singleton
     DataManager.instance = this;
