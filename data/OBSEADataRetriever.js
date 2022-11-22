@@ -56,17 +56,13 @@ export class OBSEADataRetriever{
       for (let i = 0; i<urls.length; i++){
         result = await this.fetchFromDatastreamURL(urls[i], timestamp);
         if (result !== undefined){
-          // i = urls.length; // Exit loop
-          // return result;
-          if (result.value !== undefined)
-            if (result.value.length != 0){
-              i = urls.length; // Exit loop
-              return result;
-            }
+          return result;
         }
       }
     }
   }
+
+  
 
 
 
@@ -118,9 +114,9 @@ export class OBSEADataRetriever{
     // Time
     //url += 'resultTime ge 2021-01-01T00:00:00z and resultTime lt 2022-01-01T00:00:00z&$orderBy=resultTime asc'
     let prevTime = new Date(timestamp);
-    prevTime.setUTCMinutes(prevTime.getUTCMinutes() - 100);
+    prevTime.setUTCMinutes(prevTime.getUTCMinutes() - 25);
     let nextTime = new Date(timestamp);
-    nextTime.setUTCMinutes(nextTime.getUTCMinutes() + 100);
+    nextTime.setUTCMinutes(nextTime.getUTCMinutes() + 25);
     url += 'resultTime ge ' + prevTime.toISOString() + ' and resultTime lt ' + nextTime.toISOString() + '&$orderBy=resultTime asc';
 
     
@@ -130,6 +126,18 @@ export class OBSEADataRetriever{
     // Return a promise
     return fetch(url)
     .then(res => res.json())
+    .then(data => {
+      // Parse data
+      console.log(data);
+      if (data.value !== undefined) {
+        if (data.value.length != 0) {
+          console.log("*******USING OBSEA API!");
+          // TODO: STORE THIS DATA IN HALF-HOURLY
+          return data.value[data.value.length-1].result;
+        }
+      } else
+        return undefined;
+    })
     .catch(e => console.warn(e))
 
     return result;

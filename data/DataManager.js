@@ -33,10 +33,10 @@ class DataManager{
       nowDate.setUTCHours(nowDate.getUTCHours() - 1);
     }
     //this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
-    //this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
+    this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
     this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
-    //this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
-    //this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
+    this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
+    this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
 
   }
 
@@ -52,6 +52,7 @@ class DataManager{
     
     // CMEMS WMS
     if (dataValue == undefined){
+      console.log(dataType.name + " not found in OBSEA api. Trying WMS.");
       // Get data type
       dataType = this.WMSDataRetriever.getDataType(dataTypeName);
       if (dataType !== undefined)
