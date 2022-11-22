@@ -103,17 +103,14 @@ const OBSEADataTypes = {
     name: 'AIRT',
     altNames: ['Air temperature', 'AIRT'],
     description: 'Temperature of atmosphere',
-    url: ['https://data.obsea.es/data-api/Datastreams(22)', 'https://data.obsea.es/data-api/Datastreams(26)',
-      'https://data.obsea.es/data-api/Datastreams(321)', 'https://data.obsea.es/data-api/Datastreams(327)'],
+    url: ['https://data.obsea.es/data-api/Datastreams(26)','https://data.obsea.es/data-api/Datastreams(327)'],
     units: 'ºC'
   },
   'TEMP': {
     name: 'TEMP',
     altNames: ['Sea bottom temperature','TEMP', 'Sea underwater temperature'],
     description: 'Sea water temperature data from sensor deployed at OBSEA',
-    url: ['https://data.obsea.es/data-api/Datastreams(1)', 'https://data.obsea.es/data-api/Datastreams(6)',
-      'https://data.obsea.es/data-api/Datastreams(11)', 'https://data.obsea.es/data-api/Datastreams(216)',
-      'https://data.obsea.es/data-api/Datastreams(16)'],
+    url: ['https://data.obsea.es/data-api/Datastreams(6)','https://data.obsea.es/data-api/Datastreams(16)'],
     units: 'ºC'
   },
   // Salinity
@@ -121,8 +118,7 @@ const OBSEADataTypes = {
     name: 'PSAL',
     altNames: ['Salinity','SAL', 'PSAL', 'Sea underwater salinity', 'Sea bottom salinity', 'Sea water salinity'],
     description: 'Sea water salinity data from sensor deployed at OBSEA',
-    url: ['https://data.obsea.es/data-api/Datastreams(4)', 'https://data.obsea.es/data-api/Datastreams(9)',
-      'https://data.obsea.es/data-api/Datastreams(14)', 'https://data.obsea.es/data-api/Datastreams(19)'],
+    url: ['https://data.obsea.es/data-api/Datastreams(9)','https://data.obsea.es/data-api/Datastreams(19)'],
     units: '‰'
   },
 
