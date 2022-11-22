@@ -10,9 +10,6 @@ class DataManager{
   data = {};
 
   constructor(){
-    // Singleton
-    if (DataManager.instace != undefined)
-      return DataManager.instance;
 
     // Constructor
     this.OBSEADataRetriever = new OBSEADataRetriever();
@@ -36,12 +33,11 @@ class DataManager{
       nowDate.setUTCHours(nowDate.getUTCHours() - 1);
     }
     //this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
-    this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
+    //this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
     this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
+    //this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
+    //this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
 
-    // Singleton
-    DataManager.instance = this;
-    
   }
 
 
@@ -53,6 +49,7 @@ class DataManager{
     let dataType = this.OBSEADataRetriever.getDataType(dataTypeName);
     // Get value
     let dataValue = await this.OBSEADataRetriever.getDataOnTimeInstant(dataTypeName, timestamp);
+    
     // CMEMS WMS
     if (dataValue == undefined){
       // Get data type
@@ -62,6 +59,7 @@ class DataManager{
         // Get timescale and add something like (daily) to the data point
         dataValue = await this.WMSDataRetriever.getDataAtPoint(dataTypeName, timestamp, this.lat, this.long, 'h'); // TODO, NOT ALL HAVE 'h' timings
     }
+
     // TODO; EMIT DATA VALUE? STORE IT HERE? SEND IT WHEN ALL ARE LOADED? EMIT AND UPDATE ALL VALUES?
     if (dataValue !== undefined){
       let dataRow = this.data[timestamp];
@@ -74,7 +72,7 @@ class DataManager{
       this.data[timestamp] = dataRow;
       window.eventBus.emit('DataManager_' + dataType.name, dataValue);
     }
-    
+    console.log(dataValue);
     console.log("DataManager_" + dataType.name + ":" + dataValue + " " + dataType.units);
   }
 
@@ -114,4 +112,6 @@ class DataManager{
 
 }
 
-export default DataManager;
+// Singleton
+const dataManager = new DataManager();
+export default dataManager;

@@ -25,7 +25,7 @@ export default {
   },
   mounted() {
     // Data manager
-    this.DataManager = new DataManager();
+    this.DataManager = DataManager;
     this.dailyData = this.DataManager.getDailyData();
     // Half-hourly data is on demand
     this.halfHourlyData = {};
@@ -237,7 +237,7 @@ export default {
             console.log(key);
             console.log(Object.keys(this.halfHourlyData));
             console.log(Object.keys(this.DataManager.OBSEADataRetriever.halfHourlyData));
-            debugger;
+            
             console.error("Half hourly data was not loaded??" + this.halfHourlyData);
           }
 

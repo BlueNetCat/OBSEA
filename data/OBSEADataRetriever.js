@@ -47,15 +47,23 @@ export class OBSEADataRetriever{
     // Check if it is a string or an array (some data types have multiple datastreams);
     // One URL available
     if (typeof dataType.url == 'string'){
-      let result = this.fetchFromDatastreamURL(dataType.url, timestamp);
+      let result = await this.fetchFromDatastreamURL(dataType.url, timestamp);
+      return result;
     }
     else if (typeof dataType.url == 'object'){
       let urls = dataType.url;
       let result;
       for (let i = 0; i<urls.length; i++){
         result = await this.fetchFromDatastreamURL(urls[i], timestamp);
-        if (result !== undefined)
-          i = urls.length; // Exit loop
+        if (result !== undefined){
+          // i = urls.length; // Exit loop
+          // return result;
+          if (result.value !== undefined)
+            if (result.value.length != 0){
+              i = urls.length; // Exit loop
+              return result;
+            }
+        }
       }
     }
   }
@@ -110,20 +118,19 @@ export class OBSEADataRetriever{
     // Time
     //url += 'resultTime ge 2021-01-01T00:00:00z and resultTime lt 2022-01-01T00:00:00z&$orderBy=resultTime asc'
     let prevTime = new Date(timestamp);
-    prevTime.setUTCMinutes(prevTime.getUTCMinutes() - 25);
+    prevTime.setUTCMinutes(prevTime.getUTCMinutes() - 100);
     let nextTime = new Date(timestamp);
-    nextTime.setUTCMinutes(nextTime.getUTCMinutes() + 25);
+    nextTime.setUTCMinutes(nextTime.getUTCMinutes() + 100);
     url += 'resultTime ge ' + prevTime.toISOString() + ' and resultTime lt ' + nextTime.toISOString() + '&$orderBy=resultTime asc';
 
     
     console.log(url);
     let result;
 
-    fetch(url)
+    // Return a promise
+    return fetch(url)
     .then(res => res.json())
-    .then(js => console.log(js))
-    .catch(e => console.error(e))
-    .finally(f => console.log(f))
+    .catch(e => console.warn(e))
 
     return result;
     // Fetch

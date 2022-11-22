@@ -57,7 +57,7 @@ export default {
       isUnderwater: false,
       showCamera: false,
 
-      DataManager: new DataManager(),
+      DataManager: DataManager,
       date: new Date(),
       dataOrigin: "dailyMax",
 
