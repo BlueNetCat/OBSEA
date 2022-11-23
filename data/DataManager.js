@@ -33,6 +33,10 @@ class DataManager{
       nowDate.setUTCHours(nowDate.getUTCHours() - 1);
     }
     //this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
+    // TODO: loop
+    // TODO: do this when data is not available. When daily is not available? Or when zoom finds out there is no file to load?
+    // for the daily it means that when the application loads the latest static datapoint should be found and the daily should be
+    // petitioned to the API and loaded. These are around 8.760 points (2*24*365/2) - static files contain 6 months of data.
     this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
     this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
     this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
