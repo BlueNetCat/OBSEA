@@ -211,6 +211,7 @@ class SceneManager{
     loadDiv.style["flex-direction"] = 'column';
     loadDiv.style["justify-content"] = 'center';
     loadDiv.style['align-items'] = 'center';
+    loadDiv.style['transition'] = 'all 1.5s ease-in-out';
 
     // Create image logo
     let expObseaImg = document.createElement("img");
@@ -259,10 +260,12 @@ class SceneManager{
 
     THREE.DefaultLoadingManager.onLoad = function () {
       console.log('Loading Complete!');
-      if (loadDiv.parentElement != null)
-        document.body.removeChild(loadDiv);
+      if (loadDiv.parentElement != null){
+        loadDiv.style.opacity = 0;
+        setTimeout(() => document.body.removeChild(loadDiv), 1300);
+        
+      }
       // TODO: Twice OceanSurfaceMR
-      // TODO: Loading complete when LowRes versions are loaded
       // TODO: For some reason the files appear to be loaded twice?
     };
     THREE.DefaultLoadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
