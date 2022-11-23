@@ -259,7 +259,8 @@ class SceneManager{
 
     THREE.DefaultLoadingManager.onLoad = function () {
       console.log('Loading Complete!');
-      document.body.removeChild(loadDiv);
+      if (loadDiv.parentElement != null)
+        document.body.removeChild(loadDiv);
       // TODO: Twice OceanSurfaceMR
       // TODO: Loading complete when LowRes versions are loaded
       // TODO: For some reason the files appear to be loaded twice?

@@ -119,6 +119,10 @@ class OceanEntity {
       scene.add(gltf.scene);
       let lowResScene = gltf.scene;
 
+      // Redefine loading events of the gltf loader, so the mid- and high-res surfaces are not taken into account
+      const manager = new THREE.LoadingManager();
+      gltfLoader = new GLTFLoader(manager);
+
       // LEVEL OF DETAIL INCREASE WHEN HIGHER RESOLUTIONS ARE LOADED
       // Load next resolution and add
       gltfLoader.load('/OBSEA/Assets/Terrain/OceanSurfaceMR.glb', (gltf) => {
