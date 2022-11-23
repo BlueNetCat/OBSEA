@@ -28,6 +28,8 @@ class SceneManager{
   prevTime = 0;
 
   constructor(canvas){
+    // Add loading screen
+    this.addLoadingScreen();
     
     // Cache
     THREE.Cache.enabled = false;
@@ -192,6 +194,83 @@ class SceneManager{
     }
 
 
+  }
+
+
+
+  // ADD LOADING SCREEN
+  addLoadingScreen = function(){
+    // Create
+    let loadDiv = document.createElement("div");
+    loadDiv.style.width = '100vw';//document.body.clientWidth + 'px';
+    loadDiv.style.height = '100vh';//document.body.clientHeight + 'px';
+    // Style
+    loadDiv.style.background = 'radial-gradient(rgba(160, 215, 242, 0.95) 0%, rgba(0, 90, 134, 0.95) 100%';
+    loadDiv.style.position = 'absolute';
+    loadDiv.style.display = 'flex';
+    loadDiv.style["flex-direction"] = 'column';
+    loadDiv.style["justify-content"] = 'center';
+    loadDiv.style['align-items'] = 'center';
+
+    // Create image logo
+    let expObseaImg = document.createElement("img");
+    expObseaImg.src = "/OBSEA/Assets/OBSEABanner.png";
+    expObseaImg.style['max-width'] = '40vw';
+    expObseaImg.style['max-height'] = '130px';//'18%';
+
+    // Create progress bar
+    let progress = document.createElement('div');
+    let progressBar = document.createElement('div');
+    progress.appendChild(progressBar);
+    progress.style = `
+      margin-top: 20px;
+      width: 70vw;
+      height: 20px;
+      background: rgba(40, 122, 163, 1);
+      border: none;
+      border-radius: 10px`;
+    progressBar.style = `width: 70vw;
+      height: 20px;
+      background: rgba(11, 85, 122, 1);
+      border: none;
+      border-radius: 10px`;
+
+    // Create sponsors logos
+    let sponsorsImg = document.createElement("img");
+    sponsorsImg.src = "/OBSEA/img/Logos.png";
+    sponsorsImg.style['max-width'] = '100%';
+    sponsorsImg.style['max-height'] = '20%';
+    sponsorsImg.style.bottom = '10px';
+    sponsorsImg.style.position = 'absolute';
+
+    // Add to div
+    loadDiv.appendChild(expObseaImg);
+    loadDiv.appendChild(progress);
+    loadDiv.appendChild(sponsorsImg);
+    // Add to body
+    document.body.appendChild(loadDiv);
+
+
+    // Load manager
+    THREE.DefaultLoadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
+      console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+
+    THREE.DefaultLoadingManager.onLoad = function () {
+      console.log('Loading Complete!');
+      document.body.removeChild(loadDiv);
+      // TODO: Twice OceanSurfaceMR
+      // TODO: Loading complete when LowRes versions are loaded
+      // TODO: For some reason the files appear to be loaded twice?
+    };
+    THREE.DefaultLoadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
+      console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+      progressBar.style.width = (itemsLoaded / itemsTotal * 100) + '%';
+    };
+
+    THREE.DefaultLoadingManager.onError = function (url) {
+      console.log('There was an error loading ' + url);
+    };
   }
 
 
