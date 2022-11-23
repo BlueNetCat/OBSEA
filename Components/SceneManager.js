@@ -221,6 +221,7 @@ class SceneManager{
     // Create progress bar
     let progress = document.createElement('div');
     let progressBar = document.createElement('div');
+    progressBar.className = 'progressBarLoadScreen';
     progress.appendChild(progressBar);
     progress.style = `
       margin-top: 20px;

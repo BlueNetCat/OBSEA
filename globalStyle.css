@@ -5,6 +5,16 @@ html body {
   position: fixed;
 }
 
+/* LOADING PROGRESS BAR */
+.progressBarLoadScreen {
+  animation: progressBarAnimation 1s linear infinite;
+}
+@keyframes progressBarAnimation {
+  0% {background: rgba(11, 85, 122, 1)}
+  50% {background: rgb(7, 54, 77)}
+  100% {background: rgba(11, 85, 122, 1)}
+}
+
 /* Limit SVG size */
 .icon-svg {
   width: 45px;
