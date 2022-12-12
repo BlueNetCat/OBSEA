@@ -37,11 +37,16 @@ class DataManager{
     // TODO: do this when data is not available. When daily is not available? Or when zoom finds out there is no file to load?
     // for the daily it means that when the application loads the latest static datapoint should be found and the daily should be
     // petitioned to the API and loaded. These are around 8.760 points (2*24*365/2) - static files contain 6 months of data.
-    this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
-    this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
-    this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
-    this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
 
+    // TESTER
+    let a = new Date();
+    let b = new Date();
+    b.setUTCMonth(b.getUTCMonth() - 6);
+    this.OBSEADataRetriever.getDataFromAPI(a, b);
   }
 
 
@@ -97,7 +102,7 @@ class DataManager{
   // Loads the half-hourly static files according to a date
   loadStaticData(date) {
     // Returns a promise
-    return this.OBSEADataRetriever.getHalfHourlyData(date)
+    return this.OBSEADataRetriever.getHalfHourlyDataFromFile(date)
       .catch(e => { throw e + "\nStatic data does not exist. - loadStaticData()" });
   }
 

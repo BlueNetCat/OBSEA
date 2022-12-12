@@ -102,7 +102,7 @@ export class OBSEADataRetriever{
 
 
 
-
+  // Query a data stream on a time instant
   fetchFromDatastreamURL = async function(url, timestamp){
     // Observations
     url += '/Observations?';
@@ -140,6 +140,44 @@ export class OBSEADataRetriever{
     })
     .catch(e => console.warn(e))
   }
+
+
+
+  // Query a datastream on a time period
+  fetchFromAPI = function (dataTypeURL, startDate, endDate) {
+    let url = dataTypeURL;
+    // Observations
+    url += '/Observations?';
+    // Select the timestamp and the result
+    url += '$select=resultTime,result&';
+    // Filter
+    // Quality
+    url += '$filter=resultQuality/qc_flag eq 1 and '
+    // Reset times to half-hourly
+    startDate.setUTCMinutes(Math.floor(startDate.getUTCMinutes() / 30) * 30);
+    endDate.setUTCMinutes(Math.floor(endDate.getUTCMinutes() / 30) * 30);
+    // Timespan
+    url += 'resultTime ge ' + endDate.toISOString().substring(0, 17) + '00.000Z and resultTime lt ' + startDate.toISOString().substring(0, 17) + '00.000Z&$orderBy=resultTime asc';
+
+    console.log(url);
+
+    return fetch(url)
+      .then(res => res.json())
+      .then(result => {
+        // Parse result
+        if (result.value !== undefined) {
+          if (result.value.length != 0) {
+            return result.value;
+          }
+        } else
+          return undefined;
+      })
+      .catch(e => { throw e })
+  }
+
+
+
+
 
 
 
@@ -359,7 +397,7 @@ export class OBSEADataRetriever{
   // PUBLIC METHODS
   // If data is not loaded for that date, load file, otherwise return data
   // Returns a promise
-  getHalfHourlyData = function(date){
+  getHalfHourlyDataFromFile = function(date){
     let timestamp = date.toISOString();
     let min = parseInt(timestamp.substring(14, 16));
     let normMin = parseInt(30 * Math.floor(min / 30));
@@ -368,12 +406,65 @@ export class OBSEADataRetriever{
     // Check if the data was already loaded
     if (!this.halfHourlyData[timestamp]) {
       return this.loadHalfHourlyData(date)
-        .catch(e => {throw e + "\nError when loading. - getHalfHourlyData()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
+        .catch(e => { throw e + "\nError when loading. - getHalfHourlyDataFromFile()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
     } else {
       return new Promise((resolve, rej) => resolve(this.halfHourlyData)); // TODO THINK
     }
   }
 
+
+  // Get all data from the API on a certain time stamp
+  getDataFromAPI = function(startDate, endDate){
+
+    // List of promises
+    let promises = [];
+    let keys = [];
+    // Iterate through all data types of OBSEA
+    // to create a list of promises
+    for (let i = 0; i < this.dataKeys.length; i++) {
+      let dataType = OBSEADataTypes[this.dataKeys[i]];
+      if (typeof dataType.url == 'string'){
+        promises.push(this.fetchFromAPI(dataType.url, startDate, endDate));
+        keys.push(this.dataKeys[i]);
+      }
+      // TODO: CURRENTS!
+      // TODO: If datastream empty, request again
+      else if (typeof dataType.url == 'object'){
+        promises.push(this.fetchFromAPI(dataType.url[0], startDate, endDate));
+        keys.push(this.dataKeys[i]);
+      }
+    }
+
+    // Promise.all
+    Promise.allSettled(promises)
+      .then(results => {
+        // Store half-hourly data
+        for (let i = 0; i <  results.length; i++){
+          let dataTypeName = keys[i];
+          let result = results[i];
+          console.log(keys[i])
+          console.log(results[i]);
+          
+          if (result.status == 'fulfilled'){
+            if (result.value != undefined){
+              // Iterate values
+              for (let j = 0; j < result.value.length; j++){
+                let dataPoint = result.value[j];
+                // Create data point if it does not exist
+                if (this.halfHourlyData[dataPoint.resultTime] == undefined)
+                  this.halfHourlyData[dataPoint.resultTime] = { 'timestamp': dataPoint.resultTime};
+                // Assign values
+                this.halfHourlyData[keys[i]] = dataPoint.result;
+              }
+            }
+          }
+        }
+      })
+      .catch(e => console.error(e))
+
+  }
+
+  
   
 
 
