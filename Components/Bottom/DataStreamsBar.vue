@@ -25,7 +25,7 @@ export default {
   },
   mounted() {
     // Data manager
-    this.DataManager = new DataManager();
+    this.DataManager = DataManager;
     this.dailyData = this.DataManager.getDailyData();
     // Half-hourly data is on demand
     this.halfHourlyData = {};
@@ -234,11 +234,11 @@ export default {
 
 
           } else {
-            console.log(key);
-            console.log(Object.keys(this.halfHourlyData));
-            console.log(Object.keys(this.DataManager.OBSEADataRetriever.halfHourlyData));
-            debugger;
-            console.error("Half hourly data was not loaded??" + this.halfHourlyData);
+            // console.log(key);
+            // console.log(Object.keys(this.halfHourlyData));
+            // console.log(Object.keys(this.DataManager.OBSEADataRetriever.halfHourlyData));
+            
+            // console.error("Half hourly data was not loaded??" + this.halfHourlyData);
           }
 
 
@@ -287,11 +287,12 @@ export default {
         // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
         let onLoad = (res) => {
           this.setHalfHourlyData(res); // Store hourly data
-          if (!this.DataManager.OBSEADataRetriever.isLoading) // Update canvas once all files are loaded
+        if (!this.DataManager.OBSEADataRetriever.isLoading) // Update canvas once all files are loaded
             this.updateCanvas();
         }
-        this.DataManager.loadStaticData(this.startDate).then(res => onLoad(res));
-        this.DataManager.loadStaticData(this.endDate).then(res => onLoad(res));
+        // Load data (half hourly)
+        this.DataManager.loadData(this.startDate, this.endDate)
+          .then(res => onLoad(res)).catch(e => console.error('DataStreamsBar.vue\n' + e));
       }
 
       this.updateCanvas();

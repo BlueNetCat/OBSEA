@@ -47,18 +47,22 @@ export class OBSEADataRetriever{
     // Check if it is a string or an array (some data types have multiple datastreams);
     // One URL available
     if (typeof dataType.url == 'string'){
-      let result = this.fetchFromDatastreamURL(dataType.url, timestamp);
+      let result = await this.fetchFromDatastreamURL(dataType.url, timestamp);
+      return result;
     }
     else if (typeof dataType.url == 'object'){
       let urls = dataType.url;
       let result;
       for (let i = 0; i<urls.length; i++){
         result = await this.fetchFromDatastreamURL(urls[i], timestamp);
-        if (result !== undefined)
-          i = urls.length; // Exit loop
+        if (result !== undefined){
+          return result;
+        }
       }
     }
   }
+
+  
 
 
 
@@ -114,37 +118,27 @@ export class OBSEADataRetriever{
     let nextTime = new Date(timestamp);
     nextTime.setUTCMinutes(nextTime.getUTCMinutes() + 25);
     url += 'resultTime ge ' + prevTime.toISOString() + ' and resultTime lt ' + nextTime.toISOString() + '&$orderBy=resultTime asc';
+
+    
     console.log(url);
     let result;
 
-    // Fetch
-    try {
-      let response = await fetch(url, {
-        mode: "no-cors",
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-      }).catch((error) =>
-        console.log("Network error: " + error));
-      // Response OK
-      if (response.status >= 200 && response.status <= 299) {
-        const jsonResponse = await response.json();
-        console.log(jsonResponse);
-        result = jsonResponse;
-      } 
-      // Handle response errors
-      else {
-        console.log('Response status; ' + response.status + ", reponse status text: " + response.statusText);
-        result = undefined;
-      }
-
-    } catch (error) {
-      console.log('There was an error');
-      console.log(error);
-      let result = undefined;
-    }
-    return result;
+    // Return a promise
+    return fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      // Parse data
+      console.log(data);
+      if (data.value !== undefined) {
+        if (data.value.length != 0) {
+          console.log("*******USING OBSEA API!");
+          // TODO: STORE THIS DATA IN HALF-HOURLY
+          return data.value[data.value.length-1].result;
+        }
+      } else
+        return undefined;
+    })
+    .catch(e => console.warn(e))
   }
 
 
@@ -175,6 +169,7 @@ export class OBSEADataRetriever{
     
   }
   // Load single file on demand
+  // Error propagation https://medium.com/front-end-weekly/error-propagation-in-javascript-with-error-translation-pattern-78cf7178fe92
   fetchFromStaticFile = function (fileName) {
     
     let url = this.baseURLStaticFiles;
@@ -184,14 +179,18 @@ export class OBSEADataRetriever{
     this.isLoading = true;
 
     return fetch(url)
-      .then(res => res.text())
+      .then(res => {
+        if (res.ok)
+          return res.text();
+        else {
+          throw "HTTP status code: " + res.status + ". - fetchFromStaticFile()";
+        }
+      })
       .then(rawSS => {
         this.loadingFiles--;
         this.isLoading = this.loadingFiles != 0;
-
         return this.processCSV(rawSS);
       })
-      .catch(e => console.error("Error when loading and parsing csv: " + e));
   }
 
   // Finds the right file to load.
@@ -201,7 +200,9 @@ export class OBSEADataRetriever{
     let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
     return this.fetchFromStaticFile(fileName)
       .then(csv => this.storeHalfHourlyData(csv))
-      .catch(e => console.error("Could not load static file " + fileName + ". " + e));
+      .catch(e => {
+        throw e + '\n' + "Could not load static file " + fileName + ". - loadHalfHourlyData()";
+      });
   }
 
 
@@ -366,7 +367,8 @@ export class OBSEADataRetriever{
 
     // Check if the data was already loaded
     if (!this.halfHourlyData[timestamp]) {
-      return this.loadHalfHourlyData(date);
+      return this.loadHalfHourlyData(date)
+        .catch(e => {throw e + "\nError when loading. - getHalfHourlyData()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
     } else {
       return new Promise((resolve, rej) => resolve(this.halfHourlyData)); // TODO THINK
     }

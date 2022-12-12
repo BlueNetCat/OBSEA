@@ -9,30 +9,7 @@ class DataManager{
 
   data = {};
 
-  dataTypes = [
-    "Wave significant height",
-    "Wave maximum height", // Need to include it in CMEMS
-    "Wave direction", // Need to include it in CMEMS
-    "Direction spreading of waves", // Not available in CMEMS?
-
-    "Wind speed", // Not available in CMEMS?
-    "Wind direction", // Not available in CMEMS?
-
-    // Current
-    // Different elevations for OBSEA and CMEMS
-
-    // "Sea surface temperature", // Does not exist in OBSEA
-    "Sea bottom temperature",
-
-    "Salinity", // Bottom for OBSEA, surface for CMEMS
-
-    "Air temperature", // Not available in CMEMS?
-  ]
-
   constructor(){
-    // Singleton
-    if (DataManager.instace != undefined)
-      return DataManager.instance;
 
     // Constructor
     this.OBSEADataRetriever = new OBSEADataRetriever();
@@ -47,11 +24,24 @@ class DataManager{
 
     // Test data manager
     //this.getDataOnTimeInstant('2019-01-01T01:30:00.000Z');
-    this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
+    let nowDate = new Date();
+    let min = nowDate.getUTCMinutes();
+    if (min > 32){
+      nowDate.setUTCMinutes(0);
+    } else{
+      nowDate.setUTCMinutes(30);
+      nowDate.setUTCHours(nowDate.getUTCHours() - 1);
+    }
+    //this.getDataOnTimeInstant('Wave significant height', '2022-01-01T01:30:00.000Z');
+    // TODO: loop
+    // TODO: do this when data is not available. When daily is not available? Or when zoom finds out there is no file to load?
+    // for the daily it means that when the application loads the latest static datapoint should be found and the daily should be
+    // petitioned to the API and loaded. These are around 8.760 points (2*24*365/2) - static files contain 6 months of data.
+    this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
+    this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
+    this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
+    this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
 
-    // Singleton
-    DataManager.instance = this;
-    
   }
 
 
@@ -63,8 +53,10 @@ class DataManager{
     let dataType = this.OBSEADataRetriever.getDataType(dataTypeName);
     // Get value
     let dataValue = await this.OBSEADataRetriever.getDataOnTimeInstant(dataTypeName, timestamp);
+    
     // CMEMS WMS
     if (dataValue == undefined){
+      console.log(dataType.name + " not found in OBSEA api. Trying WMS.");
       // Get data type
       dataType = this.WMSDataRetriever.getDataType(dataTypeName);
       if (dataType !== undefined)
@@ -72,6 +64,7 @@ class DataManager{
         // Get timescale and add something like (daily) to the data point
         dataValue = await this.WMSDataRetriever.getDataAtPoint(dataTypeName, timestamp, this.lat, this.long, 'h'); // TODO, NOT ALL HAVE 'h' timings
     }
+
     // TODO; EMIT DATA VALUE? STORE IT HERE? SEND IT WHEN ALL ARE LOADED? EMIT AND UPDATE ALL VALUES?
     if (dataValue !== undefined){
       let dataRow = this.data[timestamp];
@@ -84,7 +77,7 @@ class DataManager{
       this.data[timestamp] = dataRow;
       window.eventBus.emit('DataManager_' + dataType.name, dataValue);
     }
-    
+    console.log(dataValue);
     console.log("DataManager_" + dataType.name + ":" + dataValue + " " + dataType.units);
   }
 
@@ -93,12 +86,19 @@ class DataManager{
 
 
   // Get data from static files of OBSEA data
-  // Get static data
+  // Get static data (only called to generate static file of daily maximums)
   getStaticData(){
     this.OBSEADataRetriever.fetchFromStaticFiles((csv) => {
       // this is a callback function
       //console.log(csv);
     })
+  }
+
+  // Loads the half-hourly static files according to a date
+  loadStaticData(date) {
+    // Returns a promise
+    return this.OBSEADataRetriever.getHalfHourlyData(date)
+      .catch(e => { throw e + "\nStatic data does not exist. - loadStaticData()" });
   }
 
   
@@ -112,16 +112,30 @@ class DataManager{
     return this.OBSEADataRetriever.DailyDataMax;
   }
 
-  // Loads the half-hourly static files according to a date
-  loadStaticData(date){
-    // Returns a promise
-    return this.OBSEADataRetriever.getHalfHourlyData(date);
+  loadData(startDate, endDate){
+    // Load static files
+    // All promises must be fullfiled
+    return Promise.all([
+      this.loadStaticData(startDate),
+      this.loadStaticData(endDate),
+    ])
+      // Process the result of all promises
+      .then(arrRes => {
+        Object.assign(arrRes[0], arrRes[1]); // Only two promises (hardcoded)
+        return arrRes[0];
+      })
+      .catch(e => { // TODO: USE OBSEA API
+
+        throw e + "\nStatic data is missing. - loadData()";
+      })
+
   }
 
- 
 
 
 
 }
 
-export default DataManager;
+// Singleton
+const dataManager = new DataManager();
+export default dataManager;
