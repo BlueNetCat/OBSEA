@@ -113,17 +113,22 @@ class DataManager{
   }
 
   loadData(startDate, endDate){
-    let tmp;
-    return this.loadStaticData(startDate)
-      .then(res => {
-        console.log("IS LOADING FILES: " + this.OBSEADataRetriever.loadingFiles);
-        console.log("IS LOADING? " + this.OBSEADataRetriever.isLoading);
-
-        tmp = res;
-        this.loadStaticData(endDate);
+    // Load static files
+    // All promises must be fullfiled
+    return Promise.all([
+      this.loadStaticData(startDate),
+      this.loadStaticData(endDate),
+    ])
+      // Process the result of all promises
+      .then(arrRes => {
+        Object.assign(arrRes[0], arrRes[1]); // Only two promises (hardcoded)
+        return arrRes[0];
       })
-      .then(res => Object.assign(tmp, res))
-      .catch(e => console.error(e));
+      .catch(e => { // TODO: USE OBSEA API
+
+        throw e + "\nStatic data is missing. - loadData()";
+      })
+
   }
 
 

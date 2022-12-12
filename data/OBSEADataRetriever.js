@@ -139,36 +139,6 @@ export class OBSEADataRetriever{
         return undefined;
     })
     .catch(e => console.warn(e))
-
-    return result;
-    // Fetch
-    try {
-      let response = await fetch(url, {
-        mode: "no-cors",
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-      }).catch((error) =>
-        console.log("Network error: " + error));
-      // Response OK
-      if (response.status >= 200 && response.status <= 299) {
-        const jsonResponse = await response.json();
-        console.log(jsonResponse);
-        result = jsonResponse;
-      } 
-      // Handle response errors
-      else {
-        console.log('Response status; ' + response.status + ", reponse status text: " + response.statusText);
-        result = undefined;
-      }
-
-    } catch (error) {
-      console.log('There was an error');
-      console.log(error);
-      let result = undefined;
-    }
-    return result;
   }
 
 
@@ -219,9 +189,6 @@ export class OBSEADataRetriever{
       .then(rawSS => {
         this.loadingFiles--;
         this.isLoading = this.loadingFiles != 0;
-        console.log("LOADING FILES*: " + this.loadingFiles);
-        console.log("IS LOADING*: " + this.isLoading);
-
         return this.processCSV(rawSS);
       })
   }
