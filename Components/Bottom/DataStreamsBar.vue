@@ -234,11 +234,11 @@ export default {
 
 
           } else {
-            console.log(key);
-            console.log(Object.keys(this.halfHourlyData));
-            console.log(Object.keys(this.DataManager.OBSEADataRetriever.halfHourlyData));
+            // console.log(key);
+            // console.log(Object.keys(this.halfHourlyData));
+            // console.log(Object.keys(this.DataManager.OBSEADataRetriever.halfHourlyData));
             
-            console.error("Half hourly data was not loaded??" + this.halfHourlyData);
+            // console.error("Half hourly data was not loaded??" + this.halfHourlyData);
           }
 
 
@@ -286,12 +286,17 @@ export default {
         // TODO: in our case, the start-end date is always less than 6 months and the static files are divided into 6 months periods,
         // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
         let onLoad = (res) => {
+          console.log(res);
           this.setHalfHourlyData(res); // Store hourly data
+          console.log("IS LOADING FILES: " + this.DataManager.OBSEADataRetriever.loadingFiles);
+          console.log("IS LOADING? " + this.DataManager.OBSEADataRetriever.isLoading);
           if (!this.DataManager.OBSEADataRetriever.isLoading) // Update canvas once all files are loaded
             this.updateCanvas();
         }
-        this.DataManager.loadStaticData(this.startDate).then(res => onLoad(res));
-        this.DataManager.loadStaticData(this.endDate).then(res => onLoad(res));
+        this.DataManager.loadData(this.startDate, this.endDate)
+          .then(res => onLoad(res)).catch(e => console.log('*******' + e));
+        //this.DataManager.loadStaticData(this.startDate).then(res => onLoad(res)).catch(e => console.log('*******' + e));
+        //this.DataManager.loadStaticData(this.endDate).then(res => onLoad(res)).catch(e => console.log('*******' + e));
       }
 
       this.updateCanvas();

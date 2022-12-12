@@ -86,12 +86,19 @@ class DataManager{
 
 
   // Get data from static files of OBSEA data
-  // Get static data
+  // Get static data (only called to generate static file of daily maximums)
   getStaticData(){
     this.OBSEADataRetriever.fetchFromStaticFiles((csv) => {
       // this is a callback function
       //console.log(csv);
     })
+  }
+
+  // Loads the half-hourly static files according to a date
+  loadStaticData(date) {
+    // Returns a promise
+    return this.OBSEADataRetriever.getHalfHourlyData(date)
+      .catch(e => { throw e + "\nStatic data does not exist. - loadStaticData()" });
   }
 
   
@@ -105,13 +112,20 @@ class DataManager{
     return this.OBSEADataRetriever.DailyDataMax;
   }
 
-  // Loads the half-hourly static files according to a date
-  loadStaticData(date){
-    // Returns a promise
-    return this.OBSEADataRetriever.getHalfHourlyData(date);
+  loadData(startDate, endDate){
+    let tmp;
+    return this.loadStaticData(startDate)
+      .then(res => {
+        console.log("IS LOADING FILES: " + this.OBSEADataRetriever.loadingFiles);
+        console.log("IS LOADING? " + this.OBSEADataRetriever.isLoading);
+
+        tmp = res;
+        this.loadStaticData(endDate);
+      })
+      .then(res => Object.assign(tmp, res))
+      .catch(e => console.error(e));
   }
 
- 
 
 
 

@@ -199,6 +199,7 @@ export class OBSEADataRetriever{
     
   }
   // Load single file on demand
+  // Error propagation https://medium.com/front-end-weekly/error-propagation-in-javascript-with-error-translation-pattern-78cf7178fe92
   fetchFromStaticFile = function (fileName) {
     
     let url = this.baseURLStaticFiles;
@@ -208,14 +209,21 @@ export class OBSEADataRetriever{
     this.isLoading = true;
 
     return fetch(url)
-      .then(res => res.text())
+      .then(res => {
+        if (res.ok)
+          return res.text();
+        else {
+          throw "HTTP status code: " + res.status + ". - fetchFromStaticFile()";
+        }
+      })
       .then(rawSS => {
         this.loadingFiles--;
         this.isLoading = this.loadingFiles != 0;
+        console.log("LOADING FILES*: " + this.loadingFiles);
+        console.log("IS LOADING*: " + this.isLoading);
 
         return this.processCSV(rawSS);
       })
-      .catch(e => console.error("Error when loading and parsing csv: " + e));
   }
 
   // Finds the right file to load.
@@ -225,7 +233,9 @@ export class OBSEADataRetriever{
     let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
     return this.fetchFromStaticFile(fileName)
       .then(csv => this.storeHalfHourlyData(csv))
-      .catch(e => console.error("Could not load static file " + fileName + ". " + e));
+      .catch(e => {
+        throw e + '\n' + "Could not load static file " + fileName + ". - loadHalfHourlyData()";
+      });
   }
 
 
@@ -390,7 +400,8 @@ export class OBSEADataRetriever{
 
     // Check if the data was already loaded
     if (!this.halfHourlyData[timestamp]) {
-      return this.loadHalfHourlyData(date);
+      return this.loadHalfHourlyData(date)
+        .catch(e => {throw e + "\nError when loading. - getHalfHourlyData()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
     } else {
       return new Promise((resolve, rej) => resolve(this.halfHourlyData)); // TODO THINK
     }
