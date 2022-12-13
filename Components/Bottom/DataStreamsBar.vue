@@ -46,6 +46,11 @@ export default {
     });
     this.ctx = this.canvas.getContext('2d');
 
+    // Event for showing daily max when is loaded from API
+    window.eventBus.on('DataManager_updatedDailyMax', () => {
+      this.updateCanvas();
+    });
+
     // This number decides when to paint one point a day or 24*2 points a day
     this.maxHalfHourlyPoints = 24 * 60;
     // Memory allocation
