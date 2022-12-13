@@ -395,9 +395,9 @@ export class OBSEADataRetriever{
 
 
   generateDailyDataAvailabilityFromHalfHourlyData = function(startDate, endDate){
-
+    // Number of halfhours between start and end date
     let halfHourSteps = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 0.5));
-debugger;
+    // Iterate half hour steps
     for (let i = 0; i < halfHourSteps; i++){
       let halfHourlyTimestamp = startDate.toISOString().substring(0,17) + '00.000Z';
       let dailyTimestamp = startDate.toISOString().substring(0, 11) + '00:00:00.000Z';
@@ -456,10 +456,11 @@ debugger;
         // First section okay, second not okay (apart every 6 months)
         // TODO: could modify the end date and request 6 months instead of January-enddate or July-endate
         else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'rejected') {
-          if (endDate.getUTCMonth() + 1 >= 7){ // isLateHalfYear
-            let startRequestDate = new Date(endDate.getUTCFullYear() + '-07-01');
+          let startRequestDate;
+          if (startDate.getUTCMonth() + 1 >= 7){ // isLateHalfYear
+            startRequestDate = new Date((startDate.getUTCFullYear()+1) + '-01-01');
           } else {
-            let startRequestDate = new Date(endDate.getUTCFullYear() + '-01-01');
+            startRequestDate = new Date(startDate.getUTCFullYear() + '-07-01');
           }
           this.getDataFromAPI(startRequestDate, endDate)
             .then(res => { return res }); // The other half was already stored when the file was loaded
@@ -467,10 +468,11 @@ debugger;
         // First section NOT okay, second okay
          // TODO: could modify the end date and request 6 months instead of January-enddate or July-endate
         else if (resStartDate.status == 'rejected' && resEndDate.status == 'fulfilled') { // Only happens in 2011?
-          if (startDate.getUTCMonth() + 1 >= 7) { // isLateHalfYear
-            let endRequestDate = new Date((startDate.getUTCFullYear()+1) + '-01-01');
+          let endRequestDate;
+          if (endDate.getUTCMonth() + 1 >= 7) { // isLateHalfYear
+            endRequestDate = new Date(endDate.getUTCFullYear() + '-07-01');
           } else {
-            let endRequestDate = new Date(startDate.getUTCFullYear() + '-07-01');
+            endRequestDate = new Date(endDate.getUTCFullYear() + '-01-01');
           }
           this.getDataFromAPI(startDate, endRequestDate)
             .then(res => { return res }); // The other half was already stored when the file was loaded
@@ -562,7 +564,7 @@ debugger;
           }
         }
         
-        // TODO: CALCULATE DAILY MAX
+        // TODO: Update DATASTREAMSBAR
         this.generateDailyDataAvailabilityFromHalfHourlyData(startDate, endDate);
         return this.halfHourlyData;
       })

@@ -45,7 +45,7 @@ class DataManager{
     // TESTER
     let a = new Date();
     let b = new Date();
-    b.setUTCMonth(b.getUTCMonth() - 10);
+    b.setUTCMonth(b.getUTCMonth() - 12);
     // a.setUTCFullYear(2018);
     // b.setUTCFullYear(2018);
     //this.OBSEADataRetriever.getDataFromAPI(b, a);
