@@ -53,9 +53,13 @@ class DataManager{
     let today = new Date();
     let latestDateWithStaticData = new Date(latestDate);
     this.getHalfHourlyData(latestDateWithStaticData, today).then(res => {
-      window.eventBus.emit('DataManager_intialAPILoad', res);
-      console.log('Data from API loaded, from ' + latestDateWithStaticData.toISOString() + ' until today.');
-    });
+      if (Object.keys(res).length == 0) 
+        console.error("Could not load data from API.")
+      else {
+        window.eventBus.emit('DataManager_intialAPILoad', res);
+        console.log('Data from API loaded, from ' + latestDateWithStaticData.toISOString() + ' until today.');
+      }
+    })
   }
 
 
