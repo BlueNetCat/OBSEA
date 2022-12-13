@@ -42,14 +42,11 @@ class DataManager{
     // this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
     // this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
 
-    // TESTER
+    // LOAD DATA THAT DOES NOT EXIST?
+    // TODO: AUTOMATE -> CHECK LATEST DAILY MAX DATE
     let a = new Date();
-    let b = new Date();
-    b.setUTCMonth(b.getUTCMonth() - 12);
-    // a.setUTCFullYear(2018);
-    // b.setUTCFullYear(2018);
-    //this.OBSEADataRetriever.getDataFromAPI(b, a);
-    let response = this.getHalfHourlyData(b, a).then(res => console.log(res));
+    let b = new Date('2022-01-01');
+    this.getHalfHourlyData(b, a).then(res => console.log(res));
   }
 
 

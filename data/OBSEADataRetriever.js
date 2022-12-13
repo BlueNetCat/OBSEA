@@ -454,7 +454,6 @@ export class OBSEADataRetriever{
             .then(res => {return res})
         }
         // First section okay, second not okay (apart every 6 months)
-        // TODO: could modify the end date and request 6 months instead of January-enddate or July-endate
         else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'rejected') {
           let startRequestDate;
           if (startDate.getUTCMonth() + 1 >= 7){ // isLateHalfYear
@@ -466,7 +465,6 @@ export class OBSEADataRetriever{
             .then(res => { return res }); // The other half was already stored when the file was loaded
         }
         // First section NOT okay, second okay
-         // TODO: could modify the end date and request 6 months instead of January-enddate or July-endate
         else if (resStartDate.status == 'rejected' && resEndDate.status == 'fulfilled') { // Only happens in 2011?
           let endRequestDate;
           if (endDate.getUTCMonth() + 1 >= 7) { // isLateHalfYear

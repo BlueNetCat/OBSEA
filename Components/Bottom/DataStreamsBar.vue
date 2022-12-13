@@ -287,6 +287,7 @@ export default {
         // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
         let onLoad = (res) => {
           this.setHalfHourlyData(res); // Store hourly data
+          this.setDailyData(this.DataManager.getDailyData()); // Store daily maximum data (gets updated when API is used)
         if (!this.DataManager.OBSEADataRetriever.isLoading) // Update canvas once all files are loaded
             this.updateCanvas();
         }
