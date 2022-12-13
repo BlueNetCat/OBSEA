@@ -25,6 +25,7 @@ export class OBSEADataRetriever{
                   'obsea_2019_1.csv', 'obsea_2019_2.csv', 
                   'obsea_2020_1.csv', 'obsea_2020_2.csv', 
                   'obsea_2021_1.csv', 'obsea_2021_2.csv'];
+  loadedStaticFiles = []; // Store files that were loaded
 
   dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxdaily[]
   dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X ºC
@@ -149,7 +150,7 @@ export class OBSEADataRetriever{
     // Observations
     url += '/Observations?';
     // Select the timestamp and the result
-    url += '$select=resultTime,result&';
+    url += '$select=resultTime,result&$top=1000000&';
     // Filter
     // Quality
     url += '$filter=resultQuality/qc_flag eq 1 and '
@@ -157,9 +158,9 @@ export class OBSEADataRetriever{
     startDate.setUTCMinutes(Math.floor(startDate.getUTCMinutes() / 30) * 30);
     endDate.setUTCMinutes(Math.floor(endDate.getUTCMinutes() / 30) * 30);
     // Timespan
-    url += 'resultTime ge ' + endDate.toISOString().substring(0, 17) + '00.000Z and resultTime lt ' + startDate.toISOString().substring(0, 17) + '00.000Z&$orderBy=resultTime asc';
+    url += 'resultTime ge ' + startDate.toISOString().substring(0, 17) + '00.000Z and resultTime lt ' + endDate.toISOString().substring(0, 17) + '00.000Z&$orderBy=resultTime asc';
 
-    console.log(url);
+    //console.log(url);
 
     return fetch(url)
       .then(res => res.json())
@@ -229,6 +230,11 @@ export class OBSEADataRetriever{
         this.isLoading = this.loadingFiles != 0;
         return this.processCSV(rawSS);
       })
+      .catch(e => {
+        this.loadingFiles--;
+        this.isLoading = this.loadingFiles != 0;
+        throw e + "\nFetch url not working.- fetchFromStaticFile"
+      });
   }
 
   // Finds the right file to load.
@@ -387,6 +393,38 @@ export class OBSEADataRetriever{
   }
 
 
+
+  generateDailyDataAvailabilityFromHalfHourlyData = function(startDate, endDate){
+
+    let halfHourSteps = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 0.5));
+debugger;
+    for (let i = 0; i < halfHourSteps; i++){
+      let halfHourlyTimestamp = startDate.toISOString().substring(0,17) + '00.000Z';
+      let dailyTimestamp = startDate.toISOString().substring(0, 11) + '00:00:00.000Z';
+      // Check if there is data on that time
+      if (this.halfHourlyData[halfHourlyTimestamp]){
+        let dataTypes = Object.keys(this.halfHourlyData[halfHourlyTimestamp]);
+        // Iterate data types
+        for (let j = 0; j < dataTypes.length; j++){
+          let dataType = dataTypes[j];
+          if (dataType == 'timestamp')
+            continue;
+          // Check if daily max entry exists
+          if (!this.DailyDataMax[dailyTimestamp]){
+            this.DailyDataMax[dailyTimestamp] = {};
+          }
+          // If is bigger or datatype was not defined yet
+          if (this.DailyDataMax[dailyTimestamp][dataType] < this.halfHourlyData[halfHourlyTimestamp][dataType] ||
+              this.DailyDataMax[dailyTimestamp][dataType] == undefined){
+            this.DailyDataMax[dailyTimestamp][dataType] = this.halfHourlyData[halfHourlyTimestamp][dataType];
+          }
+        }
+      }
+      // Increase time step
+      startDate.setUTCMinutes(startDate.getUTCMinutes() + 30);
+    }
+  }
+
   
 
 
@@ -395,6 +433,58 @@ export class OBSEADataRetriever{
 
 
   // PUBLIC METHODS
+  // Get the data either from csv files or API
+  getHalfHourlyData = function(startDate, endDate){
+    // TODO: CHECK IF THE FILES WERE LOADED
+
+
+    return Promise.allSettled([this.getHalfHourlyDataFromFile(startDate), this.getHalfHourlyDataFromFile(endDate)])
+      .then(arrayResponses => {
+        let resStartDate = arrayResponses[0];
+        let resEndDate = arrayResponses[1];
+        // Both rejected, request from API
+        if (resStartDate.status == 'rejected' && resEndDate.status == 'rejected'){
+          // Store .csv files that were loaded
+          // The file name is hidden inside the error message
+          // let filename = resStartDate.reason.substring(resStartDate.reason.indexOf('.csv') - 12, resStartDate.reason.indexOf('.csv') + 4);
+          // this.nonExistantStaticFiles.push(filename);
+          // filename = resEndDate.reason.substring(resEndDate.reason.indexOf('.csv') - 12, resEndDate.reason.indexOf('.csv') + 4);
+          // this.nonExistantStaticFiles.push(filename);
+          return this.getDataFromAPI(startDate, endDate)
+            .then(res => {return res})
+        }
+        // First section okay, second not okay (apart every 6 months)
+        // TODO: could modify the end date and request 6 months instead of January-enddate or July-endate
+        else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'rejected') {
+          if (endDate.getUTCMonth() + 1 >= 7){ // isLateHalfYear
+            let startRequestDate = new Date(endDate.getUTCFullYear() + '-07-01');
+          } else {
+            let startRequestDate = new Date(endDate.getUTCFullYear() + '-01-01');
+          }
+          this.getDataFromAPI(startRequestDate, endDate)
+            .then(res => { return res }); // The other half was already stored when the file was loaded
+        }
+        // First section NOT okay, second okay
+         // TODO: could modify the end date and request 6 months instead of January-enddate or July-endate
+        else if (resStartDate.status == 'rejected' && resEndDate.status == 'fulfilled') { // Only happens in 2011?
+          if (startDate.getUTCMonth() + 1 >= 7) { // isLateHalfYear
+            let endRequestDate = new Date((startDate.getUTCFullYear()+1) + '-01-01');
+          } else {
+            let endRequestDate = new Date(startDate.getUTCFullYear() + '-07-01');
+          }
+          this.getDataFromAPI(startDate, endRequestDate)
+            .then(res => { return res }); // The other half was already stored when the file was loaded
+        } 
+        // Both fulfilled
+        else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'fulfilled'){
+          return resStartDate.value;
+        }
+        
+      })
+      .catch(e => {throw e + "\nError in getHalfHourlyData"})
+
+  }
+
   // If data is not loaded for that date, load file, otherwise return data
   // Returns a promise
   getHalfHourlyDataFromFile = function(date){
@@ -427,8 +517,20 @@ export class OBSEADataRetriever{
         promises.push(this.fetchFromAPI(dataType.url, startDate, endDate));
         keys.push(this.dataKeys[i]);
       }
-      // TODO: CURRENTS!
+      // Currents
+      else if( dataType.name == 'CUR'){
+        let baseURL = dataType.url.baseURL;
+        for (let j = 0; j <= 19; j++){
+          promises.push(this.fetchFromAPI(baseURL.replace('X', dataType.url[j].U), startDate, endDate));
+          keys.push('UCUR_' + j + 'm');
+          promises.push(this.fetchFromAPI(baseURL.replace('X', dataType.url[j].V), startDate, endDate));
+          keys.push('VCUR_' + j + 'm');
+          promises.push(this.fetchFromAPI(baseURL.replace('X', dataType.url[j].Z), startDate, endDate));
+          keys.push('ZCUR_' + j + 'm');
+        }
+      }
       // TODO: If datastream empty, request again
+      // Datatypes with more than one datastream
       else if (typeof dataType.url == 'object'){
         promises.push(this.fetchFromAPI(dataType.url[0], startDate, endDate));
         keys.push(this.dataKeys[i]);
@@ -436,14 +538,14 @@ export class OBSEADataRetriever{
     }
 
     // Promise.all
-    Promise.allSettled(promises)
+    return Promise.allSettled(promises)
       .then(results => {
         // Store half-hourly data
         for (let i = 0; i <  results.length; i++){
           let dataTypeName = keys[i];
           let result = results[i];
-          console.log(keys[i])
-          console.log(results[i]);
+          // console.log(keys[i])
+          // console.log(results[i]);
           
           if (result.status == 'fulfilled'){
             if (result.value != undefined){
@@ -454,13 +556,17 @@ export class OBSEADataRetriever{
                 if (this.halfHourlyData[dataPoint.resultTime] == undefined)
                   this.halfHourlyData[dataPoint.resultTime] = { 'timestamp': dataPoint.resultTime};
                 // Assign values
-                this.halfHourlyData[keys[i]] = dataPoint.result;
+                this.halfHourlyData[dataPoint.resultTime][keys[i]] = dataPoint.result;
               }
             }
           }
         }
+        
+        // TODO: CALCULATE DAILY MAX
+        this.generateDailyDataAvailabilityFromHalfHourlyData(startDate, endDate);
+        return this.halfHourlyData;
       })
-      .catch(e => console.error(e))
+      .catch(e => {throw e + "\nError in getDataFromAPI"})
 
   }
 

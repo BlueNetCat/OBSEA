@@ -45,8 +45,11 @@ class DataManager{
     // TESTER
     let a = new Date();
     let b = new Date();
-    b.setUTCMonth(b.getUTCMonth() - 6);
-    this.OBSEADataRetriever.getDataFromAPI(a, b);
+    b.setUTCMonth(b.getUTCMonth() - 10);
+    // a.setUTCFullYear(2018);
+    // b.setUTCFullYear(2018);
+    //this.OBSEADataRetriever.getDataFromAPI(b, a);
+    let response = this.getHalfHourlyData(b, a).then(res => console.log(res));
   }
 
 
@@ -117,22 +120,9 @@ class DataManager{
     return this.OBSEADataRetriever.DailyDataMax;
   }
 
-  loadData(startDate, endDate){
-    // Load static files
-    // All promises must be fullfiled
-    return Promise.all([
-      this.loadStaticData(startDate),
-      this.loadStaticData(endDate),
-    ])
-      // Process the result of all promises
-      .then(arrRes => {
-        Object.assign(arrRes[0], arrRes[1]); // Only two promises (hardcoded)
-        return arrRes[0];
-      })
-      .catch(e => { // TODO: USE OBSEA API
-
-        throw e + "\nStatic data is missing. - loadData()";
-      })
+  getHalfHourlyData(startDate, endDate){
+    // Get data either from csv files or from API
+    return this.OBSEADataRetriever.getHalfHourlyData(startDate, endDate);
 
   }
 

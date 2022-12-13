@@ -291,7 +291,7 @@ export default {
             this.updateCanvas();
         }
         // Load data (half hourly)
-        this.DataManager.loadData(this.startDate, this.endDate)
+        this.DataManager.getHalfHourlyData(this.startDate, this.endDate)
           .then(res => onLoad(res)).catch(e => console.error('DataStreamsBar.vue\n' + e));
       }
 
