@@ -26,8 +26,8 @@ export class OBSEADataRetriever{
                   'obsea_2020_1.csv', 'obsea_2020_2.csv', 
                   'obsea_2021_1.csv', 'obsea_2021_2.csv'];
   loadedStaticFiles = []; // Store files that were loaded
+  APIrequestedTimePeriods = [];
 
-  dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxdaily[]
   dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X ºC
   // Control the loading status
   isLoading = false;
@@ -228,6 +228,8 @@ export class OBSEADataRetriever{
       .then(rawSS => {
         this.loadingFiles--;
         this.isLoading = this.loadingFiles != 0;
+        if (!this.loadedStaticFiles.includes(fileName))
+          this.loadedStaticFiles.push(fileName);
         return this.processCSV(rawSS);
       })
       .catch(e => {
@@ -240,8 +242,7 @@ export class OBSEADataRetriever{
   // Finds the right file to load.
   // Returns a promise
   loadHalfHourlyData = function (date) {
-    let isLateHalfYear = date.getUTCMonth() + 1 >= 7;
-    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
+    let fileName = this.getCSVFileNameFromDate(date);
     return this.fetchFromStaticFile(fileName)
       .then(csv => this.storeHalfHourlyData(csv))
       .catch(e => {
@@ -427,7 +428,11 @@ export class OBSEADataRetriever{
 
   
 
-
+  getCSVFileNameFromDate = function(date){
+    let isLateHalfYear = date.getUTCMonth() + 1 >= 7;
+    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
+    return fileName;
+  }
 
 
 
@@ -435,26 +440,33 @@ export class OBSEADataRetriever{
   // PUBLIC METHODS
   // Get the data either from csv files or API
   getHalfHourlyData = function(startDate, endDate){
-    // TODO: CHECK IF THE FILES WERE LOADED
+    // If files were loaded, return half-hourly data
+    let startCSV = this.getCSVFileNameFromDate(startDate);
+    let endCSV = this.getCSVFileNameFromDate(endDate);
+    if (this.loadedStaticFiles.includes(startCSV) && this.loadedStaticFiles.includes(endCSV))
+      return new Promise((resolve, rej) => resolve(this.halfHourlyData)); 
+    
+    // If dates were requested with the API
+    for (let i = 0; i < this.APIrequestedTimePeriods.length; i++){
+      let timePeriod = this.APIrequestedTimePeriods[i];
+      if (timePeriod[0] < startDate.getTime() && timePeriod[1] > endDate.getTime()) {
+        return new Promise((resolve, rej) => resolve(this.halfHourlyData));
+      }
+    }
 
-
+    // Request .csv files and use API if .csv file cannot be loaded
     return Promise.allSettled([this.getHalfHourlyDataFromFile(startDate), this.getHalfHourlyDataFromFile(endDate)])
       .then(arrayResponses => {
         let resStartDate = arrayResponses[0];
         let resEndDate = arrayResponses[1];
         // Both rejected, request from API
         if (resStartDate.status == 'rejected' && resEndDate.status == 'rejected'){
-          // Store .csv files that were loaded
-          // The file name is hidden inside the error message
-          // let filename = resStartDate.reason.substring(resStartDate.reason.indexOf('.csv') - 12, resStartDate.reason.indexOf('.csv') + 4);
-          // this.nonExistantStaticFiles.push(filename);
-          // filename = resEndDate.reason.substring(resEndDate.reason.indexOf('.csv') - 12, resEndDate.reason.indexOf('.csv') + 4);
-          // this.nonExistantStaticFiles.push(filename);
           return this.getDataFromAPI(startDate, endDate)
             .then(res => {return res})
         }
-        // First section okay, second not okay (apart every 6 months)
+        // First section found as csv, second must be loaded from API
         else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'rejected') {
+          // Find out the date where the csv file ends
           let startRequestDate;
           if (startDate.getUTCMonth() + 1 >= 7){ // isLateHalfYear
             startRequestDate = new Date((startDate.getUTCFullYear()+1) + '-01-01');
@@ -464,8 +476,9 @@ export class OBSEADataRetriever{
           this.getDataFromAPI(startRequestDate, endDate)
             .then(res => { return res }); // The other half was already stored when the file was loaded
         }
-        // First section NOT okay, second okay
+        // First must be loaded from API, second found as csv
         else if (resStartDate.status == 'rejected' && resEndDate.status == 'fulfilled') { // Only happens in 2011?
+          // Find out the date where the csv file ends
           let endRequestDate;
           if (endDate.getUTCMonth() + 1 >= 7) { // isLateHalfYear
             endRequestDate = new Date(endDate.getUTCFullYear() + '-07-01');
@@ -505,7 +518,7 @@ export class OBSEADataRetriever{
 
   // Get all data from the API on a certain time stamp
   getDataFromAPI = function(startDate, endDate){
-
+    this.APIrequestedTimePeriods.push([startDate.getTime(), endDate.getTime()]);
     // List of promises
     let promises = [];
     let keys = [];
@@ -562,7 +575,7 @@ export class OBSEADataRetriever{
           }
         }
         
-        // TODO: Update DATASTREAMSBAR
+        // Data manager updates the canvas in DataStreamsBar once it is loaded
         this.generateDailyDataAvailabilityFromHalfHourlyData(startDate, endDate);
         return this.halfHourlyData;
       })
