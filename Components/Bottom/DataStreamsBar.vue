@@ -46,6 +46,12 @@ export default {
     });
     this.ctx = this.canvas.getContext('2d');
 
+    // Event for showing daily max when is loaded from API
+    window.eventBus.on('DataManager_intialAPILoad', (res) => {
+      this.setHalfHourlyData(res); // Store hourly data
+      this.updateCanvas();
+    });
+
     // This number decides when to paint one point a day or 24*2 points a day
     this.maxHalfHourlyPoints = 24 * 60;
     // Memory allocation
@@ -287,11 +293,12 @@ export default {
         // thus providing the start and end dates should be enough. If static files are to be partitioned into smaller parts, please revise here
         let onLoad = (res) => {
           this.setHalfHourlyData(res); // Store hourly data
+          this.setDailyData(this.DataManager.getDailyData()); // Store daily maximum data (gets updated when API is used)
         if (!this.DataManager.OBSEADataRetriever.isLoading) // Update canvas once all files are loaded
             this.updateCanvas();
         }
         // Load data (half hourly)
-        this.DataManager.loadData(this.startDate, this.endDate)
+        this.DataManager.getHalfHourlyData(this.startDate, this.endDate)
           .then(res => onLoad(res)).catch(e => console.error('DataStreamsBar.vue\n' + e));
       }
 

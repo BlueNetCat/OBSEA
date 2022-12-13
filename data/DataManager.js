@@ -37,11 +37,29 @@ class DataManager{
     // TODO: do this when data is not available. When daily is not available? Or when zoom finds out there is no file to load?
     // for the daily it means that when the application loads the latest static datapoint should be found and the daily should be
     // petitioned to the API and loaded. These are around 8.760 points (2*24*365/2) - static files contain 6 months of data.
-    this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
-    this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
-    this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
-    this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Wave significant height', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Air temperature', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Sea bottom temperature', nowDate.toISOString());
+    // this.getDataOnTimeInstant('Salinity', nowDate.toISOString());
 
+    // Automated data loading from API
+    // Get lastest date
+    let timeKeys = Object.keys(this.OBSEADataRetriever.DailyDataMax);
+    let latestDate = timeKeys[0];
+    timeKeys.forEach(tt => {
+      if (latestDate < tt)
+        latestDate = tt;
+    });
+    let today = new Date();
+    let latestDateWithStaticData = new Date(latestDate);
+    this.getHalfHourlyData(latestDateWithStaticData, today).then(res => {
+      if (Object.keys(res).length == 0) 
+        console.error("Could not load data from API.")
+      else {
+        window.eventBus.emit('DataManager_intialAPILoad', res);
+        console.log('Data from API loaded, from ' + latestDateWithStaticData.toISOString() + ' until today.');
+      }
+    })
   }
 
 
@@ -97,7 +115,7 @@ class DataManager{
   // Loads the half-hourly static files according to a date
   loadStaticData(date) {
     // Returns a promise
-    return this.OBSEADataRetriever.getHalfHourlyData(date)
+    return this.OBSEADataRetriever.getHalfHourlyDataFromFile(date)
       .catch(e => { throw e + "\nStatic data does not exist. - loadStaticData()" });
   }
 
@@ -112,22 +130,9 @@ class DataManager{
     return this.OBSEADataRetriever.DailyDataMax;
   }
 
-  loadData(startDate, endDate){
-    // Load static files
-    // All promises must be fullfiled
-    return Promise.all([
-      this.loadStaticData(startDate),
-      this.loadStaticData(endDate),
-    ])
-      // Process the result of all promises
-      .then(arrRes => {
-        Object.assign(arrRes[0], arrRes[1]); // Only two promises (hardcoded)
-        return arrRes[0];
-      })
-      .catch(e => { // TODO: USE OBSEA API
-
-        throw e + "\nStatic data is missing. - loadData()";
-      })
+  getHalfHourlyData(startDate, endDate){
+    // Get data either from csv files or from API
+    return this.OBSEADataRetriever.getHalfHourlyData(startDate, endDate);
 
   }
 

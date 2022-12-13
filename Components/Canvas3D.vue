@@ -106,7 +106,7 @@ export default {
           this.sceneManager.tempText.removeText();
       if (this.sceneManager.salText)
         if (dataInTimestamp['PSAL'])
-          this.sceneManager.salText.updateText(dataInTimestamp['PSAL'].toFixed(1) + " ‰");
+          this.sceneManager.salText.updateText(dataInTimestamp['PSAL'].toFixed(1) + " psu");
         else
           this.sceneManager.salText.removeText();
 

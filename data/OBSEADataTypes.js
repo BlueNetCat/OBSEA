@@ -119,7 +119,7 @@ const OBSEADataTypes = {
     altNames: ['Salinity','SAL', 'PSAL', 'Sea underwater salinity', 'Sea bottom salinity', 'Sea water salinity'],
     description: 'Sea water salinity data from sensor deployed at OBSEA',
     url: ['https://data.obsea.es/data-api/Datastreams(9)','https://data.obsea.es/data-api/Datastreams(19)'],
-    units: '‰'
+    units: 'psu'//'‰'
   },
 
 

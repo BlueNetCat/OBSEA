@@ -156,7 +156,7 @@ class SceneManager{
       this.tempText.textObj.rotation.x = -Math.PI / 2;
       this.tempText.textObj.position.set(3, -19.35, 0);
     });
-    this.salText = new TextMeshEntity(scene, "37.8 ‰", 0.25, 0x000000, () => {
+    this.salText = new TextMeshEntity(scene, "37.8 psu", 0.25, 0x000000, () => {
       this.salText.textObj.rotation.x = -Math.PI / 2;
       this.salText.textObj.position.set(3, -19.35, 0.5);
     });

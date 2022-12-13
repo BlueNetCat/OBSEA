@@ -25,8 +25,10 @@ export class OBSEADataRetriever{
                   'obsea_2019_1.csv', 'obsea_2019_2.csv', 
                   'obsea_2020_1.csv', 'obsea_2020_2.csv', 
                   'obsea_2021_1.csv', 'obsea_2021_2.csv'];
+  loadedStaticFiles = []; // Store files that were loaded
+  notFoundFiles = [];
+  APIrequestedTimePeriods = [];
 
-  dataAvailability = {}; // measures: list of measures ; year: isAvailiable[] maxdaily[]
   dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X ºC
   // Control the loading status
   isLoading = false;
@@ -102,7 +104,7 @@ export class OBSEADataRetriever{
 
 
 
-
+  // Query a data stream on a time instant
   fetchFromDatastreamURL = async function(url, timestamp){
     // Observations
     url += '/Observations?';
@@ -140,6 +142,44 @@ export class OBSEADataRetriever{
     })
     .catch(e => console.warn(e))
   }
+
+
+
+  // Query a datastream on a time period
+  fetchFromAPI = function (dataTypeURL, startDate, endDate) {
+    let url = dataTypeURL;
+    // Observations
+    url += '/Observations?';
+    // Select the timestamp and the result
+    url += '$select=resultTime,result&$top=1000000&';
+    // Filter
+    // Quality
+    url += '$filter=resultQuality/qc_flag eq 1 and '
+    // Reset times to half-hourly
+    startDate.setUTCMinutes(Math.floor(startDate.getUTCMinutes() / 30) * 30);
+    endDate.setUTCMinutes(Math.floor(endDate.getUTCMinutes() / 30) * 30);
+    // Timespan
+    url += 'resultTime ge ' + startDate.toISOString().substring(0, 17) + '00.000Z and resultTime lt ' + endDate.toISOString().substring(0, 17) + '00.000Z&$orderBy=resultTime asc';
+
+    //console.log(url);
+
+    return fetch(url)
+      .then(res => res.json())
+      .then(result => {
+        // Parse result
+        if (result.value !== undefined) {
+          if (result.value.length != 0) {
+            return result.value;
+          }
+        } else
+          return undefined;
+      })
+      .catch(e => { throw e })
+  }
+
+
+
+
 
 
 
@@ -189,15 +229,25 @@ export class OBSEADataRetriever{
       .then(rawSS => {
         this.loadingFiles--;
         this.isLoading = this.loadingFiles != 0;
+        if (!this.loadedStaticFiles.includes(fileName))
+          this.loadedStaticFiles.push(fileName);
         return this.processCSV(rawSS);
       })
+      .catch(e => {
+        this.loadingFiles--;
+        this.isLoading = this.loadingFiles != 0;
+        if (!this.notFoundFiles.includes(fileName))
+          this.notFoundFiles.push(fileName);
+        throw e + "\nFetch url not working.- fetchFromStaticFile"
+      });
   }
 
   // Finds the right file to load.
   // Returns a promise
   loadHalfHourlyData = function (date) {
-    let isLateHalfYear = date.getUTCMonth() + 1 >= 7;
-    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
+    let fileName = this.getCSVFileNameFromDate(date);
+    if (this.notFoundFiles.includes(fileName))
+      return new Promise((res, reject) => reject(fileName+" could not be loaded in a previous fetch."));
     return this.fetchFromStaticFile(fileName)
       .then(csv => this.storeHalfHourlyData(csv))
       .catch(e => {
@@ -349,31 +399,194 @@ export class OBSEADataRetriever{
   }
 
 
+
+  generateDailyDataAvailabilityFromHalfHourlyData = function(startDate, endDate){
+    // Number of halfhours between start and end date
+    let halfHourSteps = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 0.5));
+    // Iterate half hour steps
+    for (let i = 0; i < halfHourSteps; i++){
+      let halfHourlyTimestamp = startDate.toISOString().substring(0,17) + '00.000Z';
+      let dailyTimestamp = startDate.toISOString().substring(0, 11) + '00:00:00.000Z';
+      // Check if there is data on that time
+      if (this.halfHourlyData[halfHourlyTimestamp]){
+        let dataTypes = Object.keys(this.halfHourlyData[halfHourlyTimestamp]);
+        // Iterate data types
+        for (let j = 0; j < dataTypes.length; j++){
+          let dataType = dataTypes[j];
+          if (dataType == 'timestamp')
+            continue;
+          // Check if daily max entry exists
+          if (!this.DailyDataMax[dailyTimestamp]){
+            this.DailyDataMax[dailyTimestamp] = {};
+          }
+          // If is bigger or datatype was not defined yet
+          if (this.DailyDataMax[dailyTimestamp][dataType] < this.halfHourlyData[halfHourlyTimestamp][dataType] ||
+              this.DailyDataMax[dailyTimestamp][dataType] == undefined){
+            this.DailyDataMax[dailyTimestamp][dataType] = this.halfHourlyData[halfHourlyTimestamp][dataType];
+          }
+        }
+      }
+      // Increase time step
+      startDate.setUTCMinutes(startDate.getUTCMinutes() + 30);
+    }
+  }
+
   
 
-
+  getCSVFileNameFromDate = function(date){
+    let isLateHalfYear = date.getUTCMonth() + 1 >= 7;
+    let fileName = 'obsea_' + date.getUTCFullYear() + '_' + (isLateHalfYear + 1) + '.csv';
+    return fileName;
+  }
 
 
 
 
   // PUBLIC METHODS
+  // Get the data either from csv files or API
+  getHalfHourlyData = function(startDate, endDate){
+    // If files were loaded, return half-hourly data
+    let startCSV = this.getCSVFileNameFromDate(startDate);
+    let endCSV = this.getCSVFileNameFromDate(endDate);
+    if (this.loadedStaticFiles.includes(startCSV) && this.loadedStaticFiles.includes(endCSV))
+      return new Promise((resolve, rej) => resolve(this.halfHourlyData)); 
+    
+    // If dates were requested with the API
+    for (let i = 0; i < this.APIrequestedTimePeriods.length; i++){
+      let timePeriod = this.APIrequestedTimePeriods[i];
+      if (timePeriod[0] <= startDate.getTime() && timePeriod[1] >= endDate.getTime()) {
+        //console.log("OBSEA API: time period was already requested");
+        return new Promise((resolve, rej) => resolve(this.halfHourlyData));
+      }
+    }
+
+    // Request .csv files and use API if .csv file cannot be loaded
+    return Promise.allSettled([this.getHalfHourlyDataFromFile(startDate), this.getHalfHourlyDataFromFile(endDate)])
+      .then(arrayResponses => {
+        let resStartDate = arrayResponses[0];
+        let resEndDate = arrayResponses[1];
+        // Both rejected, request from API
+        if (resStartDate.status == 'rejected' && resEndDate.status == 'rejected'){
+          return this.getDataFromAPI(startDate, endDate)
+            .then(res => {return res})
+        }
+        // First section found as csv, second must be loaded from API
+        else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'rejected') {
+          // Find out the date where the csv file ends
+          let startRequestDate;
+          if (startDate.getUTCMonth() + 1 >= 7){ // isLateHalfYear
+            startRequestDate = new Date((startDate.getUTCFullYear()+1) + '-01-01');
+          } else {
+            startRequestDate = new Date(startDate.getUTCFullYear() + '-07-01');
+          }
+          this.getDataFromAPI(startRequestDate, endDate)
+            .then(res => { return res }); // The other half was already stored when the file was loaded
+        }
+        // First must be loaded from API, second found as csv
+        else if (resStartDate.status == 'rejected' && resEndDate.status == 'fulfilled') { // Only happens in 2011?
+          // Find out the date where the csv file ends
+          let endRequestDate;
+          if (endDate.getUTCMonth() + 1 >= 7) { // isLateHalfYear
+            endRequestDate = new Date(endDate.getUTCFullYear() + '-07-01');
+          } else {
+            endRequestDate = new Date(endDate.getUTCFullYear() + '-01-01');
+          }
+          this.getDataFromAPI(startDate, endRequestDate)
+            .then(res => { return res }); // The other half was already stored when the file was loaded
+        } 
+        // Both fulfilled
+        else if (resStartDate.status == 'fulfilled' && resEndDate.status == 'fulfilled'){
+          return resStartDate.value;
+        }
+        
+      })
+      .catch(e => {throw e + "\nError in getHalfHourlyData"})
+
+  }
+
   // If data is not loaded for that date, load file, otherwise return data
   // Returns a promise
-  getHalfHourlyData = function(date){
+  getHalfHourlyDataFromFile = function(date){
     let timestamp = date.toISOString();
     let min = parseInt(timestamp.substring(14, 16));
     let normMin = parseInt(30 * Math.floor(min / 30));
     timestamp = timestamp.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z'
 
-    // Check if the data was already loaded
-    if (!this.halfHourlyData[timestamp]) {
-      return this.loadHalfHourlyData(date)
-        .catch(e => {throw e + "\nError when loading. - getHalfHourlyData()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
-    } else {
-      return new Promise((resolve, rej) => resolve(this.halfHourlyData)); // TODO THINK
-    }
+    // Return promise of loading
+    return this.loadHalfHourlyData(date)
+      .catch(e => { throw e + "\nError when loading. - getHalfHourlyDataFromFile()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
+    
   }
 
+
+  // Get all data from the API on a certain time stamp
+  getDataFromAPI = function(startDate, endDate){
+    this.APIrequestedTimePeriods.push([startDate.getTime(), endDate.getTime()]);
+    // List of promises
+    let promises = [];
+    let keys = [];
+    // Iterate through all data types of OBSEA
+    // to create a list of promises
+    for (let i = 0; i < this.dataKeys.length; i++) {
+      let dataType = OBSEADataTypes[this.dataKeys[i]];
+      if (typeof dataType.url == 'string'){
+        promises.push(this.fetchFromAPI(dataType.url, startDate, endDate));
+        keys.push(this.dataKeys[i]);
+      }
+      // Currents
+      else if( dataType.name == 'CUR'){
+        let baseURL = dataType.url.baseURL;
+        for (let j = 0; j <= 19; j++){
+          promises.push(this.fetchFromAPI(baseURL.replace('X', dataType.url[j].U), startDate, endDate));
+          keys.push('UCUR_' + j + 'm');
+          promises.push(this.fetchFromAPI(baseURL.replace('X', dataType.url[j].V), startDate, endDate));
+          keys.push('VCUR_' + j + 'm');
+          promises.push(this.fetchFromAPI(baseURL.replace('X', dataType.url[j].Z), startDate, endDate));
+          keys.push('ZCUR_' + j + 'm');
+        }
+      }
+      // TODO: If datastream empty, request again
+      // Datatypes with more than one datastream
+      else if (typeof dataType.url == 'object'){
+        promises.push(this.fetchFromAPI(dataType.url[0], startDate, endDate));
+        keys.push(this.dataKeys[i]);
+      }
+    }
+
+    // Promise.all
+    return Promise.allSettled(promises)
+      .then(results => {
+        // Store half-hourly data
+        for (let i = 0; i <  results.length; i++){
+          let dataTypeName = keys[i];
+          let result = results[i];
+          // console.log(keys[i])
+          // console.log(results[i]);
+          
+          if (result.status == 'fulfilled'){
+            if (result.value != undefined){
+              // Iterate values
+              for (let j = 0; j < result.value.length; j++){
+                let dataPoint = result.value[j];
+                // Create data point if it does not exist
+                if (this.halfHourlyData[dataPoint.resultTime] == undefined)
+                  this.halfHourlyData[dataPoint.resultTime] = { 'timestamp': dataPoint.resultTime};
+                // Assign values
+                this.halfHourlyData[dataPoint.resultTime][keys[i]] = dataPoint.result;
+              }
+            }
+          }
+        }
+        
+        // Data manager updates the canvas in DataStreamsBar once it is loaded
+        this.generateDailyDataAvailabilityFromHalfHourlyData(startDate, endDate);
+        return this.halfHourlyData;
+      })
+      .catch(e => {throw e + "\nError in getDataFromAPI"})
+
+  }
+
+  
   
 
 
