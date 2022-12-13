@@ -26,6 +26,7 @@ export class OBSEADataRetriever{
                   'obsea_2020_1.csv', 'obsea_2020_2.csv', 
                   'obsea_2021_1.csv', 'obsea_2021_2.csv'];
   loadedStaticFiles = []; // Store files that were loaded
+  notFoundFiles = [];
   APIrequestedTimePeriods = [];
 
   dailyData = {}; // ISO timestamp used as key. Inside, each measure has a value, e.g. <ISOString>.TEMP = X ºC
@@ -235,6 +236,8 @@ export class OBSEADataRetriever{
       .catch(e => {
         this.loadingFiles--;
         this.isLoading = this.loadingFiles != 0;
+        if (!this.notFoundFiles.includes(fileName))
+          this.notFoundFiles.push(fileName);
         throw e + "\nFetch url not working.- fetchFromStaticFile"
       });
   }
@@ -243,6 +246,8 @@ export class OBSEADataRetriever{
   // Returns a promise
   loadHalfHourlyData = function (date) {
     let fileName = this.getCSVFileNameFromDate(date);
+    if (this.notFoundFiles.includes(fileName))
+      return new Promise((res, reject) => reject(fileName+" could not be loaded in a previous fetch."));
     return this.fetchFromStaticFile(fileName)
       .then(csv => this.storeHalfHourlyData(csv))
       .catch(e => {
@@ -449,7 +454,8 @@ export class OBSEADataRetriever{
     // If dates were requested with the API
     for (let i = 0; i < this.APIrequestedTimePeriods.length; i++){
       let timePeriod = this.APIrequestedTimePeriods[i];
-      if (timePeriod[0] < startDate.getTime() && timePeriod[1] > endDate.getTime()) {
+      if (timePeriod[0] <= startDate.getTime() && timePeriod[1] >= endDate.getTime()) {
+        //console.log("OBSEA API: time period was already requested");
         return new Promise((resolve, rej) => resolve(this.halfHourlyData));
       }
     }
@@ -506,13 +512,10 @@ export class OBSEADataRetriever{
     let normMin = parseInt(30 * Math.floor(min / 30));
     timestamp = timestamp.substring(0, 14) + String(normMin).padStart(2, '0') + ':00.000Z'
 
-    // Check if the data was already loaded
-    if (!this.halfHourlyData[timestamp]) {
-      return this.loadHalfHourlyData(date)
-        .catch(e => { throw e + "\nError when loading. - getHalfHourlyDataFromFile()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
-    } else {
-      return new Promise((resolve, rej) => resolve(this.halfHourlyData)); // TODO THINK
-    }
+    // Return promise of loading
+    return this.loadHalfHourlyData(date)
+      .catch(e => { throw e + "\nError when loading. - getHalfHourlyDataFromFile()"}); // HOW TO CATCH THE ERROR AND PROPAGATE IT?
+    
   }
 
 

@@ -53,7 +53,7 @@ class DataManager{
     let today = new Date();
     let latestDateWithStaticData = new Date(latestDate);
     this.getHalfHourlyData(latestDateWithStaticData, today).then(res => {
-      window.eventBus.emit('DataManager_updatedDailyMax');
+      window.eventBus.emit('DataManager_intialAPILoad', res);
       console.log('Data from API loaded, from ' + latestDateWithStaticData.toISOString() + ' until today.');
     });
   }

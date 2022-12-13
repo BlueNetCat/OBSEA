@@ -47,7 +47,8 @@ export default {
     this.ctx = this.canvas.getContext('2d');
 
     // Event for showing daily max when is loaded from API
-    window.eventBus.on('DataManager_updatedDailyMax', () => {
+    window.eventBus.on('DataManager_intialAPILoad', (res) => {
+      this.setHalfHourlyData(res); // Store hourly data
       this.updateCanvas();
     });
 
