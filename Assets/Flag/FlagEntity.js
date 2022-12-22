@@ -22,8 +22,8 @@ class FlagEntity {
     gltfLoader.load('/OBSEA/Assets/Flag/flag.glb', (gltf) => {
       // GLTF scene
       this.root = gltf.scene;
-      this.flagObj = this.root.children[0];
-      this.poleObj = this.root.children[1];
+      this.flagObj = this.root.getObjectByName("Armature");//this.root.children[0];
+      this.poleObj = this.root.getObjectByName("Pole");// this.root.children[1];
   
       // Fix frustrum culling
       this.flagObj.frustumCulled = false; // Flag
@@ -104,7 +104,7 @@ class FlagEntity {
     else
       texture = this.beaufortTextures[scale];
     // Assign to material only if necessary (different beaufort scale now)
-    if (this.flagObj.children[0].material.map.uuid != texture.uuid)
+    if (this.flagObj.children[0].material.map.uuid != texture.uuid) // WARNING: children[0] is SkinnedMesh, but maybe better to do getObjectBy...
       this.flagObj.children[0].material.map = texture;
     
   }
