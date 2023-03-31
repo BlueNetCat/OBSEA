@@ -94,7 +94,7 @@ class SceneManager{
     // AO shader fix
     THREE.ShaderChunk.aomap_fragment = `
     #ifdef USE_AOMAP
-      float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r ) * aoMapIntensity ;
+      float ambientOcclusion = ( texture2D( aoMap, vAoMapUv ).r ) * aoMapIntensity ;
       reflectedLight.directDiffuse *= ambientOcclusion;
       reflectedLight.indirectDiffuse *= ambientOcclusion;
       reflectedLight.directSpecular *= ambientOcclusion;
