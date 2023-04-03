@@ -95,7 +95,7 @@ class OceanEntity {
           u_steepnessFactor: { value: 0.2 },
           // u_wavelength: { value: 7.0 },
           // u_direction: { value: new THREE.Vector2(1, 0) },
-          u_wave1Params: { value: new THREE.Vector4(0.1, 0.1, 1.0, 0.0) }, // steepness, waveHeight, directionx, directionz
+          u_wave1Params: { value: new THREE.Vector4(0.1, 0.1, 0.0, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_wave2Params: { value: new THREE.Vector4(0.05, 0.2, 0.5, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_wave3Params: { value: new THREE.Vector4(0.1, 0.05, 1.0, 1.0) }, // steepness, waveHeight, directionx, directionz
           u_normalTexture: {value: normalTexture}, // TODO: WHAT IF THE TEXTURE TAKES TOO LONG TO LOAD?
@@ -309,16 +309,17 @@ class OceanEntity {
 
 
 
-  getGestnerNormal = function(position, params1, params2, params3) {
+  getGerstnerNormal = function(position, params1, params2, params3) {
     
     this.tangent.set(1,0,0);
     let tangent = this.tangent;
     this.binormal.set(0,0,1);
     let binormal = this.binormal;
 
-    position.add(this.getGerstnerPosition(params1, position, tangent, binormal));
-    position.add(this.getGerstnerPosition(params2, position, tangent, binormal));
-    position.add(this.getGerstnerPosition(params3, position, tangent, binormal));
+    this.tempVec3.copy(position);
+    position.add(this.getGerstnerPosition(params1, this.tempVec3, tangent, binormal));
+    position.add(this.getGerstnerPosition(params2, this.tempVec3, tangent, binormal));
+    position.add(this.getGerstnerPosition(params3, this.tempVec3, tangent, binormal));
 
     let normal = this.normal;
     normal.crossVectors(binormal, tangent);
@@ -330,7 +331,7 @@ class OceanEntity {
 
   getNormalAndPositionAt = function(position, normal){
 
-    let calcNormal = this.getGestnerNormal(position, 
+    let calcNormal = this.getGerstnerNormal(position, 
       this.swellParameters[0], 
       this.swellParameters[1], 
       this.swellParameters[2]);

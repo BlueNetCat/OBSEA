@@ -120,7 +120,7 @@ export const OceanVertShader = /* glsl */ `
 
 
     // Gerstner Waves
-    modPos += GerstnerWave(u_wave1Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(u_wave1Params, position, tangent, binormal); 
     // Attenuation
     modPos.y *= distanceFactor;
     tangent.x /= distanceFactor;
@@ -128,7 +128,7 @@ export const OceanVertShader = /* glsl */ `
     tangent = normalize(tangent);
     binormal = normalize(binormal);
 
-    modPos += GerstnerWave(u_wave2Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(u_wave2Params, position, tangent, binormal);
     // Attenuation
     modPos.y *= distanceFactor;
     tangent.x /= distanceFactor;
@@ -136,7 +136,7 @@ export const OceanVertShader = /* glsl */ `
     tangent = normalize(tangent);
     binormal = normalize(binormal);
 
-    modPos += GerstnerWave(u_wave3Params, modPos, tangent, binormal);
+    modPos += GerstnerWave(u_wave3Params, position, tangent, binormal); 
     // Attenuation
     modPos.y *= distanceFactor;
     tangent.x /= distanceFactor;
@@ -156,7 +156,7 @@ export const OceanVertShader = /* glsl */ `
         // Direction
         params.b = params.b - 0.5;
         params.a = params.a - 0.5;
-        modPos += GerstnerWave(params, modPos, tangent, binormal);
+        modPos += GerstnerWave(params, position, tangent, binormal);
         // Attenuation
         modPos.y *= distanceFactor;
         tangent.x /= distanceFactor;
