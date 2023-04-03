@@ -74,7 +74,7 @@ export const OceanVertShader = /* glsl */ `
     // Wave coefficient
     float k = 2.0 * PI / wavelength;
     // Velocity (related to gravity and wavelength)
-    float velocity = 0.35 * sqrt(9.8 / k);
+    float velocity = sqrt(9.8 / k);
     
     // Normalize direction
     direction = normalize(direction);

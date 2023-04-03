@@ -276,15 +276,15 @@ class OceanEntity {
     // this.oceanTile.material.uniforms.u_wave1Params.value.z = dirX;
     // this.oceanTile.material.uniforms.u_wave1Params.value.w = dirZ;
 
-    let wavelength = steepness * 2.0 * Math.PI / amplitude;
+    let wavelength = amplitude * 2.0 * Math.PI / steepness;
     // this.direction.set(-params[3], params[2]);
     // let direction = this.direction;//new THREE.Vector2(-params[3], params[2]);
 
     let k = 2.0 * Math.PI / wavelength;
-    let velocity = 0.35 * Math.sqrt(9.8 / k);
+    let velocity = Math.sqrt(9.8 / k);
 
     direction = direction.normalize();
-    let f = k * direction.dot(this.tempVec2.set(position.x, position.z)) - velocity * this.time; // assume that we are always at x 0 and z 0 // float f = k * (dot(direction, position.xz) - velocity * u_time);
+    let f = k * (direction.dot(this.tempVec2.set(position.x, position.z)) - velocity * this.time); // assume that we are always at x 0 and z 0 // float f = k * (dot(direction, position.xz) - velocity * u_time);
 
     this.tempVec3.set(
       -direction.x * direction.x * steepness * Math.sin(f),
