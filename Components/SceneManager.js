@@ -70,10 +70,10 @@ class SceneManager{
     stats.dom.style.left = null;
     stats.isVisible = false;
     stats.showPanel(false);
-    
-    
 
 
+    
+    
 
 
 
@@ -114,22 +114,22 @@ class SceneManager{
     // OBSEA Buoy
     this.obseaBuoy = new OBSEABuoyEntity(scene);
     // OBSEA Base
-    this.obseaBase = new OBSEAStationEntity(scene);
+    // this.obseaBase = new OBSEAStationEntity(scene);
     // OBSEA Biotop
-    this.obseaBiotop = new OBSEABiotopEntity(scene);
+    // this.obseaBiotop = new OBSEABiotopEntity(scene);
 
     // Flag
-    this.flag = new FlagEntity(scene, () => {
-      this.flag.root.position.y = 1.3;
-    });
+    // this.flag = new FlagEntity(scene, () => {
+    //   this.flag.root.position.y = 1.3;
+    // });
     
 
     // Rosa dels vents
-    this.rosaVents = new RosaVentsEntity(scene);
-    this.rosaVents.root.position.y = 7;
+    // this.rosaVents = new RosaVentsEntity(scene);
+    // this.rosaVents.root.position.y = 7;
     
     // Sea velocity, currents
-    this.currents = new CurrentEntity(scene);
+    // this.currents = new CurrentEntity(scene);
 
 
 
@@ -412,10 +412,10 @@ class SceneManager{
 
   // Resize renderer
   resizeRendererToDisplaySize = function (renderer) {
-    const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
+    let canvas = renderer.domElement;
+    let width = canvas.clientWidth;
+    let height = canvas.clientHeight;
+    let needResize = canvas.width !== width || canvas.height !== height;
     if (needResize) {
       renderer.setSize(width, height, false);
     }
@@ -428,12 +428,13 @@ class SceneManager{
   // RENDER
   render = function (time) {
 
+
     // Tween update
     if (TWEEN)
       TWEEN.update();
 
     if (this.resizeRendererToDisplaySize(this.renderer)) {
-      const canvas = this.renderer.domElement;
+      let canvas = this.renderer.domElement;
       this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
       this.camera.updateProjectionMatrix();
     }
@@ -441,7 +442,7 @@ class SceneManager{
     this.update(time);
 
     this.renderer.render(this.scene, this.camera);
-
+     
     this.controls.update();
 
     requestAnimationFrame(this.render.bind(this));

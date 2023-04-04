@@ -151,6 +151,7 @@ export class OceanParameters{
 
 
   updateHTMLGidget = function(){
+    return;
     let canvas = this.canvas;
     let context = canvas.getContext('2d');
 
