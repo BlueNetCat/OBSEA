@@ -198,7 +198,7 @@ class FlagBehavior {
     node.position.set(position.x, position.y, position.z);
     parentNode.attach(node);
 
-    node.updateMatrix();
+    //node.updateMatrix();
     //node.updateWorldMatrix();
     //node.updateMatrixWorld();
   }
@@ -211,7 +211,7 @@ class FlagBehavior {
     node.quaternion.copy(q_rotation);
     parentNode.attach(node);
 
-    node.updateMatrix();
+    //node.updateMatrix();
     //node.updateWorldMatrix();
     //node.updateMatrixWorld();
   }
