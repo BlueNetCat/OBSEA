@@ -336,6 +336,17 @@ class SceneManager{
 
 
 
+  // WINDOW RESIZE (called from Canvas3D.vue)
+  windowWasResized = function(){
+    if (this.resizeRendererToDisplaySize(this.renderer)) {
+      const canvas = this.renderer.domElement;
+      this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      this.camera.updateProjectionMatrix();
+    }
+  }
+
+
+
 
 
 
@@ -432,11 +443,11 @@ class SceneManager{
     if (TWEEN)
       TWEEN.update();
 
-    if (this.resizeRendererToDisplaySize(this.renderer)) {
-      const canvas = this.renderer.domElement;
-      this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      this.camera.updateProjectionMatrix();
-    }
+    // if (this.resizeRendererToDisplaySize(this.renderer)) {
+    //   const canvas = this.renderer.domElement;
+    //   this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    //   this.camera.updateProjectionMatrix();
+    // }
 
     this.update(time);
 

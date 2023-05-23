@@ -23,8 +23,13 @@ export default {
   mounted() {
     this.sceneManager = new window.SceneManager(this.$refs.canvas3D);
     this.sceneManager.startRender();
+    this.sceneManager.windowWasResized();
 
     // Event listeners
+    // Window resize
+    window.addEventListener('resize', (e) => {
+      this.sceneManager.windowWasResized();
+    });
     // ***** INSTRUMENTS PANEL *****
     // Center on instruments
     window.eventBus.on('InstrumentsMenu_buoyButtonClicked', () => {
