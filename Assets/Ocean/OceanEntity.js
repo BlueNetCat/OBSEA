@@ -64,7 +64,7 @@ class OceanEntity {
     videoEl.play();
     let normalTexture = new THREE.VideoTexture(videoEl);
     normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
-    normalTexture.encoding = THREE.sRGBEncoding;
+    normalTexture.encoding = THREE.linearEncoding; // Normal maps should not have a color correction https://threejs.org/docs/#manual/en/introduction/Color-management
     // document.body.append(videoEl);
     // videoEl.style.position = 'absolute';
     // videoEl.style.top = '0px';
