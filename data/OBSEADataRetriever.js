@@ -259,7 +259,7 @@ export class OBSEADataRetriever{
 
   processCSV(rawSS) {
     // Split by end of line
-    rawSS = rawSS.replace("\r", '');
+    rawSS = rawSS.replaceAll("\r", '');
     let rowsSS = rawSS.split("\n");
     for (let i = 0; i < rowsSS.length; i++) {
       rowsSS[i] = rowsSS[i].split(","); // Split by comma
@@ -373,7 +373,7 @@ export class OBSEADataRetriever{
       let hasData = false;
       let measKeys = Object.keys(this.dailyData[timeKeys[i]]);
       for (let j = 0; j<measKeys.length; j++){
-        if (this.dailyData[timeKeys[i]][measKeys[j]] == -999) {
+        if (this.dailyData[timeKeys[i]][measKeys[j]] == -999 || this.dailyData[timeKeys[i]][measKeys[j]] == null || measKeys[j] == 'timestamp') {
           delete this.dailyData[timeKeys[i]][measKeys[j]];
         } else
           hasData = true;
