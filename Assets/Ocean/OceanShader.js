@@ -229,10 +229,13 @@ export const OceanFragShader = /* glsl */`
     textCoord.xy /= scale.xy;
   
     // https://www.youtube.com/watch?v=6_-NNKc4lrk&ab_channel=Makin%27StuffLookGood
-    vec3 tangentNormal = (texture2D(u_normalTexture, textCoord) * 2.0 - 1.0).xyz; // Should be world position or local position?
-    vec3 normalTexel = tangentNormal.z * vec3(0.0,1.0,0.0) + tangentNormal.y * vec3(1.0,0.0,0.0) + tangentNormal.x * vec3(0.0,0.0,1.0);
-
-    vec3 normal = tangentNormal.z * v_TBN[2] + tangentNormal.y * v_TBN[1] + tangentNormal.x * v_TBN[0];
+    vec3 textureValue = texture2D(u_normalTexture, textCoord).xyz;
+    // We are using Y as up, but for this calculation, Z must be used, as the multiplication in TBN follows this order:
+    // Red(x) * tangent + Green(y) * bitangent + Blue (z) * normal
+    // Probably I should change either the order in the TBN (e.g. tangent, normal, bitangent) or the order in the multiplication
+    vec3 normalTextureValueZUp = normalize(vec3(textureValue.xy * 2.0 - 1.0, textureValue.z));
+    vec3 normal = normalTextureValueZUp.x * v_TBN[0] + normalTextureValueZUp.y * v_TBN[1] + normalTextureValueZUp.z * v_TBN[2];
+    // Now the normal has xz as the horizontal plane and y as the vertical axis.
 
     // Normalize normals
     normal = normalize(normal); // Geometric normal + texture normal
@@ -324,6 +327,10 @@ export const OceanFragShader = /* glsl */`
     //gl_FragColor = vec4((temp.xzy + 1.0)/2.0, 1.0);
     //gl_FragColor = vec4((normalTexel.xyz + 1.0)/2.0, 1.0);
     //gl_FragColor = vec4(normal.xz*0.5 + 0.5, normal.y, 1.0);
+    //gl_FragColor = vec4(geoNormal.xz*0.5 + 0.5, geoNormal.y, 1.0);
+    //gl_FragColor = vec4(normalize(vec3(normalTexel.x, 0.0, normalTexel.z)), 1.0);
+    //gl_FragColor = vec4(normalize(textureValue), 1.0);
+
     //gl_FragColor = vec4(diffuseColor*5.0, 1.0);
     //gl_FragColor = vec4(diffuseColor +  specularColor, 1.0);
     //gl_FragColor = vec4(specIncidence, specIncidence, specIncidence, 1.0);
