@@ -13,6 +13,7 @@ import { OceanEntity } from '/OBSEA/Assets/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
 import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'
+import { OBSEACrawlerEntity } from '/OBSEA/Assets/OBSEACrawler/CrawlerEntity.js';
 //import { WindsockEntity } from '/OBSEA/Assets/Windsock/WindsockEntity.js';
 import { FlagEntity } from '/OBSEA/Assets/Flag/FlagEntity.js';
 import { CurrentEntity } from '/OBSEA/Assets/Current/CurrentEntity.js';
@@ -55,7 +56,7 @@ class SceneManager{
     controls.target.set(0, 1, 0);
   // OBSEA base
   // camera.position.set(3, -16, 3);
-  // controls.target.set(0,-19, 0);
+  // controls.target.set(6,-19, -1);
 
     controls.update();
     controls.enableDamping = true;
@@ -117,6 +118,8 @@ class SceneManager{
     this.obseaBase = new OBSEAStationEntity(scene);
     // OBSEA Biotop
     this.obseaBiotop = new OBSEABiotopEntity(scene);
+    // OBSEA Crawler
+    this.obseaCrawler = new OBSEACrawlerEntity(scene);
 
     // Flag
     this.flag = new FlagEntity(scene, () => {
@@ -412,6 +415,12 @@ class SceneManager{
       if (this.currents.isLoaded) {
         this.currents.update(dt);
       }
+    }
+
+
+    // Crawler
+    if (this.obseaCrawler){
+      this.obseaCrawler.update(dt);
     }
 
 

@@ -70,9 +70,9 @@ class OBSEACrawlerEntity {
 
       // Scene positioning
       root.translateY(-19.35);
-      root.translateX(6);
-      root.translateZ(-1);
-      root.rotation.y = 66 * Math.PI / 180;
+      root.translateX(-1.5);
+      root.translateZ(3);
+      root.rotation.y = -110 * Math.PI / 180;
 
 
       // USER ACTIONS
