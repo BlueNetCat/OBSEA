@@ -2,14 +2,32 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 class OBSEACrawlerEntity {
+
+  leftEngine = 0;
+  rightEngine = 0;
+  orientation = new THREE.Vector3();
+  stepSize = 0.005;
+  angularStep = 0.022;
+  morphStep = 0.065; // One step equals to a displacement of 0.065m
+
   constructor(scene){
     const gltfLoader = new GLTFLoader();
     const texLoader = new THREE.TextureLoader();
     gltfLoader.load('/OBSEA/Assets/OBSEACrawler/Crawler.glb', (gltf) => {
       // GLTF scene
       const root = gltf.scene;
+      this.root = root;
       // Fix frustrum culling
       root.children[0].children[1].frustumCulled = false;
+      // Change rotation order
+      root.rotation.reorder('YZX');
+      // Get grips for animation
+      this.gripsLeft = this.root.getObjectByName('GripsLeft');
+      this.gripsRight = this.root.getObjectByName('GripsRight');
+      // Set morph targets to 0.5
+      this.gripsLeft.morphTargetInfluences[0] = 0.5;
+      this.gripsRight.morphTargetInfluences[0] = 0.5;
+
 
       // Floor ambient occlusion
       let aoBottom = root.getObjectByName('Floor_AO');
@@ -55,9 +73,110 @@ class OBSEACrawlerEntity {
       root.translateZ(-1);
       root.rotation.y = 66 * Math.PI / 180;
 
+
+      // USER ACTIONS
+      document.addEventListener("keydown", (e)=> {
+        // Create key status
+        if (window.keyStatus == undefined){
+          window.keyStatus = {};
+        }
+        // TODO: optimize this using e.keyCode which is a number
+        window.keyStatus[e.code] = true;
+      }, false);
+      document.addEventListener("keyup", (e)=> {
+        // Create key status
+        if (window.keyStatus == undefined){
+          window.keyStatus = {};
+        }
+        // TODO: optimize this using e.keyCode which is a number
+        window.keyStatus[e.code] = false;
+      }, false);
+
+
+
       scene.add(root);
     });
   }
+
+
+
+
+
+
+  // UPDATE
+  update(dt){
+    // Return if no key was ever pressed
+    let keyStatus = window.keyStatus;
+    if (keyStatus == undefined)
+      return
+    
+    // ENGINE STATUS
+    // Left engine
+    if (keyStatus['KeyQ'] || keyStatus['KeyW'] || keyStatus['ArrowUp'])
+      this.leftEngine = 1;
+    else if (keyStatus['KeyA'] || keyStatus['KeyS'] || keyStatus['ArrowDown'])
+      this.leftEngine = -1;
+    else
+      this.leftEngine = 0;
+
+    // Right engine
+    if (keyStatus['KeyE'] || keyStatus['KeyW'] || keyStatus['ArrowUp'])
+      this.rightEngine = 1;
+    else if (keyStatus['KeyD'] || keyStatus['KeyS'] || keyStatus['ArrowDown'])
+      this.rightEngine = -1;
+    else
+      this.rightEngine = 0;
+
+    // If engines are off, return
+    if (this.rightEngine == 0 && this.leftEngine == 0)
+      return;
+
+    
+
+    // ACTIONS
+    // Rotate around center
+    // TODO: USE DT?
+    if (this.rightEngine + this.leftEngine == 0){
+      // Rotate clockwise
+      if (this.leftEngine == 1) this.root.rotateY(this.angularStep);
+      // Rotate counter-clockwise
+      if (this.leftEngine == -1) this.root.rotateY(-this.angularStep);
+    }
+
+    // Move forward or backward
+    // TODO: USE DT?
+    if (this.rightEngine == this.leftEngine){
+      // Translation is already taking into account the rotation of the object
+      this.root.translateZ(-this.rightEngine * this.stepSize);
+    }
+
+
+    // ANIMATE
+    let wLB = this.root.getObjectByName('WheelLeftBack');
+    let wLF = this.root.getObjectByName('WheelLeftFront');
+
+    let wRB = this.root.getObjectByName('WheelRightBack');
+    let wRF = this.root.getObjectByName('WheelRightFront');
+
+    if (this.leftEngine != 0){
+      // Grips morph targets
+      let value = this.gripsLeft.morphTargetInfluences[0];
+      value += this.morphStep * this.leftEngine;
+      this.gripsLeft.morphTargetInfluences[0] = value > 1 ? value - 1 : value < 0 ? value + 1 : value; // Modular from 0 to 1
+      wLB.rotateX(this.morphStep * this.leftEngine * -30 * Math.PI / 180);
+      wLF.rotateX(this.morphStep * this.leftEngine * -30 * Math.PI / 180);
+    }
+    if (this.rightEngine != 0){
+      // Grips morph targets
+      let value = this.gripsRight.morphTargetInfluences[0];
+      value += this.morphStep * this.leftEngine;
+      this.gripsRight.morphTargetInfluences[0] = value > 1 ? value - 1 : value < 0 ? value + 1 : value; // Modular from 0 to 1
+      wRB.rotateX(this.morphStep * this.leftEngine * 30 * Math.PI / 180);
+      wRF.rotateX(this.morphStep * this.leftEngine * 30 * Math.PI / 180);
+    }
+  }
+
+
 }
 
 export { OBSEACrawlerEntity }
