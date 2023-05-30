@@ -9,6 +9,7 @@ class OBSEACrawlerEntity {
   stepSize = 0.005;
   angularStep = 0.022;
   morphStep = 0.065; // One step equals to a displacement of 0.065m
+  distanceToAxis = 0.26;
 
   constructor(scene){
     const gltfLoader = new GLTFLoader();
@@ -141,7 +142,31 @@ class OBSEACrawlerEntity {
       if (this.leftEngine == 1) this.root.rotateY(this.angularStep);
       // Rotate counter-clockwise
       if (this.leftEngine == -1) this.root.rotateY(-this.angularStep);
+    } 
+    
+    // Rotate around one belt
+    // Four cases!
+    if (Math.abs(this.rightEngine - this.leftEngine) == 1){
+
+      let side = Math.abs(this.leftEngine) - Math.abs(this.rightEngine);
+      let turnDirection = -side * this.leftEngine + -side * this.rightEngine;
+
+      // 1 Move children
+      for (let i = 0; i < this.root.children.length; i++){
+        this.root.children[i].translateX(this.distanceToAxis * side);
+      }
+      // 2 Move root to reposition children
+      this.root.translateX(this.distanceToAxis  * side);
+      // 3 Rotate root
+      this.root.rotateY(turnDirection * this.angularStep / 2);
+      // 4 Move root
+      this.root.translateX(-this.distanceToAxis * side);
+      // 5 Move children
+      for (let i = 0; i < this.root.children.length; i++){
+        this.root.children[i].translateX(-this.distanceToAxis * side);
+      }
     }
+
 
     // Move forward or backward
     // TODO: USE DT?
@@ -169,10 +194,10 @@ class OBSEACrawlerEntity {
     if (this.rightEngine != 0){
       // Grips morph targets
       let value = this.gripsRight.morphTargetInfluences[0];
-      value += this.morphStep * this.leftEngine;
+      value += this.morphStep * this.rightEngine;
       this.gripsRight.morphTargetInfluences[0] = value > 1 ? value - 1 : value < 0 ? value + 1 : value; // Modular from 0 to 1
-      wRB.rotateX(this.morphStep * this.leftEngine * 30 * Math.PI / 180);
-      wRF.rotateX(this.morphStep * this.leftEngine * 30 * Math.PI / 180);
+      wRB.rotateX(this.morphStep * this.rightEngine * 30 * Math.PI / 180);
+      wRF.rotateX(this.morphStep * this.rightEngine * 30 * Math.PI / 180);
     }
   }
 
