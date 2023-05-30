@@ -258,6 +258,9 @@ class SceneManager{
 
     // Load manager
     THREE.DefaultLoadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
+      if (url.includes('OceanSurfaceMR') || url.includes('OceanSurfaceHR')){
+        debugger;
+      }
       console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
     };
 

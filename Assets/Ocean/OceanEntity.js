@@ -121,6 +121,9 @@ class OceanEntity {
 
       // Redefine loading events of the gltf loader, so the mid- and high-res surfaces are not taken into account
       const manager = new THREE.LoadingManager();
+      manager.onStart = () => {};
+      manager.onProgress = () => {};
+      manager.onLoad = () => {};
       gltfLoader = new GLTFLoader(manager);
 
       // LEVEL OF DETAIL INCREASE WHEN HIGHER RESOLUTIONS ARE LOADED
