@@ -1,0 +1,2 @@
+// Version from late June
+https://github.com/mrdoob/three.js/tree/50f36ed6c925067a193753f17cb0affddc2a855b/build
