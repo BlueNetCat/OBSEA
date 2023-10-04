@@ -11,6 +11,7 @@ import { SkyboxEntity } from '/OBSEA/Assets/Skybox/SkyboxEntity.js';
 import * as FogShader from '/OBSEA/Assets/Terrain/FogShader.js'
 import { OceanEntity } from '/OBSEA/Assets/Ocean/OceanEntity.js';
 import { OBSEABuoyEntity } from '/OBSEA/Assets/OBSEABuoy/OBSEABuoyEntity.js';
+import { UPCBuoyEntity } from '/OBSEA/Assets/UPCBuoy/UPCBuoyEntity.js';
 import { OBSEAStationEntity } from '/OBSEA/Assets/OBSEAStation/ObseaStationEntity.js';
 import { OBSEABiotopEntity } from '/OBSEA/Assets/OBSEABiotop/OBSEABiotopEntity.js'
 import { OBSEACrawlerEntity } from '/OBSEA/Assets/OBSEACrawler/CrawlerEntity.js';
@@ -52,7 +53,7 @@ class SceneManager{
     this.controls = controls;
     // TODO: limit orbit controls
     // Surface
-    camera.position.set(15, 10, 15);
+    camera.position.set(11, 7, 11);
     controls.target.set(0, 1, 0);
   // OBSEA base
   // camera.position.set(3, -16, 3);
@@ -114,6 +115,7 @@ class SceneManager{
     this.ocean = new OceanEntity(scene);
     // OBSEA Buoy
     this.obseaBuoy = new OBSEABuoyEntity(scene);
+    //this.obseaBuoy = new UPCBuoyEntity(scene);
     // OBSEA Base
     this.obseaBase = new OBSEAStationEntity(scene);
     // OBSEA Biotop
@@ -123,13 +125,13 @@ class SceneManager{
 
     // Flag
     this.flag = new FlagEntity(scene, () => {
-      this.flag.root.position.y = 1.3;
+      this.flag.root.position.y = 0.0;
     });
     
 
     // Rosa dels vents
     this.rosaVents = new RosaVentsEntity(scene);
-    this.rosaVents.root.position.y = 7;
+    this.rosaVents.root.position.y = 3.7;
     
     // Sea velocity, currents
     this.currents = new CurrentEntity(scene);
@@ -143,15 +145,15 @@ class SceneManager{
       this.windText.textObj.position.y = 9;
     });
     // Orientation text meshes
-    this.Ntext = new TextMeshEntity(scene, "N", 0.8, 0xff0000, () => {
+    this.Ntext = new TextMeshEntity(scene, "N", 0.4, 0xff0000, () => {
       this.Ntext.textObj.rotation.x = -Math.PI / 2;
       this.Ntext.textObj.position.y = 1;
-      this.Ntext.textObj.position.z = -8;
+      this.Ntext.textObj.position.z = -4;
     });
-    this.Stext = new TextMeshEntity(scene, "S", 0.8, 0xffffff, () => {
+    this.Stext = new TextMeshEntity(scene, "S", 0.4, 0xffffff, () => {
       this.Stext.textObj.rotation.x = -Math.PI / 2;
       this.Stext.textObj.position.y = 1;
-      this.Stext.textObj.position.z = 8;
+      this.Stext.textObj.position.z = 4;
     });
     // BOTTOM
     // Temperature text

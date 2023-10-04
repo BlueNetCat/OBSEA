@@ -3,7 +3,7 @@ import * as THREE from 'three';
 class RosaVentsEntity {
 
   constructor(scene){
-    const planeSize = 5;
+    const planeSize = 2.5;
 
     const loader = new THREE.TextureLoader();
     // const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');

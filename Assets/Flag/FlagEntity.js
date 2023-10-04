@@ -29,7 +29,7 @@ class FlagEntity {
       this.flagObj.frustumCulled = false; // Flag
       this.poleObj.frustumCulled = false; // Pole
 
-      this.root.scale.addScalar(2);
+      this.root.scale.multiplyScalar(2);
 
       // Create Flag Behavior
       this.flagBehavior = new FlagBehavior(this.flagObj, scene);

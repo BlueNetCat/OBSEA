@@ -9,7 +9,7 @@ class CurrentEntity {
   roots = [];
   numCurrents = 20;
 
-  scaleFactor = 5;
+  scaleFactor = 3;
 
   u = [];
   v = [];
