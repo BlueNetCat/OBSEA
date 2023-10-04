@@ -114,7 +114,9 @@ class SceneManager{
     // Ocean
     this.ocean = new OceanEntity(scene);
     // OBSEA Buoy
-    this.obseaBuoy = new OBSEABuoyEntity(scene);
+    this.buoy1 = new OBSEABuoyEntity(scene, () => this.buoy1.root.visible = false);
+    this.buoy2 = new UPCBuoyEntity(scene, ()=> this.buoy2.root.visible = true);
+    this.obseaBuoy = this.buoy2;
     //this.obseaBuoy = new UPCBuoyEntity(scene);
     // OBSEA Base
     this.obseaBase = new OBSEAStationEntity(scene);
@@ -141,8 +143,8 @@ class SceneManager{
     // SCENE TEXT
     // SURFACE
     // Wind text mesh
-    this.windText = new TextMeshEntity(scene, "", 0.25, 0x000000, () => {
-      this.windText.textObj.position.y = 9;
+    this.windText = new TextMeshEntity(scene, "", 0.2, 0x000000, () => {
+      this.windText.textObj.position.y = 5.5;
     });
     // Orientation text meshes
     this.Ntext = new TextMeshEntity(scene, "N", 0.4, 0xff0000, () => {

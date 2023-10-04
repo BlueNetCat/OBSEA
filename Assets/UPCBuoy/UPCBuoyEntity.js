@@ -5,7 +5,7 @@ class UPCBuoyEntity {
 
   isLoaded = false;
 
-  constructor(scene){
+  constructor(scene, onload){
     // https://www.youtube.com/watch?v=6LA8vEB47Nk&ab_channel=DirkTeucher
     const gltfLoader = new GLTFLoader();
     gltfLoader.load('/OBSEA/Assets/UPCBuoy/UPCBuoy.glb', (gltf) => {
@@ -29,10 +29,12 @@ class UPCBuoyEntity {
       
       });
       
-
+      
       scene.add(root);
       this.isLoaded = true;
 
+      if (onload)
+        onload();
     });
   }
 }

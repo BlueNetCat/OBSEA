@@ -325,6 +325,8 @@ export default {
           window.eventBus.emit('DataStreamsBar_dataDailyUpdate', ddData);
         }
       }
+
+      window.eventBus.emit('DataStreamsBar_selectedDateChanged', isoString);
     },
 
 

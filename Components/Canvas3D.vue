@@ -116,6 +116,7 @@ export default {
           this.sceneManager.salText.removeText();
 
     };
+    // Generate swell
     const generateSwell = (Hm0, Mdir) => {
       // Calculate steepness
       let steepness = 0.1 + 0.2 * Math.min(1, Hm0/3);
@@ -126,6 +127,28 @@ export default {
     }
     window.eventBus.on('DataStreamsBar_dataDailyUpdate', updateData);
     window.eventBus.on('DataStreamsBar_dataHalfHourlyUpdate', updateData);
+
+
+    const updateBuoy = (tmst) => {
+      // Type of buoy according to date
+      let selectedDate = new Date(tmst);
+      if (selectedDate < new Date(2021, 11, 12)){
+        this.sceneManager.obseaBuoy = this.sceneManager.buoy1;
+        this.sceneManager.buoy1.root.visible = true;
+        this.sceneManager.buoy1.setOpacity(1);
+        this.sceneManager.buoy2.root.visible = false;
+      } else if (selectedDate < new Date(2022, 7, 2)){
+        this.sceneManager.obseaBuoy = this.buoy1;
+        this.sceneManager.buoy1.root.visible = true;
+        this.sceneManager.buoy1.setOpacity(0.2);
+        this.sceneManager.buoy2.root.visible = false;
+      } else {
+        this.sceneManager.obseaBuoy = this.sceneManager.buoy2;
+        this.sceneManager.buoy1.root.visible = false;
+        this.sceneManager.buoy2.root.visible = true;
+      }
+    }
+    window.eventBus.on('DataStreamsBar_selectedDateChanged', updateBuoy);
 
     // ***** SEA PANEL *****
     // Change ocean steepness
